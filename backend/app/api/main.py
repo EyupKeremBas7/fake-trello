@@ -1,7 +1,6 @@
-from backend.app.api.routes import boards
 from fastapi import APIRouter
 
-from app.api.routes import login, private, users, utils
+from app.api.routes import login, private, users, utils, boards
 from app.core.config import settings
 
 api_router = APIRouter()

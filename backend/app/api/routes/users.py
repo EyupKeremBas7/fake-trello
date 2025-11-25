@@ -12,9 +12,7 @@ from app.api.deps import (
 )
 from app.core.config import settings
 from app.core.security import get_password_hash, verify_password
-from app.models import (
-    Item,
-    Message,
+from app.models.users import (
     UpdatePassword,
     User,
     UserCreate,
@@ -24,6 +22,8 @@ from app.models import (
     UserUpdate,
     UserUpdateMe,
 )
+from app.models.boards import Board
+from app.models.auth import Message
 from app.utils import generate_new_account_email, send_email
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -219,7 +219,7 @@ def delete_user(
         raise HTTPException(
             status_code=403, detail="Super users are not allowed to delete themselves"
         )
-    statement = delete(Item).where(col(Item.owner_id) == user_id)
+    statement = delete(Board).where(col(Board.owner_id) == user_id)
     session.exec(statement)  # type: ignore
     session.delete(user)
     session.commit()

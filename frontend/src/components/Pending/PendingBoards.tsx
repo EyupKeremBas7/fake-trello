@@ -1,7 +1,7 @@
 import { Table } from "@chakra-ui/react"
 import { SkeletonText } from "../ui/skeleton"
 
-const PendingItems = () => (
+const PendingBoards = () => (
   <Table.Root size={{ base: "sm", md: "md" }}>
     <Table.Header>
       <Table.Row>
@@ -32,4 +32,4 @@ const PendingItems = () => (
   </Table.Root>
 )
 
-export default PendingItems
+export default PendingBoards

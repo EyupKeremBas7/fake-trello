@@ -17,11 +17,18 @@ fileConfig(config.config_file_name)
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
+# filepath: c:\Users\eyupm\OneDrive\Desktop\repo\fake-trello\backend\app\alembic\env.py
+# ...existing code...
+# target_metadata = mymodel.Base.metadata
+# target_metadata = None
 
-from app.models import SQLModel  # noqa
+from sqlmodel import SQLModel # SQLModel'i kütüphaneden al
+from app.models import *      # Modelleri yükle ki metadata dolsun
+
 from app.core.config import settings # noqa
 
 target_metadata = SQLModel.metadata
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:

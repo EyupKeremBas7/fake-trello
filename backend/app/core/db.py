@@ -2,14 +2,11 @@ from sqlmodel import Session, create_engine, select
 
 from app import crud
 from app.core.config import settings
-from app.models import User, UserCreate
+from app.models.users import User, UserCreate
+
+from app.models import lists, users,workspaces,boards,cards
 
 engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
-
-
-# make sure all SQLModel models are imported (app.models) before initializing DB
-# otherwise, SQLModel might fail to initialize relationships properly
-# for more details: https://github.com/fastapi/full-stack-fastapi-template/issues/28
 
 
 def init_db(session: Session) -> None:

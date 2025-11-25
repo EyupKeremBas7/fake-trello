@@ -1,8 +1,9 @@
 import uuid
-
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
-
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from app.models.boards import Board
 
 # Shared properties
 class UserBase(SQLModel):
@@ -43,7 +44,7 @@ class UpdatePassword(SQLModel):
 class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
-    Boards: list["Board"] = Relationship(back_populates="owner", cascade_delete=True)
+    boards: list["Board"] = Relationship(back_populates="owner", cascade_delete=True)
 
 
 # Properties to return via API, id is always required
@@ -54,60 +55,3 @@ class UserPublic(UserBase):
 class UsersPublic(SQLModel):
     data: list[UserPublic]
     count: int
-
-
-# Shared properties
-class BoardBase(SQLModel):
-    title: str = Field(min_length=1, max_length=255)
-    description: str | None = Field(default=None, max_length=255)
-
-
-# Properties to receive on Board creation
-class BoardCreate(BoardBase):
-    pass
-
-
-# Properties to receive on Board update
-class BoardUpdate(BoardBase):
-    title: str | None = Field(default=None, min_length=1, max_length=255)  # type: ignore
-
-
-# Database model, database table inferred from class name
-class Board(BoardBase, table=True):
-    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    owner_id: uuid.UUID = Field(
-        foreign_key="user.id", nullable=False, ondelete="CASCADE"
-    )
-    owner: User | None = Relationship(back_populates="Boards")
-
-
-# Properties to return via API, id is always required
-class BoardsPublic(BoardBase):
-    id: uuid.UUID
-    owner_id: uuid.UUID
-
-
-class BoardsPublic(SQLModel):
-    data: list[BoardsPublic]
-    count: int
-
-
-# Generic message
-class Message(SQLModel):
-    message: str
-
-
-# JSON payload containing access token
-class Token(SQLModel):
-    access_token: str
-    token_type: str = "bearer"
-
-
-# Contents of JWT token
-class TokenPayload(SQLModel):
-    sub: str | None = None
-
-
-class NewPassword(SQLModel):
-    token: str
-    new_password: str = Field(min_length=8, max_length=128)

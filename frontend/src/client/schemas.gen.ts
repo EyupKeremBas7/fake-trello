@@ -58,7 +58,7 @@ export const Body_login_login_access_tokenSchema = {
 export const HTTPValidationErrorSchema = {
     properties: {
         detail: {
-            items: {
+            Boards: {
                 '$ref': '#/components/schemas/ValidationError'
             },
             type: 'array',
@@ -69,7 +69,7 @@ export const HTTPValidationErrorSchema = {
     title: 'HTTPValidationError'
 } as const;
 
-export const ItemCreateSchema = {
+export const BoardCreateSchema = {
     properties: {
         title: {
             type: 'string',
@@ -92,10 +92,10 @@ export const ItemCreateSchema = {
     },
     type: 'object',
     required: ['title'],
-    title: 'ItemCreate'
+    title: 'BoardCreate'
 } as const;
 
-export const ItemPublicSchema = {
+export const BoardPublicSchema = {
     properties: {
         title: {
             type: 'string',
@@ -128,10 +128,10 @@ export const ItemPublicSchema = {
     },
     type: 'object',
     required: ['title', 'id', 'owner_id'],
-    title: 'ItemPublic'
+    title: 'BoardPublic'
 } as const;
 
-export const ItemUpdateSchema = {
+export const BoardUpdateSchema = {
     properties: {
         title: {
             anyOf: [
@@ -160,14 +160,14 @@ export const ItemUpdateSchema = {
         }
     },
     type: 'object',
-    title: 'ItemUpdate'
+    title: 'BoardUpdate'
 } as const;
 
-export const ItemsPublicSchema = {
+export const BoardsPublicSchema = {
     properties: {
         data: {
-            items: {
-                '$ref': '#/components/schemas/ItemPublic'
+            Boards: {
+                '$ref': '#/components/schemas/BoardPublic'
             },
             type: 'array',
             title: 'Data'
@@ -179,7 +179,7 @@ export const ItemsPublicSchema = {
     },
     type: 'object',
     required: ['data', 'count'],
-    title: 'ItemsPublic'
+    title: 'BoardsPublic'
 } as const;
 
 export const MessageSchema = {
@@ -479,7 +479,7 @@ export const UserUpdateMeSchema = {
 export const UsersPublicSchema = {
     properties: {
         data: {
-            items: {
+            Boards: {
                 '$ref': '#/components/schemas/UserPublic'
             },
             type: 'array',
@@ -498,7 +498,7 @@ export const UsersPublicSchema = {
 export const ValidationErrorSchema = {
     properties: {
         loc: {
-            items: {
+            Boards: {
                 anyOf: [
                     {
                         type: 'string'

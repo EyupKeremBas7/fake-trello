@@ -5,7 +5,8 @@ from fastapi import APIRouter, HTTPException
 from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
-from app.models import Board, BoardCreate, BoardsPublic, BoardUpdate, Message
+from app.models.boards import Board, BoardCreate, BoardsPublic, BoardUpdate
+from app.models.auth import  Message
 
 router = APIRouter(prefix="/boards", tags=["boards"])
 

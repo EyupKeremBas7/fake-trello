@@ -13,24 +13,24 @@ export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
 
-export type ItemCreate = {
+export type BoardCreate = {
     title: string;
     description?: (string | null);
 };
 
-export type ItemPublic = {
+export type BoardPublic = {
     title: string;
     description?: (string | null);
     id: string;
     owner_id: string;
 };
 
-export type ItemsPublic = {
-    data: Array<ItemPublic>;
+export type BoardsPublic = {
+    data: Array<BoardPublic>;
     count: number;
 };
 
-export type ItemUpdate = {
+export type BoardUpdate = {
     title?: (string | null);
     description?: (string | null);
 };
@@ -107,37 +107,37 @@ export type ValidationError = {
     type: string;
 };
 
-export type ItemsReadItemsData = {
+export type BoardsReadBoardsData = {
     limit?: number;
     skip?: number;
 };
 
-export type ItemsReadItemsResponse = (ItemsPublic);
+export type BoardsReadBoardsResponse = (BoardsPublic);
 
-export type ItemsCreateItemData = {
-    requestBody: ItemCreate;
+export type BoardsCreateBoardData = {
+    requestBody: BoardCreate;
 };
 
-export type ItemsCreateItemResponse = (ItemPublic);
+export type BoardsCreateBoardResponse = (BoardPublic);
 
-export type ItemsReadItemData = {
+export type BoardsReadBoardData = {
     id: string;
 };
 
-export type ItemsReadItemResponse = (ItemPublic);
+export type BoardsReadBoardResponse = (BoardPublic);
 
-export type ItemsUpdateItemData = {
+export type BoardsUpdateBoardData = {
     id: string;
-    requestBody: ItemUpdate;
+    requestBody: BoardUpdate;
 };
 
-export type ItemsUpdateItemResponse = (ItemPublic);
+export type BoardsUpdateBoardResponse = (BoardPublic);
 
-export type ItemsDeleteItemData = {
+export type BoardsDeleteBoardData = {
     id: string;
 };
 
-export type ItemsDeleteItemResponse = (Message);
+export type BoardsDeleteBoardResponse = (Message);
 
 export type LoginLoginAccessTokenData = {
     formData: Body_login_login_access_token;

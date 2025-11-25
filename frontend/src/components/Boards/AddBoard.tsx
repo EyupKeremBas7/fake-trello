@@ -11,7 +11,7 @@ import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FaPlus } from "react-icons/fa"
 
-import { type ItemCreate, ItemsService } from "@/client"
+import { type BoardCreate, BoardsService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
@@ -26,7 +26,7 @@ import {
 } from "../ui/dialog"
 import { Field } from "../ui/field"
 
-const AddItem = () => {
+const AddBoard = () => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
@@ -35,7 +35,7 @@ const AddItem = () => {
     handleSubmit,
     reset,
     formState: { errors, isValid, isSubmitting },
-  } = useForm<ItemCreate>({
+  } = useForm<BoardCreate>({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
@@ -45,10 +45,10 @@ const AddItem = () => {
   })
 
   const mutation = useMutation({
-    mutationFn: (data: ItemCreate) =>
-      ItemsService.createItem({ requestBody: data }),
+    mutationFn: (data: BoardCreate) =>
+      BoardsService.createBoard({ requestBody: data }),
     onSuccess: () => {
-      showSuccessToast("Item created successfully.")
+      showSuccessToast("Board created successfully.")
       reset()
       setIsOpen(false)
     },
@@ -56,11 +56,11 @@ const AddItem = () => {
       handleError(err)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["items"] })
+      queryClient.invalidateQueries({ queryKey: ["Boards"] })
     },
   })
 
-  const onSubmit: SubmitHandler<ItemCreate> = (data) => {
+  const onSubmit: SubmitHandler<BoardCreate> = (data) => {
     mutation.mutate(data)
   }
 
@@ -72,18 +72,18 @@ const AddItem = () => {
       onOpenChange={({ open }) => setIsOpen(open)}
     >
       <DialogTrigger asChild>
-        <Button value="add-item" my={4}>
+        <Button value="add-Board" my={4}>
           <FaPlus fontSize="16px" />
-          Add Item
+          Add Board
         </Button>
       </DialogTrigger>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Add Item</DialogTitle>
+            <DialogTitle>Add Board</DialogTitle>
           </DialogHeader>
           <DialogBody>
-            <Text mb={4}>Fill in the details to add a new item.</Text>
+            <Text mb={4}>Fill in the details to add a new Board.</Text>
             <VStack gap={4}>
               <Field
                 required
@@ -140,4 +140,4 @@ const AddItem = () => {
   )
 }
 
-export default AddItem
+export default AddBoard
