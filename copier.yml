@@ -52,7 +52,7 @@ postgres_password:
     'The password for the PostgreSQL database, stored in .env,
     you can generate one with:
     python -c "import secrets; print(secrets.token_urlsafe(32))"'
-  default: changethis
+  default: 1
 
 sentry_dsn:
   type: str
