@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { BoardsReadBoardsData, BoardsReadBoardsResponse, BoardsCreateBoardData, BoardsCreateBoardResponse, BoardsReadBoardData, BoardsReadBoardResponse, BoardsUpdateBoardData, BoardsUpdateBoardResponse, BoardsDeleteBoardData, BoardsDeleteBoardResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse } from './types.gen';
+import type { BoardsReadBoardsData, BoardsReadBoardsResponse, BoardsCreateBoardData, BoardsCreateBoardResponse, BoardsReadBoardData, BoardsReadBoardResponse, BoardsUpdateBoardData, BoardsUpdateBoardResponse, BoardsDeleteBoardData, BoardsDeleteBoardResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WorkspacesReadWorkspacesData, WorkspacesReadWorkspacesResponse, WorkspacesCreateWorkspaceData, WorkspacesCreateWorkspaceResponse, WorkspacesReadWorkspaceData, WorkspacesReadWorkspaceResponse, WorkspacesUpdateWorkspaceData, WorkspacesUpdateWorkspaceResponse, WorkspacesDeleteWorkspaceData, WorkspacesDeleteWorkspaceResponse } from './types.gen';
 
 export class BoardsService {
     /**
@@ -18,7 +18,7 @@ export class BoardsService {
     public static readBoards(data: BoardsReadBoardsData = {}): CancelablePromise<BoardsReadBoardsResponse> {
         return __request(OpenAPI, {
             method: 'GET',
-            url: '/api/v1/Boards/',
+            url: '/api/v1/boards/',
             query: {
                 skip: data.skip,
                 limit: data.limit
@@ -34,7 +34,7 @@ export class BoardsService {
      * Create new Board.
      * @param data The data for the request.
      * @param data.requestBody
-     * @returns BoardPublic Successful Response
+     * @returns BoardsPublic Successful Response
      * @throws ApiError
      */
     public static createBoard(data: BoardsCreateBoardData): CancelablePromise<BoardsCreateBoardResponse> {
@@ -54,7 +54,7 @@ export class BoardsService {
      * Get Board by ID.
      * @param data The data for the request.
      * @param data.id
-     * @returns BoardPublic Successful Response
+     * @returns BoardsPublic Successful Response
      * @throws ApiError
      */
     public static readBoard(data: BoardsReadBoardData): CancelablePromise<BoardsReadBoardResponse> {
@@ -76,7 +76,7 @@ export class BoardsService {
      * @param data The data for the request.
      * @param data.id
      * @param data.requestBody
-     * @returns BoardPublic Successful Response
+     * @returns BoardsPublic Successful Response
      * @throws ApiError
      */
     public static updateBoard(data: BoardsUpdateBoardData): CancelablePromise<BoardsUpdateBoardResponse> {
@@ -463,6 +463,117 @@ export class UtilsService {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/api/v1/utils/health-check/'
+        });
+    }
+}
+
+export class WorkspacesService {
+    /**
+     * Read Workspaces
+     * Retrieve Workspaces.
+     * @param data The data for the request.
+     * @param data.skip
+     * @param data.limit
+     * @returns WorkspacesPublic Successful Response
+     * @throws ApiError
+     */
+    public static readWorkspaces(data: WorkspacesReadWorkspacesData = {}): CancelablePromise<WorkspacesReadWorkspacesResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/workspaces/',
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Workspace
+     * Create new Workspace.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns WorkspacesPublic Successful Response
+     * @throws ApiError
+     */
+    public static createWorkspace(data: WorkspacesCreateWorkspaceData): CancelablePromise<WorkspacesCreateWorkspaceResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/workspaces/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Workspace
+     * Get Workspace by ID.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns WorkspacesPublic Successful Response
+     * @throws ApiError
+     */
+    public static readWorkspace(data: WorkspacesReadWorkspaceData): CancelablePromise<WorkspacesReadWorkspaceResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/workspaces/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Workspace
+     * Update an Workspace.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.requestBody
+     * @returns WorkspacesPublic Successful Response
+     * @throws ApiError
+     */
+    public static updateWorkspace(data: WorkspacesUpdateWorkspaceData): CancelablePromise<WorkspacesUpdateWorkspaceResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/workspaces/{id}',
+            path: {
+                id: data.id
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Workspace
+     * Delete an Workspace.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static deleteWorkspace(data: WorkspacesDeleteWorkspaceData): CancelablePromise<WorkspacesDeleteWorkspaceResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/workspaces/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
         });
     }
 }

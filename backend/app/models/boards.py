@@ -2,6 +2,7 @@ import uuid
 from typing import List, TYPE_CHECKING # TYPE_CHECKING ekledik
 from sqlmodel import Field, Relationship, SQLModel
 from app.models.enums import Visibility
+
 if TYPE_CHECKING:
     from app.models.workspaces import Workspace
     from app.models.lists import BoardList

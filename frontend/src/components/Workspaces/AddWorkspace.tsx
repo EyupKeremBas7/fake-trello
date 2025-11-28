@@ -1,7 +1,7 @@
 import {
   Button,
-  ButtonGroup,
   DialogActionTrigger,
+  DialogTitle,
   Input,
   Text,
   VStack,
@@ -9,9 +9,10 @@ import {
 import { useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
-import { FaExchangeAlt } from "react-icons/fa"
+import { FaPlus } from "react-icons/fa"
 
-import { type ApiError, type BoardPublic, BoardsService } from "@/client"
+import { type WorkspaceCreate, WorkspacesService } from "@/client"
+import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
 import {
@@ -21,45 +22,36 @@ import {
   DialogFooter,
   DialogHeader,
   DialogRoot,
-  DialogTitle,
   DialogTrigger,
 } from "../ui/dialog"
 import { Field } from "../ui/field"
 
-interface EditBoardProps {
-  Board: BoardPublic
-}
-
-interface BoardUpdateForm {
-  name: string
-  visibility?: 'private' | 'workspace' | 'public'
-  background_image?: string
-}
-
-const EditBoard = ({ Board }: EditBoardProps) => {
+const AddWorkspace = () => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
+  
   const {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isSubmitting },
-  } = useForm<BoardUpdateForm>({
+    formState: { errors, isValid, isSubmitting },
+  } = useForm<WorkspaceCreate>({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
-      name: Board.name,
-      visibility: Board.visibility,
-      background_image: Board.background_image || "",
+      name: "",
+      visibility: "private", 
+      background_image: "",
+      // workspace_id burada olmamalı, yeni bir workspace oluşturuyoruz
     },
   })
 
   const mutation = useMutation({
-    mutationFn: (data: BoardUpdateForm) =>
-      BoardsService.updateBoard({ id: Board.id, requestBody: data }),
+    mutationFn: (data: WorkspaceCreate) =>
+      WorkspacesService.createWorkspace({ requestBody: data }),
     onSuccess: () => {
-      showSuccessToast("Board updated successfully.")
+      showSuccessToast("Workspace created successfully.")
       reset()
       setIsOpen(false)
     },
@@ -67,11 +59,11 @@ const EditBoard = ({ Board }: EditBoardProps) => {
       handleError(err)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["Boards"] })
+      queryClient.invalidateQueries({ queryKey: ["Workspaces"] })
     },
   })
 
-  const onSubmit: SubmitHandler<BoardUpdateForm> = async (data) => {
+  const onSubmit: SubmitHandler<WorkspaceCreate> = (data) => {
     mutation.mutate(data)
   }
 
@@ -83,18 +75,18 @@ const EditBoard = ({ Board }: EditBoardProps) => {
       onOpenChange={({ open }) => setIsOpen(open)}
     >
       <DialogTrigger asChild>
-        <Button variant="ghost">
-          <FaExchangeAlt fontSize="16px" />
-          Edit Board
+        <Button value="add-Workspace" my={4}>
+          <FaPlus fontSize="16px" />
+          Add Workspace
         </Button>
       </DialogTrigger>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Edit Board</DialogTitle>
+            <DialogTitle>Add Workspace</DialogTitle>
           </DialogHeader>
           <DialogBody>
-            <Text mb={4}>Update the Board details below.</Text>
+            <Text mb={4}>Fill in the details to add a new Workspace.</Text>
             <VStack gap={4}>
               <Field
                 required
@@ -104,14 +96,14 @@ const EditBoard = ({ Board }: EditBoardProps) => {
               >
                 <Input
                   {...register("name", {
-                    required: "Name is required",
+                    required: "Name is required.",
                   })}
                   placeholder="Name"
                   type="text"
                 />
               </Field>
 
-              {}
+              {/* Visibility alanı */}
               <Field
                 label="Visibility"
                 invalid={!!errors.visibility}
@@ -131,24 +123,28 @@ const EditBoard = ({ Board }: EditBoardProps) => {
                   <option value="public">Public</option>
                 </select>
               </Field>
+
             </VStack>
           </DialogBody>
 
           <DialogFooter gap={2}>
-            <ButtonGroup>
-              <DialogActionTrigger asChild>
-                <Button
-                  variant="subtle"
-                  colorPalette="gray"
-                  disabled={isSubmitting}
-                >
-                  Cancel
-                </Button>
-              </DialogActionTrigger>
-              <Button variant="solid" type="submit" loading={isSubmitting}>
-                Save
+            <DialogActionTrigger asChild>
+              <Button
+                variant="subtle"
+                colorPalette="gray"
+                disabled={isSubmitting}
+              >
+                Cancel
               </Button>
-            </ButtonGroup>
+            </DialogActionTrigger>
+            <Button
+              variant="solid"
+              type="submit"
+              disabled={!isValid}
+              loading={isSubmitting}
+            >
+              Save
+            </Button>
           </DialogFooter>
         </form>
         <DialogCloseTrigger />
@@ -157,4 +153,4 @@ const EditBoard = ({ Board }: EditBoardProps) => {
   )
 }
 
-export default EditBoard
+export default AddWorkspace

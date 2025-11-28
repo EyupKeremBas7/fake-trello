@@ -88,28 +88,37 @@ function BoardsTable() {
         <Table.Header>
           <Table.Row>
             <Table.ColumnHeader w="sm">ID</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Title</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Description</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">Name</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">Visibility</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">Workspace ID</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">Owner ID</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">Actions</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Workspace</Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
         <Table.Body>
           {Boards?.map((Board) => (
             <Table.Row key={Board.id} opacity={isPlaceholderData ? 0.5 : 1}>
+
               <Table.Cell truncate maxW="sm">
                 {Board.id}
               </Table.Cell>
+
               <Table.Cell truncate maxW="sm">
-                {Board.title}
+                {Board.name}
               </Table.Cell>
-              <Table.Cell
-                color={!Board.description ? "gray" : "inherit"}
-                truncate
-                maxW="30%"
-              >
-                {Board.description || "N/A"}
+
+              <Table.Cell>
+                {Board.visibility || "N/A"}
               </Table.Cell>
+
+              <Table.Cell>
+                {Board.workspace_id || "N/A"}
+              </Table.Cell>
+
+              <Table.Cell>
+                {Board.owner_id}
+              </Table.Cell>
+
               <Table.Cell>
                 <BoardActionsMenu Board={Board} />
               </Table.Cell>

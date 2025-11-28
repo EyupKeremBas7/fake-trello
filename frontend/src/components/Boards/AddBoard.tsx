@@ -30,6 +30,7 @@ const AddBoard = () => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
+  
   const {
     register,
     handleSubmit,
@@ -39,8 +40,10 @@ const AddBoard = () => {
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
-      title: "",
-      description: "",
+      name: "",
+      visibility: "private", 
+      background_image: "",
+      workspace_id: "", 
     },
   })
 
@@ -87,30 +90,57 @@ const AddBoard = () => {
             <VStack gap={4}>
               <Field
                 required
-                invalid={!!errors.title}
-                errorText={errors.title?.message}
-                label="Title"
+                invalid={!!errors.name}
+                errorText={errors.name?.message}
+                label="Name"
               >
                 <Input
-                  {...register("title", {
-                    required: "Title is required.",
+                  {...register("name", {
+                    required: "Name is required.",
                   })}
-                  placeholder="Title"
+                  placeholder="Name"
                   type="text"
                 />
               </Field>
 
+              {/* Description alanı kaldırıldı, yerine Workspace ID geldi */}
               <Field
-                invalid={!!errors.description}
-                errorText={errors.description?.message}
-                label="Description"
+                required
+                invalid={!!errors.workspace_id}
+                errorText={errors.workspace_id?.message}
+                label="Workspace ID"
               >
                 <Input
-                  {...register("description")}
-                  placeholder="Description"
+                  {...register("workspace_id", {
+                    required: "Workspace ID is required.",
+                  })}
+                  placeholder="Workspace ID"
                   type="text"
                 />
               </Field>
+
+              {/* Visibility alanı eklendi */}
+              <Field
+                label="Visibility"
+                invalid={!!errors.visibility}
+                errorText={errors.visibility?.message}
+              >
+                {/* Chakra UI Select veya Native Select kullanılabilir */}
+                <select
+                  {...register("visibility")}
+                  style={{ 
+                    width: "100%", 
+                    padding: "8px", 
+                    borderRadius: "4px", 
+                    border: "1px solid #E2E8F0" 
+                  }}
+                >
+                  <option value="private">Private</option>
+                  <option value="workspace">Workspace</option>
+                  <option value="public">Public</option>
+                </select>
+              </Field>
+
             </VStack>
           </DialogBody>
 

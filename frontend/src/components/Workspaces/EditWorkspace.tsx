@@ -11,7 +11,7 @@ import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FaExchangeAlt } from "react-icons/fa"
 
-import { type ApiError, type BoardPublic, BoardsService } from "@/client"
+import { type ApiError, type WorkspacePublic, WorkspacesService } from "@/client"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
 import {
@@ -26,17 +26,17 @@ import {
 } from "../ui/dialog"
 import { Field } from "../ui/field"
 
-interface EditBoardProps {
-  Board: BoardPublic
+interface EditWorkspaceProps {
+  Workspace: WorkspacePublic
 }
 
-interface BoardUpdateForm {
+interface WorkspaceUpdateForm {
   name: string
   visibility?: 'private' | 'workspace' | 'public'
   background_image?: string
 }
 
-const EditBoard = ({ Board }: EditBoardProps) => {
+const EditWorkspace = ({ Workspace }: EditWorkspaceProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
@@ -45,21 +45,21 @@ const EditBoard = ({ Board }: EditBoardProps) => {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<BoardUpdateForm>({
+  } = useForm<WorkspaceUpdateForm>({
     mode: "onBlur",
     criteriaMode: "all",
     defaultValues: {
-      name: Board.name,
-      visibility: Board.visibility,
-      background_image: Board.background_image || "",
+      name: Workspace.name,
+      visibility: Workspace.visibility,
+      background_image: Workspace.background_image || "",
     },
   })
 
   const mutation = useMutation({
-    mutationFn: (data: BoardUpdateForm) =>
-      BoardsService.updateBoard({ id: Board.id, requestBody: data }),
+    mutationFn: (data: WorkspaceUpdateForm) =>
+      WorkspacesService.updateWorkspace({ id: Workspace.id, requestBody: data }),
     onSuccess: () => {
-      showSuccessToast("Board updated successfully.")
+      showSuccessToast("Workspace updated successfully.")
       reset()
       setIsOpen(false)
     },
@@ -67,11 +67,11 @@ const EditBoard = ({ Board }: EditBoardProps) => {
       handleError(err)
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ["Boards"] })
+      queryClient.invalidateQueries({ queryKey: ["Workspaces"] })
     },
   })
 
-  const onSubmit: SubmitHandler<BoardUpdateForm> = async (data) => {
+  const onSubmit: SubmitHandler<WorkspaceUpdateForm> = async (data) => {
     mutation.mutate(data)
   }
 
@@ -85,16 +85,16 @@ const EditBoard = ({ Board }: EditBoardProps) => {
       <DialogTrigger asChild>
         <Button variant="ghost">
           <FaExchangeAlt fontSize="16px" />
-          Edit Board
+          Edit Workspace
         </Button>
       </DialogTrigger>
       <DialogContent>
         <form onSubmit={handleSubmit(onSubmit)}>
           <DialogHeader>
-            <DialogTitle>Edit Board</DialogTitle>
+            <DialogTitle>Edit Workspace</DialogTitle>
           </DialogHeader>
           <DialogBody>
-            <Text mb={4}>Update the Board details below.</Text>
+            <Text mb={4}>Update the Workspace details below.</Text>
             <VStack gap={4}>
               <Field
                 required
@@ -111,7 +111,6 @@ const EditBoard = ({ Board }: EditBoardProps) => {
                 />
               </Field>
 
-              {}
               <Field
                 label="Visibility"
                 invalid={!!errors.visibility}
@@ -157,4 +156,4 @@ const EditBoard = ({ Board }: EditBoardProps) => {
   )
 }
 
-export default EditBoard
+export default EditWorkspace
