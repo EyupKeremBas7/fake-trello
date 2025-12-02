@@ -16,95 +16,95 @@ def read_cards(
     session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
 ) -> Any:
     """
-    Retrieve Boards.
+    Retrieve Cards.
     """
 
     if current_user.is_superuser:
-        count_statement = select(func.count()).select_from(Board)
+        count_statement = select(func.count()).select_from(Card)
         count = session.exec(count_statement).one()
-        statement = select(Board).offset(skip).limit(limit)
-        boards = session.exec(statement).all() 
+        statement = select(Card).offset(skip).limit(limit)
+        cards = session.exec(statement).all() 
     else:
         count_statement = (
             select(func.count())
-            .select_from(Board)
-            .where(Board.owner_id == current_user.id)
+            .select_from(Card)
+            .where(Card.owner_id == current_user.id)
         )
         count = session.exec(count_statement).one()
         statement = (
-            select(Board)
-            .where(Board.owner_id == current_user.id)
+            select(Card)
+            .where(Card.owner_id == current_user.id)
             .offset(skip)
             .limit(limit)
         )
-        boards = session.exec(statement).all() 
+        cards = session.exec(statement).all() 
 
-    return BoardsPublic(data=boards, count=count)
+    return CardsPublic(data=cards, count=count)
 
-@router.get("/{id}", response_model=Board) 
-def read_board(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
+@router.get("/{id}", response_model=Card) 
+def read_card(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
     """
-    Get Board by ID.
+    Get Card by ID.
     """
-    board = session.get(Board, id) 
-    if not board:
-        raise HTTPException(status_code=404, detail="Board not found")
-    if not current_user.is_superuser and (board.owner_id != current_user.id):
+    Card = session.get(Card, id) 
+    if not Card:
+        raise HTTPException(status_code=404, detail="Card not found")
+    if not current_user.is_superuser and (Card.owner_id != current_user.id):
         raise HTTPException(status_code=400, detail="Not enough permissions")
-    return board
+    return Card
 
 
-@router.post("/", response_model=Board) 
-def create_board(
-    *, session: SessionDep, current_user: CurrentUser, board_in: BoardCreate
+@router.post("/", response_model=Card) 
+def create_card(
+    *, session: SessionDep, current_user: CurrentUser, card_in: CardCreate
 ) -> Any:
     """
-    Create new Board.
+    Create new Card.
     """
-    board = Board.model_validate(board_in, update={"owner_id": current_user.id})
-    session.add(board)
+    Card = Card.model_validate(card_in, update={"owner_id": current_user.id})
+    session.add(card)
     session.commit()
-    session.refresh(board)
-    return board
+    session.refresh(card)
+    return card
 
 
-@router.put("/{id}", response_model=Board)
-def update_board(
+@router.put("/{id}", response_model=Card)
+def update_card(
     *,
     session: SessionDep,
     current_user: CurrentUser,
     id: uuid.UUID,
-    board_in: BoardUpdate,
+    card_in: CardUpdate,
 ) -> Any:
     """
-    Update a Board.
+    Update a Card.
     """
-    board = session.get(Board, id)
-    if not board:
-        raise HTTPException(status_code=404, detail="Board not found")
-    if not current_user.is_superuser and (board.owner_id != current_user.id):
+    card = session.get(Card, id)
+    if not card:
+        raise HTTPException(status_code=404, detail="Card not found")
+    if not current_user.is_superuser and (card.owner_id != current_user.id):
         raise HTTPException(status_code=400, detail="Not enough permissions")
     
-    update_dict = board_in.model_dump(exclude_unset=True)
-    board.sqlmodel_update(update_dict)
-    session.add(board)
+    update_dict = card_in.model_dump(exclude_unset=True)
+    card.sqlmodel_update(update_dict)
+    session.add(card)
     session.commit()
-    session.refresh(board)
-    return board
+    session.refresh(card)
+    return card
 
 
 @router.delete("/{id}")
-def delete_board(
+def delete_card(
     session: SessionDep, current_user: CurrentUser, id: uuid.UUID
 ) -> Message:
     """
-    Delete a Board.
+    Delete a Card.
     """
-    board = session.get(Board, id)
-    if not board:
-        raise HTTPException(status_code=404, detail="Board not found")
-    if not current_user.is_superuser and (board.owner_id != current_user.id):
+    card = session.get(Card, id)
+    if not card:
+        raise HTTPException(status_code=404, detail="Card not found")
+    if not current_user.is_superuser and (Card.owner_id != current_user.id):
         raise HTTPException(status_code=400, detail="Not enough permissions")
-    session.delete(board)
+    session.delete(card)
     session.commit()
-    return Message(message="Board deleted successfully")
+    return Message(message="Card deleted successfully")
