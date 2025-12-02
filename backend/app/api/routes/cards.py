@@ -5,14 +5,14 @@ from fastapi import APIRouter, HTTPException
 from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
-from app.models.boards import Board, BoardCreate, BoardsPublic, BoardUpdate
+from app.models.cards import Card, CardCreate, CardsPublic, CardUpdate
 from app.models.auth import Message
 
-router = APIRouter(prefix="/boards", tags=["boards"])
+router = APIRouter(prefix="/cards", tags=["cards"])
 
 
-@router.get("/", response_model=BoardsPublic)
-def read_boards(
+@router.get("/", response_model=CardsPublic)
+def read_cards(
     session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
 ) -> Any:
     """

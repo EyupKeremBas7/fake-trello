@@ -2,6 +2,14 @@ import {
   Button,
   ButtonGroup,
   DialogActionTrigger,
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogRoot,
+  DialogTitle,
+  DialogTrigger,
   Input,
   Text,
   VStack,
@@ -11,35 +19,31 @@ import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FaExchangeAlt } from "react-icons/fa"
 
-import { type ApiError, type WorkspacePublic, WorkspacesService } from "@/client"
-import useCustomToast from "@/hooks/useCustomToast"
-import { handleError } from "@/utils"
 import {
-  DialogBody,
-  DialogCloseTrigger,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogRoot,
-  DialogTitle,
-  DialogTrigger,
-} from "../ui/dialog"
+  type Visibility,
+  WorkspacesService,
+  type WorkspaceUpdate,
+} from "@/client"
+import type { ApiError } from "@/client/core/ApiError"
+import useCustomToast from "@/hooks/useCustomToast"
+import type { WorkspacePublicWithMeta } from "./WorkspacePublicWithMeta"
+import { handleError } from "@/utils"
 import { Field } from "../ui/field"
 
-interface EditWorkspaceProps {
-  Workspace: WorkspacePublic
+type WorkspaceUpdateForm = WorkspaceUpdate & {
+  visibility?: Visibility
+  background_image?: string | null
 }
 
-interface WorkspaceUpdateForm {
-  name: string
-  visibility?: 'private' | 'workspace' | 'public'
-  background_image?: string
+interface EditWorkspaceProps {
+  Workspace: WorkspacePublicWithMeta
 }
 
 const EditWorkspace = ({ Workspace }: EditWorkspaceProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const queryClient = useQueryClient()
   const { showSuccessToast } = useCustomToast()
+
   const {
     register,
     handleSubmit,
@@ -50,14 +54,17 @@ const EditWorkspace = ({ Workspace }: EditWorkspaceProps) => {
     criteriaMode: "all",
     defaultValues: {
       name: Workspace.name,
-      visibility: Workspace.visibility,
-      background_image: Workspace.background_image || "",
+      description: Workspace.description ?? "",
+      visibility: Workspace.visibility ?? "workspace",
+      background_image: Workspace.background_image ?? "",
     },
   })
 
   const mutation = useMutation({
-    mutationFn: (data: WorkspaceUpdateForm) =>
-      WorkspacesService.updateWorkspace({ id: Workspace.id, requestBody: data }),
+    mutationFn: (data: WorkspaceUpdateForm) => {
+      const { visibility: _visibility, background_image: _background_image, ...payload } = data
+      return WorkspacesService.updateWorkspace({ id: Workspace.id, requestBody: payload })
+    },
     onSuccess: () => {
       showSuccessToast("Workspace updated successfully.")
       reset()
@@ -71,7 +78,7 @@ const EditWorkspace = ({ Workspace }: EditWorkspaceProps) => {
     },
   })
 
-  const onSubmit: SubmitHandler<WorkspaceUpdateForm> = async (data) => {
+  const onSubmit: SubmitHandler<WorkspaceUpdateForm> = (data) => {
     mutation.mutate(data)
   }
 
@@ -103,9 +110,7 @@ const EditWorkspace = ({ Workspace }: EditWorkspaceProps) => {
                 label="Name"
               >
                 <Input
-                  {...register("name", {
-                    required: "Name is required",
-                  })}
+                  {...register("name", { required: "Name is required." })}
                   placeholder="Name"
                   type="text"
                 />
@@ -118,11 +123,11 @@ const EditWorkspace = ({ Workspace }: EditWorkspaceProps) => {
               >
                 <select
                   {...register("visibility")}
-                  style={{ 
-                    width: "100%", 
-                    padding: "8px", 
-                    borderRadius: "4px", 
-                    border: "1px solid #E2E8F0" 
+                  style={{
+                    width: "100%",
+                    padding: "8px",
+                    borderRadius: "4px",
+                    border: "1px solid #E2E8F0",
                   }}
                 >
                   <option value="private">Private</option>
@@ -136,11 +141,7 @@ const EditWorkspace = ({ Workspace }: EditWorkspaceProps) => {
           <DialogFooter gap={2}>
             <ButtonGroup>
               <DialogActionTrigger asChild>
-                <Button
-                  variant="subtle"
-                  colorPalette="gray"
-                  disabled={isSubmitting}
-                >
+                <Button variant="subtle" colorPalette="gray" disabled={isSubmitting}>
                   Cancel
                 </Button>
               </DialogActionTrigger>

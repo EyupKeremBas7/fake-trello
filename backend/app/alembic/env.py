@@ -22,8 +22,8 @@ fileConfig(config.config_file_name)
 # target_metadata = mymodel.Base.metadata
 # target_metadata = None
 
-from sqlmodel import SQLModel # SQLModel'i kütüphaneden al
-from app.models import *      # Modelleri yükle ki metadata dolsun
+from sqlmodel import SQLModel 
+from app.models import *     
 
 from app.core.config import settings # noqa
 
