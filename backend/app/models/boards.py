@@ -1,5 +1,5 @@
 import uuid
-from typing import List, TYPE_CHECKING # TYPE_CHECKING ekledik
+from typing import List, TYPE_CHECKING
 from sqlmodel import Field, Relationship, SQLModel
 from app.models.enums import Visibility
 
@@ -29,7 +29,6 @@ class Board(BoardBase, table=True):
     workspace_id: uuid.UUID = Field(foreign_key="workspace.id", ondelete="CASCADE")
     owner_id: uuid.UUID = Field(foreign_key="user.id") 
     
-    # İlişkilerde tırnak işareti kullanmaya devam et
 
     workspace: "Workspace" = Relationship(back_populates="boards")
     lists: List["BoardList"] = Relationship(back_populates="board", cascade_delete=True) 

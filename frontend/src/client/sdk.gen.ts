@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { BoardsReadBoardsData, BoardsReadBoardsResponse, BoardsCreateBoardData, BoardsCreateBoardResponse, BoardsReadBoardData, BoardsReadBoardResponse, BoardsUpdateBoardData, BoardsUpdateBoardResponse, BoardsDeleteBoardData, BoardsDeleteBoardResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WorkspacesReadWorkspacesData, WorkspacesReadWorkspacesResponse, WorkspacesCreateWorkspaceData, WorkspacesCreateWorkspaceResponse, WorkspacesReadWorkspaceData, WorkspacesReadWorkspaceResponse, WorkspacesUpdateWorkspaceData, WorkspacesUpdateWorkspaceResponse, WorkspacesDeleteWorkspaceData, WorkspacesDeleteWorkspaceResponse } from './types.gen';
+import type { BoardsReadBoardsData, BoardsReadBoardsResponse, BoardsCreateBoardData, BoardsCreateBoardResponse, BoardsReadBoardData, BoardsReadBoardResponse, BoardsUpdateBoardData, BoardsUpdateBoardResponse, BoardsDeleteBoardData, BoardsDeleteBoardResponse, CardsReadCardsData, CardsReadCardsResponse, CardsCreateCardData, CardsCreateCardResponse, CardsReadCardData, CardsReadCardResponse, CardsUpdateCardData, CardsUpdateCardResponse, CardsDeleteCardData, CardsDeleteCardResponse, ListsReadBoardListsData, ListsReadBoardListsResponse, ListsCreateBoardListData, ListsCreateBoardListResponse, ListsReadBoardListData, ListsReadBoardListResponse, ListsUpdateBoardListData, ListsUpdateBoardListResponse, ListsDeleteBoardListData, ListsDeleteBoardListResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WorkspacesReadWorkspacesData, WorkspacesReadWorkspacesResponse, WorkspacesCreateWorkspaceData, WorkspacesCreateWorkspaceResponse, WorkspacesReadWorkspaceData, WorkspacesReadWorkspaceResponse, WorkspacesUpdateWorkspaceData, WorkspacesUpdateWorkspaceResponse, WorkspacesDeleteWorkspaceData, WorkspacesDeleteWorkspaceResponse } from './types.gen';
 
 export class BoardsService {
     /**
@@ -34,7 +34,7 @@ export class BoardsService {
      * Create new Board.
      * @param data The data for the request.
      * @param data.requestBody
-     * @returns BoardsPublic Successful Response
+     * @returns Board Successful Response
      * @throws ApiError
      */
     public static createBoard(data: BoardsCreateBoardData): CancelablePromise<BoardsCreateBoardResponse> {
@@ -54,7 +54,7 @@ export class BoardsService {
      * Get Board by ID.
      * @param data The data for the request.
      * @param data.id
-     * @returns BoardsPublic Successful Response
+     * @returns Board Successful Response
      * @throws ApiError
      */
     public static readBoard(data: BoardsReadBoardData): CancelablePromise<BoardsReadBoardResponse> {
@@ -72,11 +72,11 @@ export class BoardsService {
     
     /**
      * Update Board
-     * Update an Board.
+     * Update a Board.
      * @param data The data for the request.
      * @param data.id
      * @param data.requestBody
-     * @returns BoardsPublic Successful Response
+     * @returns Board Successful Response
      * @throws ApiError
      */
     public static updateBoard(data: BoardsUpdateBoardData): CancelablePromise<BoardsUpdateBoardResponse> {
@@ -96,7 +96,7 @@ export class BoardsService {
     
     /**
      * Delete Board
-     * Delete an Board.
+     * Delete a Board.
      * @param data The data for the request.
      * @param data.id
      * @returns Message Successful Response
@@ -106,6 +106,228 @@ export class BoardsService {
         return __request(OpenAPI, {
             method: 'DELETE',
             url: '/api/v1/boards/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class CardsService {
+    /**
+     * Read Cards
+     * Retrieve Cards.
+     * @param data The data for the request.
+     * @param data.skip
+     * @param data.limit
+     * @returns CardsPublic Successful Response
+     * @throws ApiError
+     */
+    public static readCards(data: CardsReadCardsData = {}): CancelablePromise<CardsReadCardsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/cards/',
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Card
+     * Create new Card.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns Card Successful Response
+     * @throws ApiError
+     */
+    public static createCard(data: CardsCreateCardData): CancelablePromise<CardsCreateCardResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/cards/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Card
+     * Get Card by ID.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns Card Successful Response
+     * @throws ApiError
+     */
+    public static readCard(data: CardsReadCardData): CancelablePromise<CardsReadCardResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/cards/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Card
+     * Update a Card.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.requestBody
+     * @returns Card Successful Response
+     * @throws ApiError
+     */
+    public static updateCard(data: CardsUpdateCardData): CancelablePromise<CardsUpdateCardResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/cards/{id}',
+            path: {
+                id: data.id
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Card
+     * Delete a Card.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static deleteCard(data: CardsDeleteCardData): CancelablePromise<CardsDeleteCardResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/cards/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class ListsService {
+    /**
+     * Read Board Lists
+     * Retrieve Board Lists.
+     * @param data The data for the request.
+     * @param data.skip
+     * @param data.limit
+     * @returns ListsPublic Successful Response
+     * @throws ApiError
+     */
+    public static readBoardLists(data: ListsReadBoardListsData = {}): CancelablePromise<ListsReadBoardListsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/lists/',
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Board List
+     * Create new Board List.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns ListPublic Successful Response
+     * @throws ApiError
+     */
+    public static createBoardList(data: ListsCreateBoardListData): CancelablePromise<ListsCreateBoardListResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/lists/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Board List
+     * Get Board List by ID.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns ListPublic Successful Response
+     * @throws ApiError
+     */
+    public static readBoardList(data: ListsReadBoardListData): CancelablePromise<ListsReadBoardListResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/lists/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Board List
+     * Update a Board List.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.requestBody
+     * @returns ListPublic Successful Response
+     * @throws ApiError
+     */
+    public static updateBoardList(data: ListsUpdateBoardListData): CancelablePromise<ListsUpdateBoardListResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/lists/{id}',
+            path: {
+                id: data.id
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Board List
+     * Delete a Board List.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static deleteBoardList(data: ListsDeleteBoardListData): CancelablePromise<ListsDeleteBoardListResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/lists/{id}',
             path: {
                 id: data.id
             },

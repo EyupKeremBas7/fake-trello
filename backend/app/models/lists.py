@@ -10,18 +10,18 @@ if TYPE_CHECKING:
 # Shared Properties
 class ListBase(SQLModel):
     name: str = Field(min_length=1, max_length=100)
-    position: float = Field(default=65535.0) # Lexorank mantığı için float
+    position: float = Field(default=65535.0) 
 
 # Create
 class ListCreate(ListBase):
     board_id: uuid.UUID
 
-# Update (Sürükle-Bırak için 'position' burada kritiktir)
+
 class ListUpdate(ListBase):
     name: str | None = Field(default=None, max_length=100)
     position: float | None = None 
 
-# Database Model (Table name 'list' rezerve kelime olabilir, 'boardlist' kullanıldı)
+
 class BoardList(ListBase, table=True):
     __tablename__ = "board_list"
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
