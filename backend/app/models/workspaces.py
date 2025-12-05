@@ -3,9 +3,15 @@ from sqlmodel import Field, Relationship, SQLModel
 from typing import List,TYPE_CHECKING
 from datetime import datetime
 
+if TYPE_CHECKING:
+    from app.models.boards import Board  
+
+
 class WorkspaceBase(SQLModel):
     name: str = Field(min_length=1, max_length=100)
     description: str | None = Field(default=None, max_length=500)
+    is_archived: bool = False
+
 
 # Create
 class WorkspaceCreate(WorkspaceBase):

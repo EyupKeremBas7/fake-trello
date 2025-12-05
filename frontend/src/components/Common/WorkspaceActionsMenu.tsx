@@ -1,6 +1,10 @@
-import { Button, ButtonGroup } from "@chakra-ui/react"
-
+import { BsThreeDotsVertical } from "react-icons/bs"
+import { IconButton } from "@chakra-ui/react"
+import { MenuContent, MenuRoot, MenuTrigger } from "../ui/menu"
 import type { WorkspacePublicWithMeta } from "../Workspaces/WorkspacePublicWithMeta"
+import EditWorkspace from "../Workspaces/EditWorkspace"
+import DeleteWorkspace from "../Workspaces/DeleteWorkspace"
+
 
 interface WorkspaceActionsMenuProps {
   workspace: WorkspacePublicWithMeta
@@ -8,10 +12,17 @@ interface WorkspaceActionsMenuProps {
 
 const WorkspaceActionsMenu = ({ workspace }: WorkspaceActionsMenuProps) => {
   return (
-    <ButtonGroup size="xs" variant="ghost" data-workspace-id={workspace.id}>
-      <Button>Edit</Button>
-      <Button colorPalette="red">Delete</Button>
-    </ButtonGroup>
+    <MenuRoot>
+      <MenuTrigger asChild>
+        <IconButton variant="ghost" color="inherit">
+          <BsThreeDotsVertical />
+        </IconButton>
+      </MenuTrigger>
+      <MenuContent>
+        <EditWorkspace Workspace={workspace} />
+        <DeleteWorkspace id={workspace.id} />
+      </MenuContent>
+    </MenuRoot>
   )
 }
 

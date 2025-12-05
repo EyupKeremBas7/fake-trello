@@ -11,6 +11,8 @@ if TYPE_CHECKING:
 class ListBase(SQLModel):
     name: str = Field(min_length=1, max_length=100)
     position: float = Field(default=65535.0) 
+    is_archived: bool = False
+    
 
 # Create
 class ListCreate(ListBase):

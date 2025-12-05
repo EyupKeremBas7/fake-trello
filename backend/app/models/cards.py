@@ -4,7 +4,7 @@ import uuid
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from app.models.cards import BoardList
+    from app.models.lists import BoardList 
 
 class CardBase(SQLModel):
     title: str = Field(min_length=1, max_length=255)

@@ -12,6 +12,7 @@ class BoardBase(SQLModel):
     name: str = Field(min_length=1, max_length=100)
     visibility: Visibility = Field(default=Visibility.WORKSPACE)
     background_image: str | None = Field(default=None)
+    is_archived: bool = False
 
 # Create
 class BoardCreate(BoardBase):

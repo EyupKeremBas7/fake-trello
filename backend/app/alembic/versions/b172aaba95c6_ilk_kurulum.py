@@ -1,8 +1,8 @@
-"""gercek_baslangic
+"""ilk_kurulum
 
-Revision ID: 51ba432a39f9
+Revision ID: b172aaba95c6
 Revises: 
-Create Date: 2025-12-02 16:24:29.408750
+Create Date: 2025-12-05 11:38:42.784302
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlmodel.sql.sqltypes
 
 
 # revision identifiers, used by Alembic.
-revision = '51ba432a39f9'
+revision = 'b172aaba95c6'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -32,6 +32,7 @@ def upgrade():
     op.create_table('workspace',
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(length=100), nullable=False),
     sa.Column('description', sqlmodel.sql.sqltypes.AutoString(length=500), nullable=True),
+    sa.Column('is_archived', sa.Boolean(), nullable=False),
     sa.Column('id', sa.Uuid(), nullable=False),
     sa.Column('owner_id', sa.Uuid(), nullable=False),
     sa.Column('created_at', sa.DateTime(), nullable=False),
@@ -42,6 +43,7 @@ def upgrade():
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(length=100), nullable=False),
     sa.Column('visibility', sa.Enum('PRIVATE', 'WORKSPACE', 'PUBLIC', name='visibility'), nullable=False),
     sa.Column('background_image', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
+    sa.Column('is_archived', sa.Boolean(), nullable=False),
     sa.Column('id', sa.Uuid(), nullable=False),
     sa.Column('workspace_id', sa.Uuid(), nullable=False),
     sa.Column('owner_id', sa.Uuid(), nullable=False),
@@ -52,6 +54,7 @@ def upgrade():
     op.create_table('board_list',
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(length=100), nullable=False),
     sa.Column('position', sa.Float(), nullable=False),
+    sa.Column('is_archived', sa.Boolean(), nullable=False),
     sa.Column('id', sa.Uuid(), nullable=False),
     sa.Column('board_id', sa.Uuid(), nullable=False),
     sa.ForeignKeyConstraint(['board_id'], ['board.id'], ondelete='CASCADE'),

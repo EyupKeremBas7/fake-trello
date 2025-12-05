@@ -17,6 +17,7 @@ import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
 import { Route as LayoutWorkspacesRouteImport } from './routes/_layout/workspaces'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
+import { Route as LayoutListsRouteImport } from './routes/_layout/lists'
 import { Route as LayoutCardsRouteImport } from './routes/_layout/cards'
 import { Route as LayoutBoardsRouteImport } from './routes/_layout/boards'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
@@ -60,6 +61,11 @@ const LayoutSettingsRoute = LayoutSettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutListsRoute = LayoutListsRouteImport.update({
+  id: '/lists',
+  path: '/lists',
+  getParentRoute: () => LayoutRoute,
+} as any)
 const LayoutCardsRoute = LayoutCardsRouteImport.update({
   id: '/cards',
   path: '/cards',
@@ -84,6 +90,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof LayoutAdminRoute
   '/boards': typeof LayoutBoardsRoute
   '/cards': typeof LayoutCardsRoute
+  '/lists': typeof LayoutListsRoute
   '/settings': typeof LayoutSettingsRoute
   '/workspaces': typeof LayoutWorkspacesRoute
   '/': typeof LayoutIndexRoute
@@ -96,6 +103,7 @@ export interface FileRoutesByTo {
   '/admin': typeof LayoutAdminRoute
   '/boards': typeof LayoutBoardsRoute
   '/cards': typeof LayoutCardsRoute
+  '/lists': typeof LayoutListsRoute
   '/settings': typeof LayoutSettingsRoute
   '/workspaces': typeof LayoutWorkspacesRoute
   '/': typeof LayoutIndexRoute
@@ -110,6 +118,7 @@ export interface FileRoutesById {
   '/_layout/admin': typeof LayoutAdminRoute
   '/_layout/boards': typeof LayoutBoardsRoute
   '/_layout/cards': typeof LayoutCardsRoute
+  '/_layout/lists': typeof LayoutListsRoute
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/workspaces': typeof LayoutWorkspacesRoute
   '/_layout/': typeof LayoutIndexRoute
@@ -124,6 +133,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/boards'
     | '/cards'
+    | '/lists'
     | '/settings'
     | '/workspaces'
     | '/'
@@ -136,6 +146,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/boards'
     | '/cards'
+    | '/lists'
     | '/settings'
     | '/workspaces'
     | '/'
@@ -149,6 +160,7 @@ export interface FileRouteTypes {
     | '/_layout/admin'
     | '/_layout/boards'
     | '/_layout/cards'
+    | '/_layout/lists'
     | '/_layout/settings'
     | '/_layout/workspaces'
     | '/_layout/'
@@ -220,6 +232,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutSettingsRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/lists': {
+      id: '/_layout/lists'
+      path: '/lists'
+      fullPath: '/lists'
+      preLoaderRoute: typeof LayoutListsRouteImport
+      parentRoute: typeof LayoutRoute
+    }
     '/_layout/cards': {
       id: '/_layout/cards'
       path: '/cards'
@@ -248,6 +267,7 @@ interface LayoutRouteChildren {
   LayoutAdminRoute: typeof LayoutAdminRoute
   LayoutBoardsRoute: typeof LayoutBoardsRoute
   LayoutCardsRoute: typeof LayoutCardsRoute
+  LayoutListsRoute: typeof LayoutListsRoute
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutWorkspacesRoute: typeof LayoutWorkspacesRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
@@ -257,6 +277,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutAdminRoute: LayoutAdminRoute,
   LayoutBoardsRoute: LayoutBoardsRoute,
   LayoutCardsRoute: LayoutCardsRoute,
+  LayoutListsRoute: LayoutListsRoute,
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutWorkspacesRoute: LayoutWorkspacesRoute,
   LayoutIndexRoute: LayoutIndexRoute,
