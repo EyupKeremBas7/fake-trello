@@ -5,7 +5,7 @@ from fastapi import APIRouter, HTTPException
 from sqlmodel import func, select
 
 from app.api.deps import CurrentUser, SessionDep
-from app.models.workspaces import Workspace, WorkspaceCreate, WorkspacesPublic, WorkspaceUpdate
+from app.models.workspaces import Workspace, WorkspaceCreate, WorkspacePublic, WorkspacesPublic, WorkspaceUpdate
 from app.models.auth import Message
 
 router = APIRouter(prefix="/workspaces", tags=["workspaces"])
@@ -15,15 +15,11 @@ router = APIRouter(prefix="/workspaces", tags=["workspaces"])
 def read_workspaces(
     session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
 ) -> Any:
-    """
-    Retrieve Workspaces.
-    """
-
     if current_user.is_superuser:
         count_statement = select(func.count()).select_from(Workspace)
         count = session.exec(count_statement).one()
         statement = select(Workspace).offset(skip).limit(limit)
-        workspaces = session.exec(statement).all() # Değişken adı düzeltildi
+        workspaces = session.exec(statement).all()
     else:
         count_statement = (
             select(func.count())
@@ -37,32 +33,25 @@ def read_workspaces(
             .offset(skip)
             .limit(limit)
         )
-        workspaces = session.exec(statement).all() # Değişken adı düzeltildi
+        workspaces = session.exec(statement).all()
 
-    # HATA BURADAYDI: data=Workspace yerine data=workspaces olmalı
     return WorkspacesPublic(data=workspaces, count=count)
 
 
-@router.get("/{id}", response_model=WorkspacesPublic) # Dikkat: Tekil dönüş tipi WorkspacePublic değil WorkspacePublic içindeki tekil yapı olmalı ama şimdilik modelinize göre böyle kalsın
+@router.get("/{id}", response_model=WorkspacePublic)
 def read_workspace(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
-    """
-    Get Workspace by ID.
-    """
-    workspace = session.get(Workspace, id) # Değişken adı küçültüldü
+    workspace = session.get(Workspace, id)
     if not workspace:
         raise HTTPException(status_code=404, detail="Workspace not found")
     if not current_user.is_superuser and (workspace.owner_id != current_user.id):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
+        raise HTTPException(status_code=403, detail="Not enough permissions")
     return workspace
 
 
-@router.post("/", response_model=WorkspacesPublic) # Burası da normalde WorkspacePublic değil tekil Workspace dönmeli
+@router.post("/", response_model=WorkspacePublic)
 def create_workspace(
     *, session: SessionDep, current_user: CurrentUser, workspace_in: WorkspaceCreate
 ) -> Any:
-    """
-    Create new Workspace.
-    """
     workspace = Workspace.model_validate(workspace_in, update={"owner_id": current_user.id})
     session.add(workspace)
     session.commit()
@@ -70,7 +59,7 @@ def create_workspace(
     return workspace
 
 
-@router.put("/{id}", response_model=WorkspacesPublic)
+@router.put("/{id}", response_model=WorkspacePublic)
 def update_workspace(
     *,
     session: SessionDep,
@@ -78,14 +67,11 @@ def update_workspace(
     id: uuid.UUID,
     workspace_in: WorkspaceUpdate,
 ) -> Any:
-    """
-    Update an Workspace.
-    """
     workspace = session.get(Workspace, id)
     if not workspace:
         raise HTTPException(status_code=404, detail="Workspace not found")
     if not current_user.is_superuser and (workspace.owner_id != current_user.id):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
+        raise HTTPException(status_code=403, detail="Not enough permissions")
     
     update_dict = workspace_in.model_dump(exclude_unset=True)
     workspace.sqlmodel_update(update_dict)
@@ -99,14 +85,11 @@ def update_workspace(
 def delete_workspace(
     session: SessionDep, current_user: CurrentUser, id: uuid.UUID
 ) -> Message:
-    """
-    Delete an Workspace.
-    """
     workspace = session.get(Workspace, id)
     if not workspace:
         raise HTTPException(status_code=404, detail="Workspace not found")
     if not current_user.is_superuser and (workspace.owner_id != current_user.id):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
+        raise HTTPException(status_code=403, detail="Not enough permissions")
     session.delete(workspace)
     session.commit()
     return Message(message="Workspace deleted successfully")

@@ -40,3 +40,9 @@ class WorkspacePublic(WorkspaceBase):
 class WorkspacesPublic(SQLModel):
     data: list[WorkspacePublic]
     count: int
+
+    
+class WorkspacePublic(WorkspaceBase):
+    id: uuid.UUID
+    owner_id: uuid.UUID
+    created_at: datetime
