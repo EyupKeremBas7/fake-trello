@@ -2,65 +2,101 @@ import uuid
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
-from sqlmodel import func, select
+from sqlmodel import func, select, or_
 
 from app.api.deps import CurrentUser, SessionDep
-from app.models.boards import Board, BoardCreate, BoardsPublic, BoardUpdate
+from app.models.boards import Board, BoardCreate, BoardPublic, BoardsPublic, BoardUpdate
+from app.models.workspaces import Workspace
+from app.models.workspace_members import WorkspaceMember
+from app.models.enums import MemberRole
 from app.models.auth import Message
 
 router = APIRouter(prefix="/boards", tags=["boards"])
+
+
+def get_user_role_in_workspace(session: SessionDep, user_id: uuid.UUID, workspace_id: uuid.UUID) -> MemberRole | None:
+    member = session.exec(
+        select(WorkspaceMember).where(
+            WorkspaceMember.user_id == user_id,
+            WorkspaceMember.workspace_id == workspace_id
+        )
+    ).first()
+    return member.role if member else None
+
+
+def can_access_board(session: SessionDep, user_id: uuid.UUID, board: Board) -> bool:
+    workspace = session.get(Workspace, board.workspace_id)
+    if not workspace:
+        return False
+    if workspace.owner_id == user_id:
+        return True
+    role = get_user_role_in_workspace(session, user_id, workspace.id)
+    return role is not None
+
+
+def can_edit_board(session: SessionDep, user_id: uuid.UUID, board: Board) -> bool:
+    workspace = session.get(Workspace, board.workspace_id)
+    if not workspace:
+        return False
+    if workspace.owner_id == user_id:
+        return True
+    role = get_user_role_in_workspace(session, user_id, workspace.id)
+    return role in [MemberRole.admin, MemberRole.member]
 
 
 @router.get("/", response_model=BoardsPublic)
 def read_boards(
     session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
 ) -> Any:
-    """
-    Retrieve Boards.
-    """
-
     if current_user.is_superuser:
         count_statement = select(func.count()).select_from(Board)
         count = session.exec(count_statement).one()
         statement = select(Board).offset(skip).limit(limit)
-        boards = session.exec(statement).all() 
+        boards = session.exec(statement).all()
     else:
-        count_statement = (
-            select(func.count())
-            .select_from(Board)
-            .where(Board.owner_id == current_user.id)
-        )
-        count = session.exec(count_statement).one()
         statement = (
             select(Board)
-            .where(Board.owner_id == current_user.id)
+            .join(Workspace, Board.workspace_id == Workspace.id)
+            .outerjoin(WorkspaceMember, WorkspaceMember.workspace_id == Workspace.id)
+            .where(
+                or_(
+                    Workspace.owner_id == current_user.id,
+                    WorkspaceMember.user_id == current_user.id
+                )
+            )
+            .distinct()
             .offset(skip)
             .limit(limit)
         )
-        boards = session.exec(statement).all() 
+        boards = session.exec(statement).all()
+        count = len(boards)
 
     return BoardsPublic(data=boards, count=count)
 
-@router.get("/{id}", response_model=Board) 
+
+@router.get("/{id}", response_model=BoardPublic)
 def read_board(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
-    """
-    Get Board by ID.
-    """
-    board = session.get(Board, id) 
+    board = session.get(Board, id)
     if not board:
         raise HTTPException(status_code=404, detail="Board not found")
-    if not current_user.is_superuser and (board.owner_id != current_user.id):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
+    if not current_user.is_superuser and not can_access_board(session, current_user.id, board):
+        raise HTTPException(status_code=403, detail="Not enough permissions")
     return board
 
 
-@router.post("/", response_model=Board) 
+@router.post("/", response_model=BoardPublic)
 def create_board(
     *, session: SessionDep, current_user: CurrentUser, board_in: BoardCreate
 ) -> Any:
-    """
-    Create new Board.
-    """
+    workspace = session.get(Workspace, board_in.workspace_id)
+    if not workspace:
+        raise HTTPException(status_code=404, detail="Workspace not found")
+    
+    if workspace.owner_id != current_user.id:
+        role = get_user_role_in_workspace(session, current_user.id, workspace.id)
+        if role not in [MemberRole.admin, MemberRole.member]:
+            raise HTTPException(status_code=403, detail="Not enough permissions to create board")
+    
     board = Board.model_validate(board_in, update={"owner_id": current_user.id})
     session.add(board)
     session.commit()
@@ -68,7 +104,7 @@ def create_board(
     return board
 
 
-@router.put("/{id}", response_model=Board)
+@router.put("/{id}", response_model=BoardPublic)
 def update_board(
     *,
     session: SessionDep,
@@ -76,14 +112,11 @@ def update_board(
     id: uuid.UUID,
     board_in: BoardUpdate,
 ) -> Any:
-    """
-    Update a Board.
-    """
     board = session.get(Board, id)
     if not board:
         raise HTTPException(status_code=404, detail="Board not found")
-    if not current_user.is_superuser and (board.owner_id != current_user.id):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
+    if not current_user.is_superuser and not can_edit_board(session, current_user.id, board):
+        raise HTTPException(status_code=403, detail="Not enough permissions")
     
     update_dict = board_in.model_dump(exclude_unset=True)
     board.sqlmodel_update(update_dict)
@@ -97,14 +130,16 @@ def update_board(
 def delete_board(
     session: SessionDep, current_user: CurrentUser, id: uuid.UUID
 ) -> Message:
-    """
-    Delete a Board.
-    """
     board = session.get(Board, id)
     if not board:
         raise HTTPException(status_code=404, detail="Board not found")
-    if not current_user.is_superuser and (board.owner_id != current_user.id):
-        raise HTTPException(status_code=400, detail="Not enough permissions")
+    
+    workspace = session.get(Workspace, board.workspace_id)
+    if not current_user.is_superuser and workspace.owner_id != current_user.id:
+        role = get_user_role_in_workspace(session, current_user.id, workspace.id)
+        if role != MemberRole.admin:
+            raise HTTPException(status_code=403, detail="Only owner or admin can delete board")
+    
     session.delete(board)
     session.commit()
     return Message(message="Board deleted successfully")

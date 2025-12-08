@@ -1,25 +1,8 @@
-from .users import User
-from .workspaces import Workspace
-from .boards import Board
-from .lists import BoardList, ListCreate, ListUpdate, ListPublic, ListsPublic
-from .cards import Card
-from .enums import Visibility, Role
+from .users import User, UserCreate, UserPublic, UsersPublic, UserUpdate, UserRegister, UserUpdateMe, UpdatePassword
 from .auth import Token, TokenPayload, NewPassword, Message
-
-__all__ = [
-    "User",
-    "Workspace", 
-    "Board",
-    "BoardList",
-    "ListCreate",
-    "ListUpdate", 
-    "ListPublic",
-    "ListsPublic",
-    "Card",
-    "Visibility",
-    "Role",
-    "Token",
-    "TokenPayload",
-    "NewPassword",
-    "Message",
-]
+from .workspaces import Workspace, WorkspaceCreate, WorkspacePublic, WorkspacesPublic, WorkspaceUpdate
+from .workspace_members import WorkspaceMember, WorkspaceMemberCreate, WorkspaceMemberPublic, WorkspaceMembersPublic, WorkspaceMemberUpdate
+from .boards import Board, BoardCreate, BoardPublic, BoardsPublic, BoardUpdate
+from .lists import BoardList, ListCreate, ListPublic, ListsPublic, ListUpdate
+from .cards import Card, CardCreate, CardPublic, CardsPublic, CardUpdate
+from .enums import Visibility, MemberRole

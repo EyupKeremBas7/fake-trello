@@ -1,4 +1,3 @@
-
 import {
   Box,
   Container,
@@ -93,7 +92,7 @@ const CardRow = ({ card }: { card: CardPublic }) => {
       {isExpanded && (
         <Table.Row>
           <Table.Cell colSpan={7} p={0}>
-            <Box p={4} bg="gray.50" borderBottomWidth="1px">
+            <Box p={4} bg="bg.subtle" borderBottomWidth="1px" borderColor="border.subtle">
               <VStack align="start" gap={2}>
                 <Text fontSize="sm">
                   <strong>Description:</strong> {card.description ?? "No description"}
@@ -201,4 +200,3 @@ function Cards() {
 }
 
 export default Cards
-

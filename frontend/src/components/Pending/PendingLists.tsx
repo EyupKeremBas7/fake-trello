@@ -5,7 +5,7 @@ const PendingLists = () => {
     <Flex justify="center" align="center" py={24}>
       <VStack gap={4}>
         <Spinner size="lg" />
-        <Text color="gray.500">Loading lists...</Text>
+        <Text color="fg.muted">Loading lists...</Text>
       </VStack>
     </Flex>
   )

@@ -5,7 +5,7 @@ const PendingCards = () => {
     <Flex justify="center" align="center" py={24}>
       <VStack gap={4}>
         <Spinner size="lg" />
-        <Text color="gray.500">Loading cards...</Text>
+        <Text color="fg.muted">Loading cards...</Text>
       </VStack>
     </Flex>
   )

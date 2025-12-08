@@ -20,6 +20,7 @@ import { BoardsService, WorkspacesService } from "@/client"
 import WorkspaceActionsMenu from "@/components/Common/WorkspaceActionsMenu"
 import PendingWorkspaces from "@/components/Pending/PendingWorkspaces"
 import AddWorkspace from "@/components/Workspaces/AddWorkspace"
+import WorkspaceMembers from "@/components/Workspaces/WorkspaceMembers"
 import type { WorkspacePublicWithMeta } from "@/components/Workspaces/WorkspacePublicWithMeta"
 import {
   PaginationItems,
@@ -59,18 +60,18 @@ const WorkspaceBoardsList = ({ workspaceId }: { workspaceId: string }) => {
 
   if (workspaceBoards.length === 0) {
     return (
-      <Text fontSize="sm" color="gray.500" py={2}>
+      <Text fontSize="sm" color="fg.muted" py={2}>
         No boards found in this workspace.
       </Text>
     )
   }
 
   return (
-    <Box py={2} px={4} bg="gray.50" borderRadius="md">
+    <Box>
       <Text fontWeight="bold" fontSize="sm" mb={2}>
-        Boards in this Workspace:
+        Boards ({workspaceBoards.length})
       </Text>
-      <Table.Root size="sm" variant="outline" bg="white">
+      <Table.Root size="sm" variant="outline">
         <Table.Header>
           <Table.Row>
             <Table.ColumnHeader>Name</Table.ColumnHeader>
@@ -122,8 +123,11 @@ const WorkspaceRow = ({ workspace }: { workspace: WorkspacePublicWithMeta }) => 
       {isExpanded && (
         <Table.Row>
           <Table.Cell colSpan={6} p={0}>
-            <Box p={4} bg="gray.50" borderBottomWidth="1px">
-              <WorkspaceBoardsList workspaceId={workspace.id} />
+            <Box p={4} bg="bg.subtle" borderBottomWidth="1px" borderColor="border.subtle">
+              <VStack align="stretch" gap={6}>
+                <WorkspaceBoardsList workspaceId={workspace.id} />
+                <WorkspaceMembers workspaceId={workspace.id} ownerId={workspace.owner_id} />
+              </VStack>
             </Box>
           </Table.Cell>
         </Table.Row>
@@ -214,3 +218,5 @@ function Workspaces() {
     </Container>
   )
 }
+
+export default Workspaces

@@ -1,10 +1,12 @@
 import uuid
 from sqlmodel import Field, Relationship, SQLModel
-from typing import List,TYPE_CHECKING
+from typing import List, TYPE_CHECKING
 from datetime import datetime
 
 if TYPE_CHECKING:
-    from app.models.boards import Board  
+    from app.models.boards import Board
+    from app.models.users import User
+    from app.models.workspace_members import WorkspaceMember
 
 
 class WorkspaceBase(SQLModel):
@@ -13,36 +15,32 @@ class WorkspaceBase(SQLModel):
     is_archived: bool = False
 
 
-# Create
 class WorkspaceCreate(WorkspaceBase):
     pass
 
-# Update
-class WorkspaceUpdate(WorkspaceBase):
+
+class WorkspaceUpdate(SQLModel):
     name: str | None = Field(default=None, min_length=1, max_length=100)
     description: str | None = Field(default=None, max_length=500)
+    is_archived: bool | None = None
 
-# Database Model
+
 class Workspace(WorkspaceBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
     created_at: datetime = Field(default_factory=datetime.utcnow)
-    
-    # İlişkiler
-    boards: List["Board"] = Relationship(back_populates="workspace", cascade_delete=True)
 
-# Public Return
+    owner: "User" = Relationship(back_populates="owned_workspaces")
+    boards: List["Board"] = Relationship(back_populates="workspace")
+    members: List["WorkspaceMember"] = Relationship(back_populates="workspace")
+
+
 class WorkspacePublic(WorkspaceBase):
     id: uuid.UUID
     owner_id: uuid.UUID
     created_at: datetime
+
 
 class WorkspacesPublic(SQLModel):
     data: list[WorkspacePublic]
     count: int
-
-    
-class WorkspacePublic(WorkspaceBase):
-    id: uuid.UUID
-    owner_id: uuid.UUID
-    created_at: datetime

@@ -67,11 +67,10 @@ const ListCards = ({ listId }: { listId: string }) => {
 
   if (isLoading) return <Spinner size="sm" />
 
-  // Bu listeye ait kartları filtrele
   const listCards = (data?.data ?? []).filter((card) => card.list_id === listId)
 
   if (listCards.length === 0) {
-    return <Text fontSize="sm" color="gray.500">No cards in this list</Text>
+    return <Text fontSize="sm" color="fg.muted">No cards in this list</Text>
   }
 
   return (
@@ -83,11 +82,11 @@ const ListCards = ({ listId }: { listId: string }) => {
         <Box
           key={card.id}
           p={3}
-          bg="white"
+          bg="bg.panel"
           borderRadius="md"
           borderWidth="1px"
-          borderColor="gray.200"
-          _hover={{ bg: "gray.50" }}
+          borderColor="border.subtle"
+          _hover={{ bg: "bg.subtle" }}
         >
           <HStack justify="space-between">
             <VStack align="start" gap={1}>
@@ -95,7 +94,7 @@ const ListCards = ({ listId }: { listId: string }) => {
                 {card.title}
               </Text>
               {card.description && (
-                <Text fontSize="xs" color="gray.500" lineClamp={1}>
+                <Text fontSize="xs" color="fg.muted" lineClamp={1}>
                   {card.description}
                 </Text>
               )}
@@ -151,7 +150,7 @@ const ListRow = ({ list }: { list: ListPublic }) => {
       {isExpanded && (
         <Table.Row>
           <Table.Cell colSpan={6} p={0}>
-            <Box p={4} bg="gray.50" borderBottomWidth="1px">
+            <Box p={4} bg="bg.subtle" borderBottomWidth="1px" borderColor="border.subtle">
               <VStack align="stretch" gap={4}>
                 <HStack gap={4}>
                   <Text fontSize="sm">

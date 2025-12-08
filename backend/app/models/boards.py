@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 class BoardBase(SQLModel):
     name: str = Field(min_length=1, max_length=100)
-    visibility: Visibility = Field(default=Visibility.WORKSPACE)
+    visibility: Visibility = Field(default=Visibility.workspace)
     background_image: str | None = Field(default=None)
     is_archived: bool = False
 

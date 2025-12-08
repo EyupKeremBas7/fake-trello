@@ -3,12 +3,11 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { BoardsReadBoardsData, BoardsReadBoardsResponse, BoardsCreateBoardData, BoardsCreateBoardResponse, BoardsReadBoardData, BoardsReadBoardResponse, BoardsUpdateBoardData, BoardsUpdateBoardResponse, BoardsDeleteBoardData, BoardsDeleteBoardResponse, CardsReadCardsData, CardsReadCardsResponse, CardsCreateCardData, CardsCreateCardResponse, CardsReadCardData, CardsReadCardResponse, CardsUpdateCardData, CardsUpdateCardResponse, CardsDeleteCardData, CardsDeleteCardResponse, ListsReadBoardListsData, ListsReadBoardListsResponse, ListsCreateBoardListData, ListsCreateBoardListResponse, ListsReadBoardListData, ListsReadBoardListResponse, ListsUpdateBoardListData, ListsUpdateBoardListResponse, ListsDeleteBoardListData, ListsDeleteBoardListResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WorkspacesReadWorkspacesData, WorkspacesReadWorkspacesResponse, WorkspacesCreateWorkspaceData, WorkspacesCreateWorkspaceResponse, WorkspacesReadWorkspaceData, WorkspacesReadWorkspaceResponse, WorkspacesUpdateWorkspaceData, WorkspacesUpdateWorkspaceResponse, WorkspacesDeleteWorkspaceData, WorkspacesDeleteWorkspaceResponse } from './types.gen';
+import type { BoardsReadBoardsData, BoardsReadBoardsResponse, BoardsCreateBoardData, BoardsCreateBoardResponse, BoardsReadBoardData, BoardsReadBoardResponse, BoardsUpdateBoardData, BoardsUpdateBoardResponse, BoardsDeleteBoardData, BoardsDeleteBoardResponse, CardsReadCardsData, CardsReadCardsResponse, CardsCreateCardData, CardsCreateCardResponse, CardsReadCardData, CardsReadCardResponse, CardsUpdateCardData, CardsUpdateCardResponse, CardsDeleteCardData, CardsDeleteCardResponse, CardsMoveCardData, CardsMoveCardResponse, ListsReadBoardListsData, ListsReadBoardListsResponse, ListsCreateBoardListData, ListsCreateBoardListResponse, ListsReadBoardListData, ListsReadBoardListResponse, ListsUpdateBoardListData, ListsUpdateBoardListResponse, ListsDeleteBoardListData, ListsDeleteBoardListResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WorkspacesReadWorkspacesData, WorkspacesReadWorkspacesResponse, WorkspacesCreateWorkspaceData, WorkspacesCreateWorkspaceResponse, WorkspacesReadWorkspaceData, WorkspacesReadWorkspaceResponse, WorkspacesUpdateWorkspaceData, WorkspacesUpdateWorkspaceResponse, WorkspacesDeleteWorkspaceData, WorkspacesDeleteWorkspaceResponse, WorkspacesReadWorkspaceMembersData, WorkspacesReadWorkspaceMembersResponse, WorkspacesAddWorkspaceMemberData, WorkspacesAddWorkspaceMemberResponse, WorkspacesInviteWorkspaceMemberData, WorkspacesInviteWorkspaceMemberResponse, WorkspacesUpdateWorkspaceMemberData, WorkspacesUpdateWorkspaceMemberResponse, WorkspacesRemoveWorkspaceMemberData, WorkspacesRemoveWorkspaceMemberResponse } from './types.gen';
 
 export class BoardsService {
     /**
      * Read Boards
-     * Retrieve Boards.
      * @param data The data for the request.
      * @param data.skip
      * @param data.limit
@@ -31,10 +30,9 @@ export class BoardsService {
     
     /**
      * Create Board
-     * Create new Board.
      * @param data The data for the request.
      * @param data.requestBody
-     * @returns Board Successful Response
+     * @returns BoardPublic Successful Response
      * @throws ApiError
      */
     public static createBoard(data: BoardsCreateBoardData): CancelablePromise<BoardsCreateBoardResponse> {
@@ -51,10 +49,9 @@ export class BoardsService {
     
     /**
      * Read Board
-     * Get Board by ID.
      * @param data The data for the request.
      * @param data.id
-     * @returns Board Successful Response
+     * @returns BoardPublic Successful Response
      * @throws ApiError
      */
     public static readBoard(data: BoardsReadBoardData): CancelablePromise<BoardsReadBoardResponse> {
@@ -72,11 +69,10 @@ export class BoardsService {
     
     /**
      * Update Board
-     * Update a Board.
      * @param data The data for the request.
      * @param data.id
      * @param data.requestBody
-     * @returns Board Successful Response
+     * @returns BoardPublic Successful Response
      * @throws ApiError
      */
     public static updateBoard(data: BoardsUpdateBoardData): CancelablePromise<BoardsUpdateBoardResponse> {
@@ -96,7 +92,6 @@ export class BoardsService {
     
     /**
      * Delete Board
-     * Delete a Board.
      * @param data The data for the request.
      * @param data.id
      * @returns Message Successful Response
@@ -119,7 +114,6 @@ export class BoardsService {
 export class CardsService {
     /**
      * Read Cards
-     * Retrieve Cards.
      * @param data The data for the request.
      * @param data.skip
      * @param data.limit
@@ -142,10 +136,9 @@ export class CardsService {
     
     /**
      * Create Card
-     * Create new Card.
      * @param data The data for the request.
      * @param data.requestBody
-     * @returns Card Successful Response
+     * @returns CardPublic Successful Response
      * @throws ApiError
      */
     public static createCard(data: CardsCreateCardData): CancelablePromise<CardsCreateCardResponse> {
@@ -162,10 +155,9 @@ export class CardsService {
     
     /**
      * Read Card
-     * Get Card by ID.
      * @param data The data for the request.
      * @param data.id
-     * @returns Card Successful Response
+     * @returns CardPublic Successful Response
      * @throws ApiError
      */
     public static readCard(data: CardsReadCardData): CancelablePromise<CardsReadCardResponse> {
@@ -183,11 +175,10 @@ export class CardsService {
     
     /**
      * Update Card
-     * Update a Card.
      * @param data The data for the request.
      * @param data.id
      * @param data.requestBody
-     * @returns Card Successful Response
+     * @returns CardPublic Successful Response
      * @throws ApiError
      */
     public static updateCard(data: CardsUpdateCardData): CancelablePromise<CardsUpdateCardResponse> {
@@ -207,7 +198,6 @@ export class CardsService {
     
     /**
      * Delete Card
-     * Delete a Card.
      * @param data The data for the request.
      * @param data.id
      * @returns Message Successful Response
@@ -219,6 +209,32 @@ export class CardsService {
             url: '/api/v1/cards/{id}',
             path: {
                 id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Move Card
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.listId
+     * @param data.position
+     * @returns CardPublic Successful Response
+     * @throws ApiError
+     */
+    public static moveCard(data: CardsMoveCardData): CancelablePromise<CardsMoveCardResponse> {
+        return __request(OpenAPI, {
+            method: 'PATCH',
+            url: '/api/v1/cards/{id}/move',
+            path: {
+                id: data.id
+            },
+            query: {
+                list_id: data.listId,
+                position: data.position
             },
             errors: {
                 422: 'Validation Error'
@@ -692,7 +708,6 @@ export class UtilsService {
 export class WorkspacesService {
     /**
      * Read Workspaces
-     * Retrieve Workspaces.
      * @param data The data for the request.
      * @param data.skip
      * @param data.limit
@@ -715,10 +730,9 @@ export class WorkspacesService {
     
     /**
      * Create Workspace
-     * Create new Workspace.
      * @param data The data for the request.
      * @param data.requestBody
-     * @returns WorkspacesPublic Successful Response
+     * @returns WorkspacePublic Successful Response
      * @throws ApiError
      */
     public static createWorkspace(data: WorkspacesCreateWorkspaceData): CancelablePromise<WorkspacesCreateWorkspaceResponse> {
@@ -735,10 +749,9 @@ export class WorkspacesService {
     
     /**
      * Read Workspace
-     * Get Workspace by ID.
      * @param data The data for the request.
      * @param data.id
-     * @returns WorkspacesPublic Successful Response
+     * @returns WorkspacePublic Successful Response
      * @throws ApiError
      */
     public static readWorkspace(data: WorkspacesReadWorkspaceData): CancelablePromise<WorkspacesReadWorkspaceResponse> {
@@ -756,11 +769,10 @@ export class WorkspacesService {
     
     /**
      * Update Workspace
-     * Update an Workspace.
      * @param data The data for the request.
      * @param data.id
      * @param data.requestBody
-     * @returns WorkspacesPublic Successful Response
+     * @returns WorkspacePublic Successful Response
      * @throws ApiError
      */
     public static updateWorkspace(data: WorkspacesUpdateWorkspaceData): CancelablePromise<WorkspacesUpdateWorkspaceResponse> {
@@ -780,7 +792,6 @@ export class WorkspacesService {
     
     /**
      * Delete Workspace
-     * Delete an Workspace.
      * @param data The data for the request.
      * @param data.id
      * @returns Message Successful Response
@@ -792,6 +803,120 @@ export class WorkspacesService {
             url: '/api/v1/workspaces/{id}',
             path: {
                 id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Workspace Members
+     * @param data The data for the request.
+     * @param data.id
+     * @returns WorkspaceMembersPublic Successful Response
+     * @throws ApiError
+     */
+    public static readWorkspaceMembers(data: WorkspacesReadWorkspaceMembersData): CancelablePromise<WorkspacesReadWorkspaceMembersResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/workspaces/{id}/members',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Add Workspace Member
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.requestBody
+     * @returns WorkspaceMemberPublic Successful Response
+     * @throws ApiError
+     */
+    public static addWorkspaceMember(data: WorkspacesAddWorkspaceMemberData): CancelablePromise<WorkspacesAddWorkspaceMemberResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/workspaces/{id}/members',
+            path: {
+                id: data.id
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Invite Workspace Member
+     * Invite a user to workspace by email.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.requestBody
+     * @returns WorkspaceMemberPublic Successful Response
+     * @throws ApiError
+     */
+    public static inviteWorkspaceMember(data: WorkspacesInviteWorkspaceMemberData): CancelablePromise<WorkspacesInviteWorkspaceMemberResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/workspaces/{id}/invite',
+            path: {
+                id: data.id
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Workspace Member
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.memberId
+     * @param data.requestBody
+     * @returns WorkspaceMemberPublic Successful Response
+     * @throws ApiError
+     */
+    public static updateWorkspaceMember(data: WorkspacesUpdateWorkspaceMemberData): CancelablePromise<WorkspacesUpdateWorkspaceMemberResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/workspaces/{id}/members/{member_id}',
+            path: {
+                id: data.id,
+                member_id: data.memberId
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Remove Workspace Member
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.memberId
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static removeWorkspaceMember(data: WorkspacesRemoveWorkspaceMemberData): CancelablePromise<WorkspacesRemoveWorkspaceMemberResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/workspaces/{id}/members/{member_id}',
+            path: {
+                id: data.id,
+                member_id: data.memberId
             },
             errors: {
                 422: 'Validation Error'
