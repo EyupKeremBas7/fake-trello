@@ -1,4 +1,4 @@
-from sqlmodel import SQLModel,Field,Relationship
+from sqlmodel import SQLModel,Field
 import uuid
 from typing import List,TYPE_CHECKING
 
@@ -29,10 +29,6 @@ class BoardList(ListBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     board_id: uuid.UUID = Field(foreign_key="board.id", ondelete="CASCADE")
     
-    # İlişkiler
-    board: "Board" = Relationship(back_populates="lists")
-    cards: List["Card"] = Relationship(back_populates="list", cascade_delete=True)
-
 # Public Return
 class ListPublic(ListBase):
     id: uuid.UUID

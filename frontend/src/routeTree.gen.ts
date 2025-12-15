@@ -21,6 +21,7 @@ import { Route as LayoutListsRouteImport } from './routes/_layout/lists'
 import { Route as LayoutCardsRouteImport } from './routes/_layout/cards'
 import { Route as LayoutBoardsRouteImport } from './routes/_layout/boards'
 import { Route as LayoutAdminRouteImport } from './routes/_layout/admin'
+import { Route as LayoutBoardBoardIdRouteImport } from './routes/_layout/board.$boardId'
 
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
@@ -81,6 +82,11 @@ const LayoutAdminRoute = LayoutAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => LayoutRoute,
 } as any)
+const LayoutBoardBoardIdRoute = LayoutBoardBoardIdRouteImport.update({
+  id: '/board/$boardId',
+  path: '/board/$boardId',
+  getParentRoute: () => LayoutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof LayoutSettingsRoute
   '/workspaces': typeof LayoutWorkspacesRoute
   '/': typeof LayoutIndexRoute
+  '/board/$boardId': typeof LayoutBoardBoardIdRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -107,6 +114,7 @@ export interface FileRoutesByTo {
   '/settings': typeof LayoutSettingsRoute
   '/workspaces': typeof LayoutWorkspacesRoute
   '/': typeof LayoutIndexRoute
+  '/board/$boardId': typeof LayoutBoardBoardIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -122,6 +130,7 @@ export interface FileRoutesById {
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/workspaces': typeof LayoutWorkspacesRoute
   '/_layout/': typeof LayoutIndexRoute
+  '/_layout/board/$boardId': typeof LayoutBoardBoardIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -137,6 +146,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/workspaces'
     | '/'
+    | '/board/$boardId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -150,6 +160,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/workspaces'
     | '/'
+    | '/board/$boardId'
   id:
     | '__root__'
     | '/_layout'
@@ -164,6 +175,7 @@ export interface FileRouteTypes {
     | '/_layout/settings'
     | '/_layout/workspaces'
     | '/_layout/'
+    | '/_layout/board/$boardId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -260,6 +272,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LayoutAdminRouteImport
       parentRoute: typeof LayoutRoute
     }
+    '/_layout/board/$boardId': {
+      id: '/_layout/board/$boardId'
+      path: '/board/$boardId'
+      fullPath: '/board/$boardId'
+      preLoaderRoute: typeof LayoutBoardBoardIdRouteImport
+      parentRoute: typeof LayoutRoute
+    }
   }
 }
 
@@ -271,6 +290,7 @@ interface LayoutRouteChildren {
   LayoutSettingsRoute: typeof LayoutSettingsRoute
   LayoutWorkspacesRoute: typeof LayoutWorkspacesRoute
   LayoutIndexRoute: typeof LayoutIndexRoute
+  LayoutBoardBoardIdRoute: typeof LayoutBoardBoardIdRoute
 }
 
 const LayoutRouteChildren: LayoutRouteChildren = {
@@ -281,6 +301,7 @@ const LayoutRouteChildren: LayoutRouteChildren = {
   LayoutSettingsRoute: LayoutSettingsRoute,
   LayoutWorkspacesRoute: LayoutWorkspacesRoute,
   LayoutIndexRoute: LayoutIndexRoute,
+  LayoutBoardBoardIdRoute: LayoutBoardBoardIdRoute,
 }
 
 const LayoutRouteWithChildren =

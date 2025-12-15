@@ -1,5 +1,5 @@
 import uuid
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, SQLModel
 from typing import List, TYPE_CHECKING
 from datetime import datetime
 
@@ -30,9 +30,6 @@ class Workspace(WorkspaceBase, table=True):
     owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
-    owner: "User" = Relationship(back_populates="owned_workspaces")
-    boards: List["Board"] = Relationship(back_populates="workspace")
-    members: List["WorkspaceMember"] = Relationship(back_populates="workspace")
 
 
 class WorkspacePublic(WorkspaceBase):

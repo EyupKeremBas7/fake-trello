@@ -1,6 +1,6 @@
 import uuid
 from pydantic import EmailStr
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, SQLModel
 from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
@@ -44,10 +44,6 @@ class UpdatePassword(SQLModel):
 class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
-
-    owned_workspaces: List["Workspace"] = Relationship(back_populates="owner")
-    workspace_memberships: List["WorkspaceMember"] = Relationship(back_populates="user")
-    boards: List["Board"] = Relationship(back_populates="owner")
 
 
 class UserPublic(UserBase):

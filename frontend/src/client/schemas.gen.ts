@@ -207,6 +207,124 @@ export const Body_login_login_access_tokenSchema = {
     title: 'Body_login-login_access_token'
 } as const;
 
+export const CardCommentCreateSchema = {
+    properties: {
+        content: {
+            type: 'string',
+            maxLength: 5000,
+            minLength: 1,
+            title: 'Content'
+        },
+        card_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Card Id'
+        }
+    },
+    type: 'object',
+    required: ['content', 'card_id'],
+    title: 'CardCommentCreate'
+} as const;
+
+export const CardCommentUpdateSchema = {
+    properties: {
+        content: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 5000
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Content'
+        }
+    },
+    type: 'object',
+    title: 'CardCommentUpdate'
+} as const;
+
+export const CardCommentWithUserSchema = {
+    properties: {
+        content: {
+            type: 'string',
+            maxLength: 5000,
+            minLength: 1,
+            title: 'Content'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        card_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Card Id'
+        },
+        user_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'User Id'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Updated At'
+        },
+        user_full_name: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'User Full Name'
+        },
+        user_email: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'User Email'
+        }
+    },
+    type: 'object',
+    required: ['content', 'id', 'card_id', 'user_id', 'created_at', 'updated_at'],
+    title: 'CardCommentWithUser'
+} as const;
+
+export const CardCommentsWithUserPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/CardCommentWithUser'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'CardCommentsWithUserPublic'
+} as const;
+
 export const CardCreateSchema = {
     properties: {
         title: {
@@ -452,6 +570,139 @@ export const CardsPublicSchema = {
     type: 'object',
     required: ['data', 'count'],
     title: 'CardsPublic'
+} as const;
+
+export const ChecklistItemCreateSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 500,
+            minLength: 1,
+            title: 'Title'
+        },
+        is_completed: {
+            type: 'boolean',
+            title: 'Is Completed',
+            default: false
+        },
+        position: {
+            type: 'number',
+            title: 'Position',
+            default: 65535
+        },
+        card_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Card Id'
+        }
+    },
+    type: 'object',
+    required: ['title', 'card_id'],
+    title: 'ChecklistItemCreate'
+} as const;
+
+export const ChecklistItemPublicSchema = {
+    properties: {
+        title: {
+            type: 'string',
+            maxLength: 500,
+            minLength: 1,
+            title: 'Title'
+        },
+        is_completed: {
+            type: 'boolean',
+            title: 'Is Completed',
+            default: false
+        },
+        position: {
+            type: 'number',
+            title: 'Position',
+            default: 65535
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        card_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Card Id'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        updated_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Updated At'
+        }
+    },
+    type: 'object',
+    required: ['title', 'id', 'card_id', 'created_at', 'updated_at'],
+    title: 'ChecklistItemPublic'
+} as const;
+
+export const ChecklistItemUpdateSchema = {
+    properties: {
+        title: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Title'
+        },
+        is_completed: {
+            anyOf: [
+                {
+                    type: 'boolean'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Is Completed'
+        },
+        position: {
+            anyOf: [
+                {
+                    type: 'number'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Position'
+        }
+    },
+    type: 'object',
+    title: 'ChecklistItemUpdate'
+} as const;
+
+export const ChecklistItemsPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/ChecklistItemPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'ChecklistItemsPublic'
 } as const;
 
 export const HTTPValidationErrorSchema = {

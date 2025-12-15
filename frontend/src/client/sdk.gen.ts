@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { BoardsReadBoardsData, BoardsReadBoardsResponse, BoardsCreateBoardData, BoardsCreateBoardResponse, BoardsReadBoardData, BoardsReadBoardResponse, BoardsUpdateBoardData, BoardsUpdateBoardResponse, BoardsDeleteBoardData, BoardsDeleteBoardResponse, CardsReadCardsData, CardsReadCardsResponse, CardsCreateCardData, CardsCreateCardResponse, CardsReadCardData, CardsReadCardResponse, CardsUpdateCardData, CardsUpdateCardResponse, CardsDeleteCardData, CardsDeleteCardResponse, CardsMoveCardData, CardsMoveCardResponse, ListsReadBoardListsData, ListsReadBoardListsResponse, ListsCreateBoardListData, ListsCreateBoardListResponse, ListsReadBoardListData, ListsReadBoardListResponse, ListsUpdateBoardListData, ListsUpdateBoardListResponse, ListsDeleteBoardListData, ListsDeleteBoardListResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WorkspacesReadWorkspacesData, WorkspacesReadWorkspacesResponse, WorkspacesCreateWorkspaceData, WorkspacesCreateWorkspaceResponse, WorkspacesReadWorkspaceData, WorkspacesReadWorkspaceResponse, WorkspacesUpdateWorkspaceData, WorkspacesUpdateWorkspaceResponse, WorkspacesDeleteWorkspaceData, WorkspacesDeleteWorkspaceResponse, WorkspacesReadWorkspaceMembersData, WorkspacesReadWorkspaceMembersResponse, WorkspacesAddWorkspaceMemberData, WorkspacesAddWorkspaceMemberResponse, WorkspacesInviteWorkspaceMemberData, WorkspacesInviteWorkspaceMemberResponse, WorkspacesUpdateWorkspaceMemberData, WorkspacesUpdateWorkspaceMemberResponse, WorkspacesRemoveWorkspaceMemberData, WorkspacesRemoveWorkspaceMemberResponse } from './types.gen';
+import type { BoardsReadBoardsData, BoardsReadBoardsResponse, BoardsCreateBoardData, BoardsCreateBoardResponse, BoardsReadBoardData, BoardsReadBoardResponse, BoardsUpdateBoardData, BoardsUpdateBoardResponse, BoardsDeleteBoardData, BoardsDeleteBoardResponse, CardsReadCardsData, CardsReadCardsResponse, CardsCreateCardData, CardsCreateCardResponse, CardsReadCardData, CardsReadCardResponse, CardsUpdateCardData, CardsUpdateCardResponse, CardsDeleteCardData, CardsDeleteCardResponse, CardsMoveCardData, CardsMoveCardResponse, ChecklistsReadChecklistItemsData, ChecklistsReadChecklistItemsResponse, ChecklistsCreateChecklistItemData, ChecklistsCreateChecklistItemResponse, ChecklistsReadChecklistItemData, ChecklistsReadChecklistItemResponse, ChecklistsUpdateChecklistItemData, ChecklistsUpdateChecklistItemResponse, ChecklistsDeleteChecklistItemData, ChecklistsDeleteChecklistItemResponse, ChecklistsToggleChecklistItemData, ChecklistsToggleChecklistItemResponse, CommentsReadCommentsData, CommentsReadCommentsResponse, CommentsCreateCommentData, CommentsCreateCommentResponse, CommentsReadCommentData, CommentsReadCommentResponse, CommentsUpdateCommentData, CommentsUpdateCommentResponse, CommentsDeleteCommentData, CommentsDeleteCommentResponse, ListsReadBoardListsData, ListsReadBoardListsResponse, ListsCreateBoardListData, ListsCreateBoardListResponse, ListsReadListsByBoardData, ListsReadListsByBoardResponse, ListsReadBoardListData, ListsReadBoardListResponse, ListsUpdateBoardListData, ListsUpdateBoardListResponse, ListsDeleteBoardListData, ListsDeleteBoardListResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WorkspacesReadWorkspacesData, WorkspacesReadWorkspacesResponse, WorkspacesCreateWorkspaceData, WorkspacesCreateWorkspaceResponse, WorkspacesReadWorkspaceData, WorkspacesReadWorkspaceResponse, WorkspacesUpdateWorkspaceData, WorkspacesUpdateWorkspaceResponse, WorkspacesDeleteWorkspaceData, WorkspacesDeleteWorkspaceResponse, WorkspacesReadWorkspaceMembersData, WorkspacesReadWorkspaceMembersResponse, WorkspacesAddWorkspaceMemberData, WorkspacesAddWorkspaceMemberResponse, WorkspacesInviteWorkspaceMemberData, WorkspacesInviteWorkspaceMemberResponse, WorkspacesUpdateWorkspaceMemberData, WorkspacesUpdateWorkspaceMemberResponse, WorkspacesRemoveWorkspaceMemberData, WorkspacesRemoveWorkspaceMemberResponse } from './types.gen';
 
 export class BoardsService {
     /**
@@ -243,10 +243,257 @@ export class CardsService {
     }
 }
 
+export class ChecklistsService {
+    /**
+     * Read Checklist Items
+     * Get all checklist items, optionally filtered by card_id.
+     * @param data The data for the request.
+     * @param data.cardId
+     * @param data.skip
+     * @param data.limit
+     * @returns ChecklistItemsPublic Successful Response
+     * @throws ApiError
+     */
+    public static readChecklistItems(data: ChecklistsReadChecklistItemsData = {}): CancelablePromise<ChecklistsReadChecklistItemsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/checklists/',
+            query: {
+                card_id: data.cardId,
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Checklist Item
+     * Create a new checklist item.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns ChecklistItemPublic Successful Response
+     * @throws ApiError
+     */
+    public static createChecklistItem(data: ChecklistsCreateChecklistItemData): CancelablePromise<ChecklistsCreateChecklistItemResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/checklists/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Checklist Item
+     * Get a specific checklist item by ID.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns ChecklistItemPublic Successful Response
+     * @throws ApiError
+     */
+    public static readChecklistItem(data: ChecklistsReadChecklistItemData): CancelablePromise<ChecklistsReadChecklistItemResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/checklists/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Checklist Item
+     * Update a checklist item.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.requestBody
+     * @returns ChecklistItemPublic Successful Response
+     * @throws ApiError
+     */
+    public static updateChecklistItem(data: ChecklistsUpdateChecklistItemData): CancelablePromise<ChecklistsUpdateChecklistItemResponse> {
+        return __request(OpenAPI, {
+            method: 'PATCH',
+            url: '/api/v1/checklists/{id}',
+            path: {
+                id: data.id
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Checklist Item
+     * Delete a checklist item.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static deleteChecklistItem(data: ChecklistsDeleteChecklistItemData): CancelablePromise<ChecklistsDeleteChecklistItemResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/checklists/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Toggle Checklist Item
+     * Toggle the completion status of a checklist item.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns ChecklistItemPublic Successful Response
+     * @throws ApiError
+     */
+    public static toggleChecklistItem(data: ChecklistsToggleChecklistItemData): CancelablePromise<ChecklistsToggleChecklistItemResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/checklists/{id}/toggle',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class CommentsService {
+    /**
+     * Read Comments
+     * Get all comments, optionally filtered by card_id.
+     * @param data The data for the request.
+     * @param data.cardId
+     * @param data.skip
+     * @param data.limit
+     * @returns CardCommentsWithUserPublic Successful Response
+     * @throws ApiError
+     */
+    public static readComments(data: CommentsReadCommentsData = {}): CancelablePromise<CommentsReadCommentsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/comments/',
+            query: {
+                card_id: data.cardId,
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Comment
+     * Create a new comment.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns CardCommentWithUser Successful Response
+     * @throws ApiError
+     */
+    public static createComment(data: CommentsCreateCommentData): CancelablePromise<CommentsCreateCommentResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/comments/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Comment
+     * Get a specific comment by ID.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns CardCommentWithUser Successful Response
+     * @throws ApiError
+     */
+    public static readComment(data: CommentsReadCommentData): CancelablePromise<CommentsReadCommentResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/comments/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Update Comment
+     * Update a comment. Only the comment author can update it.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.requestBody
+     * @returns CardCommentWithUser Successful Response
+     * @throws ApiError
+     */
+    public static updateComment(data: CommentsUpdateCommentData): CancelablePromise<CommentsUpdateCommentResponse> {
+        return __request(OpenAPI, {
+            method: 'PATCH',
+            url: '/api/v1/comments/{id}',
+            path: {
+                id: data.id
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Comment
+     * Delete a comment. Only the comment author or superuser can delete it.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static deleteComment(data: CommentsDeleteCommentData): CancelablePromise<CommentsDeleteCommentResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/comments/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
 export class ListsService {
     /**
      * Read Board Lists
-     * Retrieve Board Lists.
+     * Get all lists.
      * @param data The data for the request.
      * @param data.skip
      * @param data.limit
@@ -281,6 +528,27 @@ export class ListsService {
             url: '/api/v1/lists/',
             body: data.requestBody,
             mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Lists By Board
+     * Get all lists for a specific board.
+     * @param data The data for the request.
+     * @param data.boardId
+     * @returns ListsPublic Successful Response
+     * @throws ApiError
+     */
+    public static readListsByBoard(data: ListsReadListsByBoardData): CancelablePromise<ListsReadListsByBoardResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/lists/board/{board_id}',
+            path: {
+                board_id: data.boardId
+            },
             errors: {
                 422: 'Validation Error'
             }

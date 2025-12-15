@@ -35,40 +35,57 @@ const RecentBoards = () => {
     return <Text fontSize="sm" color="fg.muted">Henüz board yok</Text>
   }
 
+  const bgColors: Record<string, string> = {
+    purple: "purple.500",
+    blue: "blue.500",
+    green: "green.500",
+    orange: "orange.500",
+    pink: "pink.500",
+  }
+
   return (
     <VStack align="stretch" gap={2}>
-      {boards.map((board) => (
-        <RouterLink key={board.id} to="/boards" search={{ page: 1 }}>
-          <Flex
-            px={3}
-            py={2}
-            borderRadius="md"
-            bg="bg.subtle"
-            _hover={{ bg: "bg.muted" }}
-            cursor="pointer"
-            alignItems="center"
-            gap={3}
-          >
-            <Box w={10} h={8} bg="purple.500" borderRadius="sm" />
-            <VStack align="start" gap={0}>
-              <Text fontSize="sm" fontWeight="medium">{board.name}</Text>
-              <Text fontSize="xs" color="fg.muted">{board.visibility}</Text>
-            </VStack>
-          </Flex>
-        </RouterLink>
-      ))}
+      {boards.map((board) => {
+        const boardBg = bgColors[board.background_image || "purple"] || "purple.500"
+        return (
+          <RouterLink key={board.id} to="/board/$boardId" params={{ boardId: board.id }} search={{ page: 1 }}>
+            <Flex
+              px={3}
+              py={2}
+              borderRadius="md"
+              bg="bg.subtle"
+              _hover={{ bg: "bg.muted" }}
+              cursor="pointer"
+              alignItems="center"
+              gap={3}
+            >
+              <Box w={10} h={8} bg={boardBg} borderRadius="sm" />
+              <VStack align="start" gap={0}>
+                <Text fontSize="sm" fontWeight="medium">{board.name}</Text>
+                <Text fontSize="xs" color="fg.muted">{board.visibility}</Text>
+              </VStack>
+            </Flex>
+          </RouterLink>
+        )
+      })}
     </VStack>
   )
 }
 
-const BoardCard = ({ board }: { board: { id?: string; name: string } }) => {
-  const bgColors = ["purple.500", "blue.500", "green.500", "orange.500", "pink.500"]
-  const randomBg = bgColors[Math.floor(Math.random() * bgColors.length)]
+const BoardCard = ({ board }: { board: { id: string; name: string; background_image?: string | null } }) => {
+  const bgColors: Record<string, string> = {
+    purple: "purple.500",
+    blue: "blue.500",
+    green: "green.500",
+    orange: "orange.500",
+    pink: "pink.500",
+  }
+  const boardBg = bgColors[board.background_image || "purple"] || "purple.500"
 
   return (
-    <RouterLink to="/boards" search={{ page: 1 }}>
+    <RouterLink to="/board/$boardId" params={{ boardId: board.id }} search={{ page: 1 }}>
       <Box
-        bg={randomBg}
+        bg={boardBg}
         borderRadius="md"
         p={4}
         h="100px"

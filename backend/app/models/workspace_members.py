@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, SQLModel
 from typing import TYPE_CHECKING
 
 from app.models.enums import MemberRole
@@ -34,9 +34,6 @@ class WorkspaceMember(WorkspaceMemberBase, table=True):
     user_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
     workspace_id: uuid.UUID = Field(foreign_key="workspace.id", nullable=False)
     created_at: datetime = Field(default_factory=datetime.utcnow)
-
-    user: "User" = Relationship(back_populates="workspace_memberships")
-    workspace: "Workspace" = Relationship(back_populates="members")
 
 
 class WorkspaceMemberPublic(WorkspaceMemberBase):

@@ -39,6 +39,31 @@ export type Body_login_login_access_token = {
     client_secret?: (string | null);
 };
 
+export type CardCommentCreate = {
+    content: string;
+    card_id: string;
+};
+
+export type CardCommentsWithUserPublic = {
+    data: Array<CardCommentWithUser>;
+    count: number;
+};
+
+export type CardCommentUpdate = {
+    content?: (string | null);
+};
+
+export type CardCommentWithUser = {
+    content: string;
+    id: string;
+    card_id: string;
+    user_id: string;
+    created_at: string;
+    updated_at: string;
+    user_full_name?: (string | null);
+    user_email?: (string | null);
+};
+
 export type CardCreate = {
     title: string;
     description?: (string | null);
@@ -75,6 +100,34 @@ export type CardUpdate = {
     is_archived?: (boolean | null);
     cover_image?: (string | null);
     list_id?: (string | null);
+};
+
+export type ChecklistItemCreate = {
+    title: string;
+    is_completed?: boolean;
+    position?: number;
+    card_id: string;
+};
+
+export type ChecklistItemPublic = {
+    title: string;
+    is_completed?: boolean;
+    position?: number;
+    id: string;
+    card_id: string;
+    created_at: string;
+    updated_at: string;
+};
+
+export type ChecklistItemsPublic = {
+    data: Array<ChecklistItemPublic>;
+    count: number;
+};
+
+export type ChecklistItemUpdate = {
+    title?: (string | null);
+    is_completed?: (boolean | null);
+    position?: (number | null);
 };
 
 export type HTTPValidationError = {
@@ -309,6 +362,82 @@ export type CardsMoveCardData = {
 
 export type CardsMoveCardResponse = (CardPublic);
 
+export type ChecklistsReadChecklistItemsData = {
+    cardId?: (string | null);
+    limit?: number;
+    skip?: number;
+};
+
+export type ChecklistsReadChecklistItemsResponse = (ChecklistItemsPublic);
+
+export type ChecklistsCreateChecklistItemData = {
+    requestBody: ChecklistItemCreate;
+};
+
+export type ChecklistsCreateChecklistItemResponse = (ChecklistItemPublic);
+
+export type ChecklistsReadChecklistItemData = {
+    id: string;
+};
+
+export type ChecklistsReadChecklistItemResponse = (ChecklistItemPublic);
+
+export type ChecklistsUpdateChecklistItemData = {
+    id: string;
+    requestBody: ChecklistItemUpdate;
+};
+
+export type ChecklistsUpdateChecklistItemResponse = (ChecklistItemPublic);
+
+export type ChecklistsDeleteChecklistItemData = {
+    id: string;
+};
+
+export type ChecklistsDeleteChecklistItemResponse = ({
+    [key: string]: unknown;
+});
+
+export type ChecklistsToggleChecklistItemData = {
+    id: string;
+};
+
+export type ChecklistsToggleChecklistItemResponse = (ChecklistItemPublic);
+
+export type CommentsReadCommentsData = {
+    cardId?: (string | null);
+    limit?: number;
+    skip?: number;
+};
+
+export type CommentsReadCommentsResponse = (CardCommentsWithUserPublic);
+
+export type CommentsCreateCommentData = {
+    requestBody: CardCommentCreate;
+};
+
+export type CommentsCreateCommentResponse = (CardCommentWithUser);
+
+export type CommentsReadCommentData = {
+    id: string;
+};
+
+export type CommentsReadCommentResponse = (CardCommentWithUser);
+
+export type CommentsUpdateCommentData = {
+    id: string;
+    requestBody: CardCommentUpdate;
+};
+
+export type CommentsUpdateCommentResponse = (CardCommentWithUser);
+
+export type CommentsDeleteCommentData = {
+    id: string;
+};
+
+export type CommentsDeleteCommentResponse = ({
+    [key: string]: unknown;
+});
+
 export type ListsReadBoardListsData = {
     limit?: number;
     skip?: number;
@@ -321,6 +450,12 @@ export type ListsCreateBoardListData = {
 };
 
 export type ListsCreateBoardListResponse = (ListPublic);
+
+export type ListsReadListsByBoardData = {
+    boardId: string;
+};
+
+export type ListsReadListsByBoardResponse = (ListsPublic);
 
 export type ListsReadBoardListData = {
     id: string;

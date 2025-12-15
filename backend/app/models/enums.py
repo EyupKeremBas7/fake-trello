@@ -11,3 +11,5 @@ class MemberRole(str, Enum):
     admin = "admin"
     member = "member"
     observer = "observer"
+
+    

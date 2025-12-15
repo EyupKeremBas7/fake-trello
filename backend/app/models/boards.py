@@ -1,6 +1,6 @@
 import uuid
 from typing import List, TYPE_CHECKING
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, SQLModel
 from app.models.enums import Visibility
 
 if TYPE_CHECKING:
@@ -30,10 +30,6 @@ class Board(BoardBase, table=True):
     workspace_id: uuid.UUID = Field(foreign_key="workspace.id", ondelete="CASCADE")
     owner_id: uuid.UUID = Field(foreign_key="user.id") 
     
-
-    workspace: "Workspace" = Relationship(back_populates="boards")
-    lists: List["BoardList"] = Relationship(back_populates="board", cascade_delete=True) 
-    owner: "User" = Relationship(back_populates="boards") 
 
 # Public Return
 class BoardPublic(BoardBase):
