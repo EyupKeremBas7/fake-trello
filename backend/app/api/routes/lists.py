@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -37,9 +38,9 @@ def read_board_lists(
 ) -> Any:
     """Get all lists."""
     if current_user.is_superuser:
-        count_statement = select(func.count()).select_from(BoardList)
+        count_statement = select(func.count()).select_from(BoardList).where(BoardList.is_deleted == False)
         count = session.exec(count_statement).one()
-        statement = select(BoardList).offset(skip).limit(limit)
+        statement = select(BoardList).where(BoardList.is_deleted == False).offset(skip).limit(limit)
         lists = session.exec(statement).all()
     else:
         statement = (
@@ -48,6 +49,7 @@ def read_board_lists(
             .join(Workspace, Board.workspace_id == Workspace.id)
             .outerjoin(WorkspaceMember, WorkspaceMember.workspace_id == Workspace.id)
             .where(
+                BoardList.is_deleted == False,
                 or_(
                     Workspace.owner_id == current_user.id,
                     WorkspaceMember.user_id == current_user.id
@@ -75,7 +77,7 @@ def read_lists_by_board(
     if not current_user.is_superuser and not can_access_list_board(session, current_user.id, board):
         raise HTTPException(status_code=403, detail="Not enough permissions")
     
-    statement = select(BoardList).where(BoardList.board_id == board_id).order_by(BoardList.position)
+    statement = select(BoardList).where(BoardList.board_id == board_id, BoardList.is_deleted == False).order_by(BoardList.position)
     lists = session.exec(statement).all()
     
     return ListsPublic(data=lists, count=len(lists))
@@ -87,7 +89,7 @@ def read_board_list(session: SessionDep, current_user: CurrentUser, id: uuid.UUI
     Get Board List by ID.
     """
     board_list = session.get(BoardList, id)
-    if not board_list:
+    if not board_list or board_list.is_deleted:
         raise HTTPException(status_code=404, detail="List not found")
     return board_list
 
@@ -141,8 +143,11 @@ def delete_board_list(
     Delete a Board List.
     """
     board_list = session.get(BoardList, id)
-    if not board_list:
+    if not board_list or board_list.is_deleted:
         raise HTTPException(status_code=404, detail="List not found")
-    session.delete(board_list)
+    board_list.is_deleted = True
+    board_list.deleted_at = datetime.utcnow()
+    board_list.deleted_by = str(current_user.id)
+    session.add(board_list)
     session.commit()
     return Message(message="List deleted successfully")

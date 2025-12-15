@@ -1,7 +1,9 @@
 import uuid
-from pydantic import EmailStr
+from pydantic import EmailStr, field_validator
 from sqlmodel import Field, SQLModel
 from typing import TYPE_CHECKING, List
+
+from app.core.sanitization import sanitize_plain_text, sanitize_email
 
 if TYPE_CHECKING:
     from app.models.workspaces import Workspace
@@ -14,6 +16,11 @@ class UserBase(SQLModel):
     is_active: bool = True
     is_superuser: bool = False
     full_name: str | None = Field(default=None, max_length=255)
+
+    @field_validator('full_name', mode='before')
+    @classmethod
+    def sanitize_full_name(cls, v: str | None) -> str | None:
+        return sanitize_plain_text(v)
 
 
 class UserCreate(UserBase):

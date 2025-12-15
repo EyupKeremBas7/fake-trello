@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -50,9 +51,9 @@ def read_workspaces(
     session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
 ) -> Any:
     if current_user.is_superuser:
-        count_statement = select(func.count()).select_from(Workspace)
+        count_statement = select(func.count()).select_from(Workspace).where(Workspace.is_deleted == False)
         count = session.exec(count_statement).one()
-        statement = select(Workspace).offset(skip).limit(limit)
+        statement = select(Workspace).where(Workspace.is_deleted == False).offset(skip).limit(limit)
         workspaces = session.exec(statement).all()
     else:
         count_statement = (
@@ -60,6 +61,7 @@ def read_workspaces(
             .select_from(Workspace)
             .outerjoin(WorkspaceMember, WorkspaceMember.workspace_id == Workspace.id)
             .where(
+                Workspace.is_deleted == False,
                 or_(
                     Workspace.owner_id == current_user.id,
                     WorkspaceMember.user_id == current_user.id
@@ -71,6 +73,7 @@ def read_workspaces(
             select(Workspace)
             .outerjoin(WorkspaceMember, WorkspaceMember.workspace_id == Workspace.id)
             .where(
+                Workspace.is_deleted == False,
                 or_(
                     Workspace.owner_id == current_user.id,
                     WorkspaceMember.user_id == current_user.id
@@ -88,7 +91,7 @@ def read_workspaces(
 @router.get("/{id}", response_model=WorkspacePublic)
 def read_workspace(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
     workspace = session.get(Workspace, id)
-    if not workspace:
+    if not workspace or workspace.is_deleted:
         raise HTTPException(status_code=404, detail="Workspace not found")
     if not current_user.is_superuser and not can_access_workspace(session, current_user.id, workspace):
         raise HTTPException(status_code=403, detail="Not enough permissions")
@@ -133,11 +136,14 @@ def delete_workspace(
     session: SessionDep, current_user: CurrentUser, id: uuid.UUID
 ) -> Message:
     workspace = session.get(Workspace, id)
-    if not workspace:
+    if not workspace or workspace.is_deleted:
         raise HTTPException(status_code=404, detail="Workspace not found")
     if not current_user.is_superuser and workspace.owner_id != current_user.id:
         raise HTTPException(status_code=403, detail="Only owner can delete workspace")
-    session.delete(workspace)
+    workspace.is_deleted = True
+    workspace.deleted_at = datetime.utcnow()
+    workspace.deleted_by = str(current_user.id)
+    session.add(workspace)
     session.commit()
     return Message(message="Workspace deleted successfully")
 

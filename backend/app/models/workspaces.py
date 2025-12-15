@@ -2,6 +2,10 @@ import uuid
 from sqlmodel import Field, SQLModel
 from typing import List, TYPE_CHECKING
 from datetime import datetime
+from pydantic import field_validator
+
+from app.core.sanitization import sanitize_plain_text, sanitize_html
+from app.models.mixins import SoftDeleteMixin
 
 if TYPE_CHECKING:
     from app.models.boards import Board
@@ -14,6 +18,16 @@ class WorkspaceBase(SQLModel):
     description: str | None = Field(default=None, max_length=500)
     is_archived: bool = False
 
+    @field_validator('name', mode='before')
+    @classmethod
+    def sanitize_name(cls, v: str | None) -> str | None:
+        return sanitize_plain_text(v)
+
+    @field_validator('description', mode='before')
+    @classmethod
+    def sanitize_description(cls, v: str | None) -> str | None:
+        return sanitize_html(v)
+
 
 class WorkspaceCreate(WorkspaceBase):
     pass
@@ -25,7 +39,7 @@ class WorkspaceUpdate(SQLModel):
     is_archived: bool | None = None
 
 
-class Workspace(WorkspaceBase, table=True):
+class Workspace(WorkspaceBase, SoftDeleteMixin, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     owner_id: uuid.UUID = Field(foreign_key="user.id", nullable=False)
     created_at: datetime = Field(default_factory=datetime.utcnow)
@@ -36,6 +50,7 @@ class WorkspacePublic(WorkspaceBase):
     id: uuid.UUID
     owner_id: uuid.UUID
     created_at: datetime
+    is_deleted: bool = False
 
 
 class WorkspacesPublic(SQLModel):

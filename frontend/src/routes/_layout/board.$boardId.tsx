@@ -12,13 +12,33 @@ import {
   Text,
   VStack,
 } from "@chakra-ui/react"
+import {
+  DndContext,
+  DragOverlay,
+  closestCorners,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragStartEvent,
+  type DragEndEvent,
+  type DragOverEvent,
+} from "@dnd-kit/core"
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+  horizontalListSortingStrategy,
+} from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { createFileRoute, Link as RouterLink } from "@tanstack/react-router"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { FiArrowLeft, FiCheckSquare, FiImage, FiMessageSquare, FiMoreHorizontal, FiPlus, FiX } from "react-icons/fi"
 import { z } from "zod"
 
-import { BoardsService, CardsService, ChecklistsService, CommentsService, ListsService, type CardPublic } from "@/client"
+import { BoardsService, CardsService, ChecklistsService, CommentsService, ListsService, type CardPublic, type ListPublic } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import CardDetailModal from "@/components/Cards/CardDetailModal"
 import {
@@ -40,8 +60,27 @@ export const Route = createFileRoute("/_layout/board/$boardId")({
   component: BoardDetail,
   validateSearch: (search) => BoardDetailSearchSchema.parse(search),
 })
+interface SortableCardProps {
+  card: CardPublic
+  onClick: () => void
+}
 
-const CardItem = ({ card, onClick }: { card: CardPublic; onClick: () => void }) => {
+function SortableCard({ card, onClick }: SortableCardProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: card.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
   const { data: checklistData } = useQuery({
     queryKey: ["checklists", card.id],
     queryFn: () => ChecklistsService.readChecklistItems({ cardId: card.id }),
@@ -58,11 +97,15 @@ const CardItem = ({ card, onClick }: { card: CardPublic; onClick: () => void }) 
 
   return (
     <Box
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
       bg="bg.panel"
       p={3}
       borderRadius="md"
       boxShadow="sm"
-      cursor="pointer"
+      cursor="grab"
       _hover={{ bg: "bg.subtle" }}
       borderWidth="1px"
       borderColor="border.subtle"
@@ -78,7 +121,8 @@ const CardItem = ({ card, onClick }: { card: CardPublic; onClick: () => void }) 
       )}
       <HStack mt={2} gap={3}>
         {card.due_date && (
-          <Text fontSize="xs" color="blue.500">  📅 {new Date(card.due_date).toLocaleDateString()}
+          <Text fontSize="xs" color="blue.500">
+            📅 {new Date(card.due_date).toLocaleDateString()}
           </Text>
         )}
         {checklistCount > 0 && (
@@ -94,6 +138,26 @@ const CardItem = ({ card, onClick }: { card: CardPublic; onClick: () => void }) 
           </HStack>
         )}
       </HStack>
+    </Box>
+  )
+}
+
+function CardDragOverlay({ card }: { card: CardPublic }) {
+  return (
+    <Box
+      bg="bg.panel"
+      p={3}
+      borderRadius="md"
+      boxShadow="xl"
+      borderWidth="2px"
+      borderColor="blue.500"
+      opacity={0.9}
+      transform="rotate(3deg)"
+      w="260px"
+    >
+      <Text fontSize="sm" fontWeight="medium">
+        {card.title}
+      </Text>
     </Box>
   )
 }
@@ -132,6 +196,11 @@ const AddCardForm = ({ listId, onClose }: { listId: string; onClose: () => void 
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         autoFocus
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && title.trim()) {
+            mutation.mutate()
+          }
+        }}
       />
       <HStack mt={2}>
         <Button
@@ -151,13 +220,38 @@ const AddCardForm = ({ listId, onClose }: { listId: string; onClose: () => void 
   )
 }
 
-const ListColumn = ({ list, cards }: { list: any; cards: CardPublic[] }) => {
+interface SortableListColumnProps {
+  list: ListPublic
+  cards: CardPublic[]
+  onCardClick: (card: CardPublic) => void
+}
+
+function SortableListColumn({ list, cards, onCardClick }: SortableListColumnProps) {
   const [showAddCard, setShowAddCard] = useState(false)
-  const [selectedCard, setSelectedCard] = useState<CardPublic | null>(null)
-  const listCards = cards.filter((card) => card.list_id === list.id)
+  
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: `list-${list.id}` })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  const listCards = cards
+    .filter((card) => card.list_id === list.id)
+    .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
 
   return (
     <Box
+      ref={setNodeRef}
+      style={style}
       bg="bg.subtle"
       borderRadius="lg"
       p={3}
@@ -167,7 +261,7 @@ const ListColumn = ({ list, cards }: { list: any; cards: CardPublic[] }) => {
       display="flex"
       flexDirection="column"
     >
-      <HStack justify="space-between" mb={3}>
+      <HStack justify="space-between" mb={3} {...attributes} {...listeners} cursor="grab">
         <Text fontWeight="bold" fontSize="sm">
           {list.name}
         </Text>
@@ -181,15 +275,18 @@ const ListColumn = ({ list, cards }: { list: any; cards: CardPublic[] }) => {
         gap={2}
         flex={1}
         overflowY="auto"
+        minH="50px"
         css={{
           "&::-webkit-scrollbar": { width: "6px" },
           "&::-webkit-scrollbar-track": { background: "transparent" },
           "&::-webkit-scrollbar-thumb": { background: "gray.400", borderRadius: "3px" },
         }}
       >
-        {listCards.map((card) => (
-          <CardItem key={card.id} card={card} onClick={() => setSelectedCard(card)} />
-        ))}
+        <SortableContext items={listCards.map((c) => c.id)} strategy={verticalListSortingStrategy}>
+          {listCards.map((card) => (
+            <SortableCard key={card.id} card={card} onClick={() => onCardClick(card)} />
+          ))}
+        </SortableContext>
       </VStack>
 
       {showAddCard ? (
@@ -205,14 +302,6 @@ const ListColumn = ({ list, cards }: { list: any; cards: CardPublic[] }) => {
           <FiPlus />
           <Text ml={2}>Add a card</Text>
         </Button>
-      )}
-
-      {selectedCard && (
-        <CardDetailModal
-          card={selectedCard}
-          isOpen={!!selectedCard}
-          onClose={() => setSelectedCard(null)}
-        />
       )}
     </Box>
   )
@@ -252,6 +341,11 @@ const AddListForm = ({ boardId, onClose }: { boardId: string; onClose: () => voi
         value={name}
         onChange={(e) => setName(e.target.value)}
         autoFocus
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && name.trim()) {
+            mutation.mutate()
+          }
+        }}
       />
       <HStack mt={2}>
         <Button
@@ -271,11 +365,75 @@ const AddListForm = ({ boardId, onClose }: { boardId: string; onClose: () => voi
   )
 }
 
+const bgColors: Record<string, { gradient: string; preview: string }> = {
+  purple: {
+    gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    preview: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+  },
+  blue: {
+    gradient: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+    preview: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+  },
+  green: {
+    gradient: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+    preview: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+  },
+  orange: {
+    gradient: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+    preview: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+  },
+  pink: {
+    gradient: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
+    preview: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
+  },
+  ocean: {
+    gradient: "linear-gradient(135deg, #2E3192 0%, #1BFFFF 100%)",
+    preview: "linear-gradient(135deg, #2E3192 0%, #1BFFFF 100%)",
+  },
+  sunset: {
+    gradient: "linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%)",
+    preview: "linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%)",
+  },
+  forest: {
+    gradient: "linear-gradient(135deg, #134E5E 0%, #71B280 100%)",
+    preview: "linear-gradient(135deg, #134E5E 0%, #71B280 100%)",
+  },
+  mountain: {
+    gradient: "url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80') center/cover",
+    preview: "url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=60') center/cover",
+  },
+  beach: {
+    gradient: "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80') center/cover",
+    preview: "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=60') center/cover",
+  },
+  city: {
+    gradient: "url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&q=80') center/cover",
+    preview: "url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&q=60') center/cover",
+  },
+  space: {
+    gradient: "url('https://images.unsplash.com/photo-1462332420958-a05d1e002413?w=1920&q=80') center/cover",
+    preview: "url('https://images.unsplash.com/photo-1462332420958-a05d1e002413?w=400&q=60') center/cover",
+  },
+}
+
 function BoardDetail() {
   const { boardId } = Route.useParams()
   const [showAddList, setShowAddList] = useState(false)
+  const [activeCard, setActiveCard] = useState<CardPublic | null>(null)
+  const [selectedCard, setSelectedCard] = useState<CardPublic | null>(null)
   const queryClient = useQueryClient()
   const { showSuccessToast, showErrorToast } = useCustomToast()
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 5,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  )
 
   const { data: board, isLoading: boardLoading } = useQuery({
     queryKey: ["board", boardId],
@@ -290,6 +448,21 @@ function BoardDetail() {
   const { data: cardsData, isLoading: cardsLoading } = useQuery({
     queryKey: ["cards", "board", boardId],
     queryFn: () => CardsService.readCards({ limit: 500 }),
+  })
+
+  const updateCardMutation = useMutation({
+    mutationFn: ({ cardId, listId, position }: { cardId: string; listId: string; position: number }) =>
+      CardsService.updateCard({
+        id: cardId,
+        requestBody: { list_id: listId, position },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cards"] })
+    },
+    onError: (err: ApiError) => {
+      showErrorToast(err.message || "Failed to move card")
+      queryClient.invalidateQueries({ queryKey: ["cards"] })
+    },
   })
 
   const updateBoardBg = useMutation({
@@ -307,6 +480,91 @@ function BoardDetail() {
     },
   })
 
+  const lists = useMemo(() => {
+    return (listsData?.data ?? [])
+      .filter((list) => list.board_id === boardId)
+      .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+  }, [listsData, boardId])
+
+  const cards = useMemo(() => {
+    return cardsData?.data ?? []
+  }, [cardsData])
+
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event
+    const cardId = active.id as string
+    
+    if (!cardId.startsWith("list-")) {
+      const card = cards.find((c) => c.id === cardId)
+      if (card) {
+        setActiveCard(card)
+      }
+    }
+  }
+
+  const handleDragOver = (_event: DragOverEvent) => {
+  }
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    setActiveCard(null)
+
+    if (!over) return
+
+    const activeId = active.id as string
+    const overId = over.id as string
+
+    if (activeId === overId) return
+
+    if (!activeId.startsWith("list-")) {
+      const activeCard = cards.find((c) => c.id === activeId)
+      if (!activeCard) return
+
+      let targetListId = activeCard.list_id
+      let newPosition = activeCard.position ?? 65535
+
+      if (overId.startsWith("list-")) {
+        targetListId = overId.replace("list-", "")
+        const listCards = cards.filter((c) => c.list_id === targetListId)
+        newPosition = listCards.length > 0 
+          ? Math.max(...listCards.map((c) => c.position ?? 0)) + 65535 
+          : 65535
+      } else {
+        const overCard = cards.find((c) => c.id === overId)
+        if (overCard) {
+          targetListId = overCard.list_id
+          
+          const listCards = cards
+            .filter((c) => c.list_id === targetListId)
+            .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
+          
+          const overIndex = listCards.findIndex((c) => c.id === overId)
+          const activeIndex = listCards.findIndex((c) => c.id === activeId)
+          
+          if (overIndex !== -1) {
+            if (activeIndex === -1 || activeIndex > overIndex) {
+              const prevPosition = overIndex > 0 ? (listCards[overIndex - 1].position ?? 0) : 0
+              const overPosition = overCard.position ?? 65535
+              newPosition = (prevPosition + overPosition) / 2
+            } else {
+              const overPosition = overCard.position ?? 65535
+              const nextPosition = overIndex < listCards.length - 1 
+                ? (listCards[overIndex + 1].position ?? overPosition + 65535) 
+                : overPosition + 65535
+              newPosition = (overPosition + nextPosition) / 2
+            }
+          }
+        }
+      }
+
+      updateCardMutation.mutate({
+        cardId: activeCard.id,
+        listId: targetListId,
+        position: newPosition,
+      })
+    }
+  }
+
   if (boardLoading || listsLoading || cardsLoading) {
     return (
       <Flex justify="center" align="center" h="100vh">
@@ -323,61 +581,6 @@ function BoardDetail() {
     )
   }
 
-  const lists = (listsData?.data ?? []).filter((list) => list.board_id === boardId)
-  const cards = cardsData?.data ?? []
-
-  const bgColors: Record<string, { gradient: string; preview: string }> = {
-    purple: {
-      gradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-      preview: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-    },
-    blue: {
-      gradient: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-      preview: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-    },
-    green: {
-      gradient: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
-      preview: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
-    },
-    orange: {
-      gradient: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-      preview: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-    },
-    pink: {
-      gradient: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
-      preview: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
-    },
-    ocean: {
-      gradient: "linear-gradient(135deg, #2E3192 0%, #1BFFFF 100%)",
-      preview: "linear-gradient(135deg, #2E3192 0%, #1BFFFF 100%)",
-    },
-    sunset: {
-      gradient: "linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%)",
-      preview: "linear-gradient(135deg, #ee9ca7 0%, #ffdde1 100%)",
-    },
-    forest: {
-      gradient: "linear-gradient(135deg, #134E5E 0%, #71B280 100%)",
-      preview: "linear-gradient(135deg, #134E5E 0%, #71B280 100%)",
-    },
-    // Image backgrounds
-    mountain: {
-      gradient: "url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80') center/cover",
-      preview: "url('https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=60') center/cover",
-    },
-    beach: {
-      gradient: "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80') center/cover",
-      preview: "url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&q=60') center/cover",
-    },
-    city: {
-      gradient: "url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&q=80') center/cover",
-      preview: "url('https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&q=60') center/cover",
-    },
-    space: {
-      gradient: "url('https://images.unsplash.com/photo-1462332420958-a05d1e002413?w=1920&q=80') center/cover",
-      preview: "url('https://images.unsplash.com/photo-1462332420958-a05d1e002413?w=400&q=60') center/cover",
-    },
-  }
-
   const boardBgConfig = bgColors[board.background_image || "purple"] || bgColors.purple
   const boardBg = boardBgConfig.gradient
   const isImageBg = boardBg.startsWith("url(")
@@ -385,7 +588,6 @@ function BoardDetail() {
   return (
     <Box
       minH="100vh"
-      bg={isImageBg ? undefined : undefined}
       bgGradient={isImageBg ? undefined : boardBg}
       background={isImageBg ? boardBg : undefined}
       ml={{ base: 0, md: "-8" }}
@@ -394,6 +596,7 @@ function BoardDetail() {
       pt={4}
       px={4}
     >
+      {/* Header */}
       <HStack mb={4} justify="space-between">
         <HStack>
           <RouterLink to="/boards" search={{ page: 1 }}>
@@ -416,7 +619,7 @@ function BoardDetail() {
                 _hover={{ bg: "whiteAlpha.400" }}
               >
                 <FiImage />
-                <Text ml={2}>Change Background</Text>
+                <Text ml={2}>Background</Text>
               </Button>
             </DialogTrigger>
             <DialogContent>
@@ -468,30 +671,56 @@ function BoardDetail() {
         </HStack>
       </HStack>
 
-      <Flex gap={4} overflowX="auto" pb={4} align="flex-start">
-        {lists
-          .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
-          .map((list) => (
-            <ListColumn key={list.id} list={list} cards={cards} />
-          ))}
+      {/* Board with DnD */}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCorners}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDragEnd={handleDragEnd}
+      >
+        <Flex gap={4} overflowX="auto" pb={4} align="flex-start">
+          <SortableContext items={lists.map((l) => `list-${l.id}`)} strategy={horizontalListSortingStrategy}>
+            {lists.map((list) => (
+              <SortableListColumn
+                key={list.id}
+                list={list}
+                cards={cards}
+                onCardClick={setSelectedCard}
+              />
+            ))}
+          </SortableContext>
 
-        {showAddList ? (
-          <AddListForm boardId={boardId} onClose={() => setShowAddList(false)} />
-        ) : (
-          <Button
-            variant="ghost"
-            bg="whiteAlpha.300"
-            color="white"
-            _hover={{ bg: "whiteAlpha.400" }}
-            minW="280px"
-            justifyContent="flex-start"
-            onClick={() => setShowAddList(true)}
-          >
-            <FiPlus />
-            <Text ml={2}>Add another list</Text>
-          </Button>
-        )}
-      </Flex>
+          {showAddList ? (
+            <AddListForm boardId={boardId} onClose={() => setShowAddList(false)} />
+          ) : (
+            <Button
+              variant="ghost"
+              bg="whiteAlpha.300"
+              color="white"
+              _hover={{ bg: "whiteAlpha.400" }}
+              minW="280px"
+              justifyContent="flex-start"
+              onClick={() => setShowAddList(true)}
+            >
+              <FiPlus />
+              <Text ml={2}>Add another list</Text>
+            </Button>
+          )}
+        </Flex>
+
+        <DragOverlay>
+          {activeCard ? <CardDragOverlay card={activeCard} /> : null}
+        </DragOverlay>
+      </DndContext>
+
+      {selectedCard && (
+        <CardDetailModal
+          card={selectedCard}
+          isOpen={!!selectedCard}
+          onClose={() => setSelectedCard(null)}
+        />
+      )}
     </Box>
   )
 }

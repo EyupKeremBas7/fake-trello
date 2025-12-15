@@ -50,7 +50,6 @@ function Login() {
     try {
       await loginMutation.mutateAsync(data)
     } catch {
-      // error is handled by useAuth hook
     }
   }
 

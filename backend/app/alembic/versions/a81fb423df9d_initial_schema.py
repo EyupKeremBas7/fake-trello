@@ -1,8 +1,8 @@
-"""ilk_kurulum
+"""initial_schema
 
-Revision ID: f0f6ff371090
+Revision ID: a81fb423df9d
 Revises: 
-Create Date: 2025-12-10 16:13:48.342634
+Create Date: 2025-12-15 15:41:11.060403
 
 """
 from alembic import op
@@ -11,7 +11,7 @@ import sqlmodel.sql.sqltypes
 
 
 # revision identifiers, used by Alembic.
-revision = 'f0f6ff371090'
+revision = 'a81fb423df9d'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -30,6 +30,9 @@ def upgrade():
     )
     op.create_index(op.f('ix_user_email'), 'user', ['email'], unique=True)
     op.create_table('workspace',
+    sa.Column('is_deleted', sa.Boolean(), nullable=False),
+    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.Column('deleted_by', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(length=100), nullable=False),
     sa.Column('description', sqlmodel.sql.sqltypes.AutoString(length=500), nullable=True),
     sa.Column('is_archived', sa.Boolean(), nullable=False),
@@ -39,7 +42,11 @@ def upgrade():
     sa.ForeignKeyConstraint(['owner_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_workspace_is_deleted'), 'workspace', ['is_deleted'], unique=False)
     op.create_table('board',
+    sa.Column('is_deleted', sa.Boolean(), nullable=False),
+    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.Column('deleted_by', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(length=100), nullable=False),
     sa.Column('visibility', sa.Enum('private', 'workspace', 'public', name='visibility'), nullable=False),
     sa.Column('background_image', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
@@ -51,6 +58,7 @@ def upgrade():
     sa.ForeignKeyConstraint(['workspace_id'], ['workspace.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_board_is_deleted'), 'board', ['is_deleted'], unique=False)
     op.create_table('workspacemember',
     sa.Column('role', sa.Enum('admin', 'member', 'observer', name='memberrole'), nullable=False),
     sa.Column('id', sa.Uuid(), nullable=False),
@@ -62,6 +70,9 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('board_list',
+    sa.Column('is_deleted', sa.Boolean(), nullable=False),
+    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.Column('deleted_by', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('name', sqlmodel.sql.sqltypes.AutoString(length=100), nullable=False),
     sa.Column('position', sa.Float(), nullable=False),
     sa.Column('is_archived', sa.Boolean(), nullable=False),
@@ -70,7 +81,11 @@ def upgrade():
     sa.ForeignKeyConstraint(['board_id'], ['board.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_board_list_is_deleted'), 'board_list', ['is_deleted'], unique=False)
     op.create_table('card',
+    sa.Column('is_deleted', sa.Boolean(), nullable=False),
+    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.Column('deleted_by', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('title', sqlmodel.sql.sqltypes.AutoString(length=255), nullable=False),
     sa.Column('description', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('position', sa.Float(), nullable=False),
@@ -84,7 +99,11 @@ def upgrade():
     sa.ForeignKeyConstraint(['list_id'], ['board_list.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_card_is_deleted'), 'card', ['is_deleted'], unique=False)
     op.create_table('card_comment',
+    sa.Column('is_deleted', sa.Boolean(), nullable=False),
+    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.Column('deleted_by', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('content', sqlmodel.sql.sqltypes.AutoString(length=5000), nullable=False),
     sa.Column('id', sa.Uuid(), nullable=False),
     sa.Column('card_id', sa.Uuid(), nullable=False),
@@ -95,7 +114,11 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['user.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_card_comment_is_deleted'), 'card_comment', ['is_deleted'], unique=False)
     op.create_table('checklist_item',
+    sa.Column('is_deleted', sa.Boolean(), nullable=False),
+    sa.Column('deleted_at', sa.DateTime(), nullable=True),
+    sa.Column('deleted_by', sqlmodel.sql.sqltypes.AutoString(), nullable=True),
     sa.Column('title', sqlmodel.sql.sqltypes.AutoString(length=500), nullable=False),
     sa.Column('is_completed', sa.Boolean(), nullable=False),
     sa.Column('position', sa.Float(), nullable=False),
@@ -106,17 +129,24 @@ def upgrade():
     sa.ForeignKeyConstraint(['card_id'], ['card.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_index(op.f('ix_checklist_item_is_deleted'), 'checklist_item', ['is_deleted'], unique=False)
     # ### end Alembic commands ###
 
 
 def downgrade():
     # ### commands auto generated by Alembic - please adjust! ###
+    op.drop_index(op.f('ix_checklist_item_is_deleted'), table_name='checklist_item')
     op.drop_table('checklist_item')
+    op.drop_index(op.f('ix_card_comment_is_deleted'), table_name='card_comment')
     op.drop_table('card_comment')
+    op.drop_index(op.f('ix_card_is_deleted'), table_name='card')
     op.drop_table('card')
+    op.drop_index(op.f('ix_board_list_is_deleted'), table_name='board_list')
     op.drop_table('board_list')
     op.drop_table('workspacemember')
+    op.drop_index(op.f('ix_board_is_deleted'), table_name='board')
     op.drop_table('board')
+    op.drop_index(op.f('ix_workspace_is_deleted'), table_name='workspace')
     op.drop_table('workspace')
     op.drop_index(op.f('ix_user_email'), table_name='user')
     op.drop_table('user')

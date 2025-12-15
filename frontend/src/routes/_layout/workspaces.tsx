@@ -16,7 +16,7 @@ import { useState } from "react"
 import { FiChevronDown, FiChevronRight, FiSearch } from "react-icons/fi"
 import { z } from "zod"
 
-import { BoardsService, WorkspacesService } from "@/client"
+import { BoardsService, WorkspacesService, UsersService } from "@/client"
 import WorkspaceActionsMenu from "@/components/Common/WorkspaceActionsMenu"
 import PendingWorkspaces from "@/components/Pending/PendingWorkspaces"
 import AddWorkspace from "@/components/Workspaces/AddWorkspace"
@@ -91,6 +91,18 @@ const WorkspaceBoardsList = ({ workspaceId }: { workspaceId: string }) => {
   )
 }
 
+const WorkspaceOwnerInfo = ({ ownerId }: { ownerId: string }) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["user", ownerId],
+    queryFn: () => UsersService.readUserById({ userId: ownerId }),
+    enabled: !!ownerId,
+  })
+
+  if (isLoading) return <Spinner size="xs" />
+
+  return <Text fontSize="sm">{data?.full_name || data?.email || "Unknown User"}</Text>
+}
+
 const WorkspaceRow = ({ workspace }: { workspace: WorkspacePublicWithMeta }) => {
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -114,7 +126,7 @@ const WorkspaceRow = ({ workspace }: { workspace: WorkspacePublicWithMeta }) => 
           {workspace.name}
         </Table.Cell>
         <Table.Cell>{workspace.visibility ?? "private"}</Table.Cell>
-        <Table.Cell>{workspace.owner_id}</Table.Cell>
+        <Table.Cell><WorkspaceOwnerInfo ownerId={workspace.owner_id} /></Table.Cell>
         <Table.Cell>
           <WorkspaceActionsMenu workspace={workspace} />
         </Table.Cell>
@@ -184,7 +196,7 @@ function WorkspacesTable() {
             <Table.ColumnHeader w="sm">ID</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">Name</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">Visibility</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Owner ID</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">Owner</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">Actions</Table.ColumnHeader>
           </Table.Row>
         </Table.Header>

@@ -1,3 +1,4 @@
+from app.models.mixins import *
 from app.models.enums import *
 from app.models.auth import *
 from app.models.users import *

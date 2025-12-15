@@ -154,7 +154,7 @@ const ListRow = ({ list }: { list: ListPublic }) => {
               <VStack align="stretch" gap={4}>
                 <HStack gap={4}>
                   <Text fontSize="sm">
-                    <strong>Board ID:</strong> {list.board_id}
+                    <strong>Board:</strong> <ListBoardInfo boardId={list.board_id} />
                   </Text>
                   <Text fontSize="sm">
                     <strong>Position:</strong> {list.position}

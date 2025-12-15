@@ -36,7 +36,7 @@ def read_comments(
     limit: int = 100,
 ) -> CardCommentsWithUserPublic:
     """Get all comments, optionally filtered by card_id."""
-    query = select(CardComment)
+    query = select(CardComment).where(CardComment.is_deleted == False)
     
     if card_id:
         query = query.where(CardComment.card_id == card_id)
@@ -44,7 +44,6 @@ def read_comments(
     query = query.order_by(CardComment.created_at.desc()).offset(skip).limit(limit)
     comments = session.exec(query).all()
     
-    # Enrich with user info
     result = []
     for comment in comments:
         user = session.get(User, comment.user_id)
@@ -59,8 +58,7 @@ def read_comments(
             user_email=user.email if user else None,
         ))
     
-    # Count query
-    count_query = select(CardComment)
+    count_query = select(CardComment).where(CardComment.is_deleted == False)
     if card_id:
         count_query = count_query.where(CardComment.card_id == card_id)
     count = len(session.exec(count_query).all())
@@ -169,13 +167,15 @@ def delete_comment(
 ) -> dict:
     """Delete a comment. Only the comment author or superuser can delete it."""
     comment = session.get(CardComment, id)
-    if not comment:
+    if not comment or comment.is_deleted:
         raise HTTPException(status_code=404, detail="Comment not found")
     
-    # Only the author or superuser can delete
     if comment.user_id != current_user.id and not current_user.is_superuser:
         raise HTTPException(status_code=403, detail="Not authorized to delete this comment")
     
-    session.delete(comment)
+    comment.is_deleted = True
+    comment.deleted_at = datetime.utcnow()
+    comment.deleted_by = str(current_user.id)
+    session.add(comment)
     session.commit()
     return {"ok": True}

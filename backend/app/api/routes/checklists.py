@@ -25,7 +25,7 @@ def read_checklist_items(
     limit: int = 100,
 ) -> ChecklistItemsPublic:
     """Get all checklist items, optionally filtered by card_id."""
-    query = select(ChecklistItem)
+    query = select(ChecklistItem).where(ChecklistItem.is_deleted == False)
     
     if card_id:
         query = query.where(ChecklistItem.card_id == card_id)
@@ -33,8 +33,7 @@ def read_checklist_items(
     query = query.order_by(ChecklistItem.position).offset(skip).limit(limit)
     items = session.exec(query).all()
     
-    # Count query
-    count_query = select(ChecklistItem)
+    count_query = select(ChecklistItem).where(ChecklistItem.is_deleted == False)
     if card_id:
         count_query = count_query.where(ChecklistItem.card_id == card_id)
     count = len(session.exec(count_query).all())
@@ -103,10 +102,13 @@ def delete_checklist_item(
 ) -> dict:
     """Delete a checklist item."""
     item = session.get(ChecklistItem, id)
-    if not item:
+    if not item or item.is_deleted:
         raise HTTPException(status_code=404, detail="Checklist item not found")
     
-    session.delete(item)
+    item.is_deleted = True
+    item.deleted_at = datetime.utcnow()
+    item.deleted_by = str(current_user.id)
+    session.add(item)
     session.commit()
     return {"ok": True}
 

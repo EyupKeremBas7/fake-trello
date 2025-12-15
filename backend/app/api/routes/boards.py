@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -49,9 +50,9 @@ def read_boards(
     session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
 ) -> Any:
     if current_user.is_superuser:
-        count_statement = select(func.count()).select_from(Board)
+        count_statement = select(func.count()).select_from(Board).where(Board.is_deleted == False)
         count = session.exec(count_statement).one()
-        statement = select(Board).offset(skip).limit(limit)
+        statement = select(Board).where(Board.is_deleted == False).offset(skip).limit(limit)
         boards = session.exec(statement).all()
     else:
         statement = (
@@ -59,6 +60,7 @@ def read_boards(
             .join(Workspace, Board.workspace_id == Workspace.id)
             .outerjoin(WorkspaceMember, WorkspaceMember.workspace_id == Workspace.id)
             .where(
+                Board.is_deleted == False,
                 or_(
                     Workspace.owner_id == current_user.id,
                     WorkspaceMember.user_id == current_user.id
@@ -77,7 +79,7 @@ def read_boards(
 @router.get("/{id}", response_model=BoardPublic)
 def read_board(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
     board = session.get(Board, id)
-    if not board:
+    if not board or board.is_deleted:
         raise HTTPException(status_code=404, detail="Board not found")
     if not current_user.is_superuser and not can_access_board(session, current_user.id, board):
         raise HTTPException(status_code=403, detail="Not enough permissions")
@@ -131,7 +133,7 @@ def delete_board(
     session: SessionDep, current_user: CurrentUser, id: uuid.UUID
 ) -> Message:
     board = session.get(Board, id)
-    if not board:
+    if not board or board.is_deleted:
         raise HTTPException(status_code=404, detail="Board not found")
     
     workspace = session.get(Workspace, board.workspace_id)
@@ -140,6 +142,9 @@ def delete_board(
         if role != MemberRole.admin:
             raise HTTPException(status_code=403, detail="Only owner or admin can delete board")
     
-    session.delete(board)
+    board.is_deleted = True
+    board.deleted_at = datetime.utcnow()
+    board.deleted_by = str(current_user.id)
+    session.add(board)
     session.commit()
     return Message(message="Board deleted successfully")

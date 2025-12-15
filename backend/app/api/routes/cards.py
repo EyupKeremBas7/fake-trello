@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, HTTPException
@@ -63,9 +64,9 @@ def read_cards(
     session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
 ) -> Any:
     if current_user.is_superuser:
-        count_statement = select(func.count()).select_from(Card)
+        count_statement = select(func.count()).select_from(Card).where(Card.is_deleted == False)
         count = session.exec(count_statement).one()
-        statement = select(Card).offset(skip).limit(limit)
+        statement = select(Card).where(Card.is_deleted == False).offset(skip).limit(limit)
         cards = session.exec(statement).all()
     else:
         statement = (
@@ -75,6 +76,7 @@ def read_cards(
             .join(Workspace, Board.workspace_id == Workspace.id)
             .outerjoin(WorkspaceMember, WorkspaceMember.workspace_id == Workspace.id)
             .where(
+                Card.is_deleted == False,
                 or_(
                     Workspace.owner_id == current_user.id,
                     WorkspaceMember.user_id == current_user.id
@@ -93,7 +95,7 @@ def read_cards(
 @router.get("/{id}", response_model=CardPublic)
 def read_card(session: SessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
     card = session.get(Card, id)
-    if not card:
+    if not card or card.is_deleted:
         raise HTTPException(status_code=404, detail="Card not found")
     if not current_user.is_superuser and not can_access_card(session, current_user.id, card):
         raise HTTPException(status_code=403, detail="Not enough permissions")
@@ -177,10 +179,13 @@ def delete_card(
     session: SessionDep, current_user: CurrentUser, id: uuid.UUID
 ) -> Message:
     card = session.get(Card, id)
-    if not card:
+    if not card or card.is_deleted:
         raise HTTPException(status_code=404, detail="Card not found")
     if not current_user.is_superuser and not can_edit_card(session, current_user.id, card):
         raise HTTPException(status_code=403, detail="Not enough permissions")
-    session.delete(card)
+    card.is_deleted = True
+    card.deleted_at = datetime.utcnow()
+    card.deleted_by = str(current_user.id)
+    session.add(card)
     session.commit()
     return Message(message="Card deleted successfully")

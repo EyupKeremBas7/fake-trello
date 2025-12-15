@@ -18,7 +18,7 @@ import { useState } from "react"
 import { FiChevronDown, FiChevronRight, FiSearch, FiExternalLink } from "react-icons/fi"
 import { z } from "zod"
 
-import { BoardsService, ListsService, type BoardPublic } from "@/client"
+import { BoardsService, ListsService, WorkspacesService, UsersService, type BoardPublic } from "@/client"
 import { BoardActionsMenu } from "@/components/Common/BoardActionsMenu"
 import AddBoard from "@/components/Boards/AddBoard"
 import PendingBoards from "@/components/Pending/PendingBoards"
@@ -91,6 +91,31 @@ const ListLists = ({ boardId }: { boardId: string }) => {
   )
 }
 
+const WorkspaceInfo = ({ workspaceId }: { workspaceId: string | null | undefined }) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["workspace", workspaceId],
+    queryFn: () => WorkspacesService.readWorkspace({ id: workspaceId as string }),
+    enabled: !!workspaceId,
+  })
+
+  if (!workspaceId) return <Text fontSize="sm">N/A</Text>
+  if (isLoading) return <Spinner size="xs" />
+
+  return <Text fontSize="sm">{data?.name ?? "Unknown Workspace"}</Text>
+}
+
+const OwnerInfo = ({ ownerId }: { ownerId: string }) => {
+  const { data, isLoading } = useQuery({
+    queryKey: ["user", ownerId],
+    queryFn: () => UsersService.readUserById({ userId: ownerId }),
+    enabled: !!ownerId,
+  })
+
+  if (isLoading) return <Spinner size="xs" />
+
+  return <Text fontSize="sm">{data?.full_name || data?.email || "Unknown User"}</Text>
+}
+
 const BoardRow = ({ board }: { board: BoardPublic }) => {
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -130,10 +155,10 @@ const BoardRow = ({ board }: { board: BoardPublic }) => {
           {board.visibility || "N/A"}
         </Table.Cell>
         <Table.Cell truncate maxW="sm">
-          {board.workspace_id || "N/A"}
+          <WorkspaceInfo workspaceId={board.workspace_id} />
         </Table.Cell>
         <Table.Cell truncate maxW="sm">
-          {board.owner_id}
+          <OwnerInfo ownerId={board.owner_id} />
         </Table.Cell>
         <Table.Cell>
           <BoardActionsMenu Board={board} />
@@ -208,8 +233,8 @@ function BoardsTable() {
             <Table.ColumnHeader w="sm">ID</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">Name</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">Visibility</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Workspace ID</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Owner ID</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">Workspace</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">Owner</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">Actions</Table.ColumnHeader>
           </Table.Row>
         </Table.Header>
