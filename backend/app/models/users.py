@@ -4,6 +4,7 @@ from sqlmodel import Field, SQLModel
 from typing import TYPE_CHECKING, List
 
 from app.core.sanitization import sanitize_plain_text, sanitize_email
+from app.models.mixins import SoftDeleteMixin
 
 if TYPE_CHECKING:
     from app.models.workspaces import Workspace
@@ -48,13 +49,14 @@ class UpdatePassword(SQLModel):
     new_password: str = Field(min_length=8, max_length=40)
 
 
-class User(UserBase, table=True):
+class User(UserBase, SoftDeleteMixin, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
 
 
 class UserPublic(UserBase):
     id: uuid.UUID
+    is_deleted: bool = False
 
 
 class UsersPublic(SQLModel):

@@ -1,17 +1,22 @@
-from fastapi import APIRouter, HTTPException
-from sqlmodel import select
-from datetime import datetime
+"""
+Checklists API Routes - Clean routes without direct database queries.
+"""
 import uuid
+from typing import Any
+
+from fastapi import APIRouter, HTTPException
 
 from app.api.deps import CurrentUser, SessionDep
-from app.models import (
+from app.repository import checklists as checklists_repo
+from app.models.checklists import (
     ChecklistItem,
     ChecklistItemCreate,
     ChecklistItemPublic,
     ChecklistItemsPublic,
     ChecklistItemUpdate,
-    Card,
 )
+from app.models.notifications import Notification, NotificationType
+from app.utils import send_email
 
 router = APIRouter(prefix="/checklists", tags=["checklists"])
 
@@ -25,19 +30,9 @@ def read_checklist_items(
     limit: int = 100,
 ) -> ChecklistItemsPublic:
     """Get all checklist items, optionally filtered by card_id."""
-    query = select(ChecklistItem).where(ChecklistItem.is_deleted == False)
-    
-    if card_id:
-        query = query.where(ChecklistItem.card_id == card_id)
-    
-    query = query.order_by(ChecklistItem.position).offset(skip).limit(limit)
-    items = session.exec(query).all()
-    
-    count_query = select(ChecklistItem).where(ChecklistItem.is_deleted == False)
-    if card_id:
-        count_query = count_query.where(ChecklistItem.card_id == card_id)
-    count = len(session.exec(count_query).all())
-    
+    items, count = checklists_repo.get_checklist_items_by_card(
+        session=session, card_id=card_id, skip=skip, limit=limit
+    )
     return ChecklistItemsPublic(data=items, count=count)
 
 
@@ -48,7 +43,7 @@ def read_checklist_item(
     id: uuid.UUID,
 ) -> ChecklistItem:
     """Get a specific checklist item by ID."""
-    item = session.get(ChecklistItem, id)
+    item = checklists_repo.get_checklist_item_by_id(session=session, item_id=id)
     if not item:
         raise HTTPException(status_code=404, detail="Checklist item not found")
     return item
@@ -62,14 +57,11 @@ def create_checklist_item(
 ) -> ChecklistItem:
     """Create a new checklist item."""
     # Verify card exists
-    card = session.get(Card, item_in.card_id)
+    card = checklists_repo.get_card_by_id(session=session, card_id=item_in.card_id)
     if not card:
         raise HTTPException(status_code=404, detail="Card not found")
     
-    item = ChecklistItem.model_validate(item_in)
-    session.add(item)
-    session.commit()
-    session.refresh(item)
+    item = checklists_repo.create_checklist_item(session=session, item_in=item_in)
     return item
 
 
@@ -81,16 +73,11 @@ def update_checklist_item(
     item_in: ChecklistItemUpdate,
 ) -> ChecklistItem:
     """Update a checklist item."""
-    item = session.get(ChecklistItem, id)
+    item = checklists_repo.get_checklist_item_by_id(session=session, item_id=id)
     if not item:
         raise HTTPException(status_code=404, detail="Checklist item not found")
     
-    update_data = item_in.model_dump(exclude_unset=True)
-    update_data["updated_at"] = datetime.utcnow()
-    item.sqlmodel_update(update_data)
-    session.add(item)
-    session.commit()
-    session.refresh(item)
+    item = checklists_repo.update_checklist_item(session=session, item=item, item_in=item_in)
     return item
 
 
@@ -101,15 +88,11 @@ def delete_checklist_item(
     id: uuid.UUID,
 ) -> dict:
     """Delete a checklist item."""
-    item = session.get(ChecklistItem, id)
+    item = checklists_repo.get_checklist_item_by_id(session=session, item_id=id)
     if not item or item.is_deleted:
         raise HTTPException(status_code=404, detail="Checklist item not found")
     
-    item.is_deleted = True
-    item.deleted_at = datetime.utcnow()
-    item.deleted_by = str(current_user.id)
-    session.add(item)
-    session.commit()
+    checklists_repo.soft_delete_checklist_item(session=session, item=item, deleted_by=current_user.id)
     return {"ok": True}
 
 
@@ -120,13 +103,44 @@ def toggle_checklist_item(
     id: uuid.UUID,
 ) -> ChecklistItem:
     """Toggle the completion status of a checklist item."""
-    item = session.get(ChecklistItem, id)
+    item = checklists_repo.get_checklist_item_by_id(session=session, item_id=id)
     if not item:
         raise HTTPException(status_code=404, detail="Checklist item not found")
     
-    item.is_completed = not item.is_completed
-    item.updated_at = datetime.utcnow()
-    session.add(item)
-    session.commit()
-    session.refresh(item)
+    # Toggle the item
+    item = checklists_repo.toggle_checklist_item(session=session, item=item)
+    
+    # Get the card and notify owner if someone else toggles the checklist
+    card = checklists_repo.get_card_by_id(session=session, card_id=item.card_id)
+    if card and card.created_by and card.created_by != current_user.id:
+        card_owner = checklists_repo.get_user_by_id(session=session, user_id=card.created_by)
+        if card_owner and not card_owner.is_deleted:
+            status = "completed" if item.is_completed else "uncompleted"
+            
+            # Create in-app notification
+            notification = Notification(
+                user_id=card_owner.id,
+                type=NotificationType.checklist_toggled,
+                title="Checklist Item Updated",
+                message=f"{current_user.full_name or current_user.email} marked '{item.title}' as {status} on your card '{card.title}'",
+                reference_id=card.id,
+                reference_type="card",
+            )
+            session.add(notification)
+            session.commit()
+            
+            # Send email notification
+            status_emoji = "✅" if item.is_completed else "⬜"
+            send_email(
+                email_to=card_owner.email,
+                subject=f"Checklist item updated on '{card.title}'",
+                html_content=f"""
+                <h2>Checklist Item Updated</h2>
+                <p><strong>{current_user.full_name or current_user.email}</strong> updated a checklist item on your card <strong>"{card.title}"</strong>:</p>
+                <p>{status_emoji} <strong>{item.title}</strong> - marked as {status}</p>
+                <p><a href="#">View Card</a></p>
+                """,
+                use_queue=True,
+            )
+    
     return item

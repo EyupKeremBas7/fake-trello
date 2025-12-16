@@ -3,7 +3,7 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { BoardsReadBoardsData, BoardsReadBoardsResponse, BoardsCreateBoardData, BoardsCreateBoardResponse, BoardsReadBoardData, BoardsReadBoardResponse, BoardsUpdateBoardData, BoardsUpdateBoardResponse, BoardsDeleteBoardData, BoardsDeleteBoardResponse, CardsReadCardsData, CardsReadCardsResponse, CardsCreateCardData, CardsCreateCardResponse, CardsReadCardData, CardsReadCardResponse, CardsUpdateCardData, CardsUpdateCardResponse, CardsDeleteCardData, CardsDeleteCardResponse, CardsMoveCardData, CardsMoveCardResponse, ChecklistsReadChecklistItemsData, ChecklistsReadChecklistItemsResponse, ChecklistsCreateChecklistItemData, ChecklistsCreateChecklistItemResponse, ChecklistsReadChecklistItemData, ChecklistsReadChecklistItemResponse, ChecklistsUpdateChecklistItemData, ChecklistsUpdateChecklistItemResponse, ChecklistsDeleteChecklistItemData, ChecklistsDeleteChecklistItemResponse, ChecklistsToggleChecklistItemData, ChecklistsToggleChecklistItemResponse, CommentsReadCommentsData, CommentsReadCommentsResponse, CommentsCreateCommentData, CommentsCreateCommentResponse, CommentsReadCommentData, CommentsReadCommentResponse, CommentsUpdateCommentData, CommentsUpdateCommentResponse, CommentsDeleteCommentData, CommentsDeleteCommentResponse, ListsReadBoardListsData, ListsReadBoardListsResponse, ListsCreateBoardListData, ListsCreateBoardListResponse, ListsReadListsByBoardData, ListsReadListsByBoardResponse, ListsReadBoardListData, ListsReadBoardListResponse, ListsUpdateBoardListData, ListsUpdateBoardListResponse, ListsDeleteBoardListData, ListsDeleteBoardListResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WorkspacesReadWorkspacesData, WorkspacesReadWorkspacesResponse, WorkspacesCreateWorkspaceData, WorkspacesCreateWorkspaceResponse, WorkspacesReadWorkspaceData, WorkspacesReadWorkspaceResponse, WorkspacesUpdateWorkspaceData, WorkspacesUpdateWorkspaceResponse, WorkspacesDeleteWorkspaceData, WorkspacesDeleteWorkspaceResponse, WorkspacesReadWorkspaceMembersData, WorkspacesReadWorkspaceMembersResponse, WorkspacesAddWorkspaceMemberData, WorkspacesAddWorkspaceMemberResponse, WorkspacesInviteWorkspaceMemberData, WorkspacesInviteWorkspaceMemberResponse, WorkspacesUpdateWorkspaceMemberData, WorkspacesUpdateWorkspaceMemberResponse, WorkspacesRemoveWorkspaceMemberData, WorkspacesRemoveWorkspaceMemberResponse } from './types.gen';
+import type { BoardsReadBoardsData, BoardsReadBoardsResponse, BoardsCreateBoardData, BoardsCreateBoardResponse, BoardsReadBoardData, BoardsReadBoardResponse, BoardsUpdateBoardData, BoardsUpdateBoardResponse, BoardsDeleteBoardData, BoardsDeleteBoardResponse, CardsReadCardsData, CardsReadCardsResponse, CardsCreateCardData, CardsCreateCardResponse, CardsReadCardData, CardsReadCardResponse, CardsUpdateCardData, CardsUpdateCardResponse, CardsDeleteCardData, CardsDeleteCardResponse, CardsMoveCardData, CardsMoveCardResponse, ChecklistsReadChecklistItemsData, ChecklistsReadChecklistItemsResponse, ChecklistsCreateChecklistItemData, ChecklistsCreateChecklistItemResponse, ChecklistsReadChecklistItemData, ChecklistsReadChecklistItemResponse, ChecklistsUpdateChecklistItemData, ChecklistsUpdateChecklistItemResponse, ChecklistsDeleteChecklistItemData, ChecklistsDeleteChecklistItemResponse, ChecklistsToggleChecklistItemData, ChecklistsToggleChecklistItemResponse, CommentsReadCommentsData, CommentsReadCommentsResponse, CommentsCreateCommentData, CommentsCreateCommentResponse, CommentsReadCommentData, CommentsReadCommentResponse, CommentsUpdateCommentData, CommentsUpdateCommentResponse, CommentsDeleteCommentData, CommentsDeleteCommentResponse, InvitationsReadMyInvitationsData, InvitationsReadMyInvitationsResponse, InvitationsCreateInvitationData, InvitationsCreateInvitationResponse, InvitationsReadSentInvitationsData, InvitationsReadSentInvitationsResponse, InvitationsRespondToInvitationData, InvitationsRespondToInvitationResponse, InvitationsCancelInvitationData, InvitationsCancelInvitationResponse, ListsReadBoardListsData, ListsReadBoardListsResponse, ListsCreateBoardListData, ListsCreateBoardListResponse, ListsReadListsByBoardData, ListsReadListsByBoardResponse, ListsReadBoardListData, ListsReadBoardListResponse, ListsUpdateBoardListData, ListsUpdateBoardListResponse, ListsDeleteBoardListData, ListsDeleteBoardListResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, NotificationsReadNotificationsData, NotificationsReadNotificationsResponse, NotificationsGetUnreadCountResponse, NotificationsReadNotificationData, NotificationsReadNotificationResponse, NotificationsDeleteNotificationData, NotificationsDeleteNotificationResponse, NotificationsMarkAsReadData, NotificationsMarkAsReadResponse, NotificationsMarkAllAsReadResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WorkspacesReadWorkspacesData, WorkspacesReadWorkspacesResponse, WorkspacesCreateWorkspaceData, WorkspacesCreateWorkspaceResponse, WorkspacesReadWorkspaceData, WorkspacesReadWorkspaceResponse, WorkspacesUpdateWorkspaceData, WorkspacesUpdateWorkspaceResponse, WorkspacesDeleteWorkspaceData, WorkspacesDeleteWorkspaceResponse, WorkspacesReadWorkspaceMembersData, WorkspacesReadWorkspaceMembersResponse, WorkspacesAddWorkspaceMemberData, WorkspacesAddWorkspaceMemberResponse, WorkspacesInviteWorkspaceMemberData, WorkspacesInviteWorkspaceMemberResponse, WorkspacesUpdateWorkspaceMemberData, WorkspacesUpdateWorkspaceMemberResponse, WorkspacesRemoveWorkspaceMemberData, WorkspacesRemoveWorkspaceMemberResponse } from './types.gen';
 
 export class BoardsService {
     /**
@@ -490,6 +490,115 @@ export class CommentsService {
     }
 }
 
+export class InvitationsService {
+    /**
+     * Read My Invitations
+     * Get all invitations sent to current user.
+     * @param data The data for the request.
+     * @param data.status
+     * @returns WorkspaceInvitationWithDetails Successful Response
+     * @throws ApiError
+     */
+    public static readMyInvitations(data: InvitationsReadMyInvitationsData = {}): CancelablePromise<InvitationsReadMyInvitationsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/invitations/',
+            query: {
+                status: data.status
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Create Invitation
+     * Send a workspace invitation to a user.
+     * @param data The data for the request.
+     * @param data.requestBody
+     * @returns WorkspaceInvitationPublic Successful Response
+     * @throws ApiError
+     */
+    public static createInvitation(data: InvitationsCreateInvitationData): CancelablePromise<InvitationsCreateInvitationResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/invitations/',
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Read Sent Invitations
+     * Get all invitations sent by current user.
+     * @param data The data for the request.
+     * @param data.workspaceId
+     * @returns WorkspaceInvitationsPublic Successful Response
+     * @throws ApiError
+     */
+    public static readSentInvitations(data: InvitationsReadSentInvitationsData = {}): CancelablePromise<InvitationsReadSentInvitationsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/invitations/sent',
+            query: {
+                workspace_id: data.workspaceId
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Respond To Invitation
+     * Accept or reject an invitation.
+     * @param data The data for the request.
+     * @param data.id
+     * @param data.requestBody
+     * @returns WorkspaceInvitationPublic Successful Response
+     * @throws ApiError
+     */
+    public static respondToInvitation(data: InvitationsRespondToInvitationData): CancelablePromise<InvitationsRespondToInvitationResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/invitations/{id}/respond',
+            path: {
+                id: data.id
+            },
+            body: data.requestBody,
+            mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Cancel Invitation
+     * Cancel a pending invitation (by inviter or workspace admin).
+     * @param data The data for the request.
+     * @param data.id
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static cancelInvitation(data: InvitationsCancelInvitationData): CancelablePromise<InvitationsCancelInvitationResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/invitations/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
 export class ListsService {
     /**
      * Read Board Lists
@@ -719,6 +828,122 @@ export class LoginService {
     }
 }
 
+export class NotificationsService {
+    /**
+     * Read Notifications
+     * Get current user's notifications.
+     * @param data The data for the request.
+     * @param data.skip
+     * @param data.limit
+     * @param data.unreadOnly
+     * @returns NotificationsPublic Successful Response
+     * @throws ApiError
+     */
+    public static readNotifications(data: NotificationsReadNotificationsData = {}): CancelablePromise<NotificationsReadNotificationsResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/notifications/',
+            query: {
+                skip: data.skip,
+                limit: data.limit,
+                unread_only: data.unreadOnly
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Unread Count
+     * Get count of unread notifications.
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static getUnreadCount(): CancelablePromise<NotificationsGetUnreadCountResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/notifications/unread-count'
+        });
+    }
+    
+    /**
+     * Read Notification
+     * Get a specific notification.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns NotificationPublic Successful Response
+     * @throws ApiError
+     */
+    public static readNotification(data: NotificationsReadNotificationData): CancelablePromise<NotificationsReadNotificationResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/notifications/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Delete Notification
+     * Delete a notification.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static deleteNotification(data: NotificationsDeleteNotificationData): CancelablePromise<NotificationsDeleteNotificationResponse> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/api/v1/notifications/{id}',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Mark As Read
+     * Mark a notification as read.
+     * @param data The data for the request.
+     * @param data.id
+     * @returns NotificationPublic Successful Response
+     * @throws ApiError
+     */
+    public static markAsRead(data: NotificationsMarkAsReadData): CancelablePromise<NotificationsMarkAsReadResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/notifications/{id}/read',
+            path: {
+                id: data.id
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Mark All As Read
+     * Mark all notifications as read.
+     * @returns Message Successful Response
+     * @throws ApiError
+     */
+    public static markAllAsRead(): CancelablePromise<NotificationsMarkAllAsReadResponse> {
+        return __request(OpenAPI, {
+            method: 'PUT',
+            url: '/api/v1/notifications/read-all'
+        });
+    }
+}
+
 export class PrivateService {
     /**
      * Create User
@@ -744,7 +969,7 @@ export class PrivateService {
 export class UsersService {
     /**
      * Read Users
-     * Retrieve users.
+     * Retrieve users (excludes soft-deleted).
      * @param data The data for the request.
      * @param data.skip
      * @param data.limit
@@ -918,7 +1143,7 @@ export class UsersService {
     
     /**
      * Delete User
-     * Delete a user.
+     * Delete a user (soft delete).
      * @param data The data for the request.
      * @param data.userId
      * @returns Message Successful Response

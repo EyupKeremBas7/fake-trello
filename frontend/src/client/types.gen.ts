@@ -16,6 +16,7 @@ export type BoardPublic = {
     id: string;
     workspace_id: string;
     owner_id: string;
+    is_deleted?: boolean;
 };
 
 export type BoardsPublic = {
@@ -60,6 +61,7 @@ export type CardCommentWithUser = {
     user_id: string;
     created_at: string;
     updated_at: string;
+    is_deleted?: boolean;
     user_full_name?: (string | null);
     user_email?: (string | null);
 };
@@ -83,8 +85,10 @@ export type CardPublic = {
     cover_image?: (string | null);
     id: string;
     list_id: string;
+    created_by?: (string | null);
     created_at: string;
     updated_at: string;
+    is_deleted?: boolean;
 };
 
 export type CardsPublic = {
@@ -96,10 +100,10 @@ export type CardUpdate = {
     title?: (string | null);
     description?: (string | null);
     position?: (number | null);
+    list_id?: (string | null);
     due_date?: (string | null);
     is_archived?: (boolean | null);
     cover_image?: (string | null);
-    list_id?: (string | null);
 };
 
 export type ChecklistItemCreate = {
@@ -117,6 +121,7 @@ export type ChecklistItemPublic = {
     card_id: string;
     created_at: string;
     updated_at: string;
+    is_deleted?: boolean;
 };
 
 export type ChecklistItemsPublic = {
@@ -134,6 +139,11 @@ export type HTTPValidationError = {
     detail?: Array<ValidationError>;
 };
 
+/**
+ * Status of workspace invitation
+ */
+export type InvitationStatus = 'pending' | 'accepted' | 'rejected' | 'expired';
+
 export type ListCreate = {
     name: string;
     position?: number;
@@ -147,6 +157,7 @@ export type ListPublic = {
     is_archived?: boolean;
     id: string;
     board_id: string;
+    is_deleted?: boolean;
 };
 
 export type ListsPublic = {
@@ -170,6 +181,29 @@ export type NewPassword = {
     token: string;
     new_password: string;
 };
+
+export type NotificationPublic = {
+    type: NotificationType;
+    title: string;
+    message: string;
+    is_read?: boolean;
+    reference_id?: (string | null);
+    reference_type?: (string | null);
+    id: string;
+    user_id: string;
+    created_at: string;
+};
+
+export type NotificationsPublic = {
+    data: Array<NotificationPublic>;
+    count: number;
+    unread_count: number;
+};
+
+/**
+ * Types of notifications
+ */
+export type NotificationType = 'workspace_invitation' | 'invitation_accepted' | 'invitation_rejected' | 'comment_added' | 'card_assigned' | 'card_due_soon' | 'mentioned';
 
 export type PrivateUserCreate = {
     email: string;
@@ -202,6 +236,7 @@ export type UserPublic = {
     is_superuser?: boolean;
     full_name?: (string | null);
     id: string;
+    is_deleted?: boolean;
 };
 
 export type UserRegister = {
@@ -242,6 +277,61 @@ export type WorkspaceCreate = {
     is_archived?: boolean;
 };
 
+/**
+ * Create invitation by email or user_id
+ */
+export type WorkspaceInvitationCreate = {
+    workspace_id: string;
+    invitee_email?: (string | null);
+    invitee_id?: (string | null);
+    role?: MemberRole;
+    message?: (string | null);
+};
+
+export type WorkspaceInvitationPublic = {
+    role?: MemberRole;
+    status?: InvitationStatus;
+    message?: (string | null);
+    id: string;
+    workspace_id: string;
+    inviter_id: string;
+    invitee_id: string;
+    created_at: string;
+    responded_at: (string | null);
+    expires_at: (string | null);
+};
+
+/**
+ * Accept or reject an invitation
+ */
+export type WorkspaceInvitationRespond = {
+    accept: boolean;
+};
+
+export type WorkspaceInvitationsPublic = {
+    data: Array<WorkspaceInvitationPublic>;
+    count: number;
+};
+
+/**
+ * Invitation with workspace and inviter names for display
+ */
+export type WorkspaceInvitationWithDetails = {
+    role?: MemberRole;
+    status?: InvitationStatus;
+    message?: (string | null);
+    id: string;
+    workspace_id: string;
+    inviter_id: string;
+    invitee_id: string;
+    created_at: string;
+    responded_at: (string | null);
+    expires_at: (string | null);
+    workspace_name: string;
+    inviter_name: string;
+    inviter_email: string;
+};
+
 export type WorkspaceInvite = {
     email: string;
     role?: MemberRole;
@@ -277,6 +367,7 @@ export type WorkspacePublic = {
     id: string;
     owner_id: string;
     created_at: string;
+    is_deleted?: boolean;
 };
 
 export type WorkspacesPublic = {
@@ -438,6 +529,37 @@ export type CommentsDeleteCommentResponse = ({
     [key: string]: unknown;
 });
 
+export type InvitationsReadMyInvitationsData = {
+    status?: (InvitationStatus | null);
+};
+
+export type InvitationsReadMyInvitationsResponse = (Array<WorkspaceInvitationWithDetails>);
+
+export type InvitationsCreateInvitationData = {
+    requestBody: WorkspaceInvitationCreate;
+};
+
+export type InvitationsCreateInvitationResponse = (WorkspaceInvitationPublic);
+
+export type InvitationsReadSentInvitationsData = {
+    workspaceId?: (string | null);
+};
+
+export type InvitationsReadSentInvitationsResponse = (WorkspaceInvitationsPublic);
+
+export type InvitationsRespondToInvitationData = {
+    id: string;
+    requestBody: WorkspaceInvitationRespond;
+};
+
+export type InvitationsRespondToInvitationResponse = (WorkspaceInvitationPublic);
+
+export type InvitationsCancelInvitationData = {
+    id: string;
+};
+
+export type InvitationsCancelInvitationResponse = (Message);
+
 export type ListsReadBoardListsData = {
     limit?: number;
     skip?: number;
@@ -501,6 +623,38 @@ export type LoginRecoverPasswordHtmlContentData = {
 };
 
 export type LoginRecoverPasswordHtmlContentResponse = (string);
+
+export type NotificationsReadNotificationsData = {
+    limit?: number;
+    skip?: number;
+    unreadOnly?: boolean;
+};
+
+export type NotificationsReadNotificationsResponse = (NotificationsPublic);
+
+export type NotificationsGetUnreadCountResponse = ({
+    [key: string]: unknown;
+});
+
+export type NotificationsReadNotificationData = {
+    id: string;
+};
+
+export type NotificationsReadNotificationResponse = (NotificationPublic);
+
+export type NotificationsDeleteNotificationData = {
+    id: string;
+};
+
+export type NotificationsDeleteNotificationResponse = (Message);
+
+export type NotificationsMarkAsReadData = {
+    id: string;
+};
+
+export type NotificationsMarkAsReadResponse = (NotificationPublic);
+
+export type NotificationsMarkAllAsReadResponse = (Message);
 
 export type PrivateCreateUserData = {
     requestBody: PrivateUserCreate;

@@ -9,3 +9,5 @@ from app.models.lists import *
 from app.models.cards import *
 from app.models.checklists import *
 from app.models.comments import *
+from app.models.notifications import *
+from app.models.invitations import *

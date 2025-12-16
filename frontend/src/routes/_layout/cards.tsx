@@ -18,6 +18,7 @@ import { z } from "zod"
 
 import { CardsService, ListsService, type CardPublic } from "@/client"
 import AddCard from "@/components/Cards/AddCard"
+import CardOwnerInfo from "@/components/Cards/CardOwnerInfo"
 import CardActionsMenu from "@/components/Common/CardActionsMenu"
 import PendingCards from "@/components/Pending/PendingCards"
 import {
@@ -82,7 +83,9 @@ const CardRow = ({ card }: { card: CardPublic }) => {
         <Table.Cell>
           <CardListInfo listId={card.list_id} />
         </Table.Cell>
-        <Table.Cell>{card.position}</Table.Cell>
+        <Table.Cell>
+          <CardOwnerInfo createdBy={card.created_by} showAvatar={false} />
+        </Table.Cell>
         <Table.Cell>{card.is_archived ? "Yes" : "No"}</Table.Cell>
         <Table.Cell>
           <CardActionsMenu card={card} />
@@ -99,6 +102,9 @@ const CardRow = ({ card }: { card: CardPublic }) => {
                 </Text>
                 <Text fontSize="sm">
                   <strong>Due Date:</strong> {card.due_date ?? "Not set"}
+                </Text>
+                <Text fontSize="sm">
+                  <strong>Position:</strong> {card.position}
                 </Text>
                 <Text fontSize="sm">
                   <strong>Created:</strong> {card.created_at}
@@ -163,7 +169,7 @@ function CardsTable() {
             <Table.ColumnHeader w="sm">ID</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">Title</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">List</Table.ColumnHeader>
-            <Table.ColumnHeader w="sm">Position</Table.ColumnHeader>
+            <Table.ColumnHeader w="sm">Owner</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">Archived</Table.ColumnHeader>
             <Table.ColumnHeader w="sm">Actions</Table.ColumnHeader>
           </Table.Row>

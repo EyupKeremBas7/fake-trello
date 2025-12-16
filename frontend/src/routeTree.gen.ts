@@ -15,6 +15,7 @@ import { Route as RecoverPasswordRouteImport } from './routes/recover-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as LayoutRouteImport } from './routes/_layout'
 import { Route as LayoutIndexRouteImport } from './routes/_layout/index'
+import { Route as OauthSuccessRouteImport } from './routes/oauth/success'
 import { Route as LayoutWorkspacesRouteImport } from './routes/_layout/workspaces'
 import { Route as LayoutSettingsRouteImport } from './routes/_layout/settings'
 import { Route as LayoutListsRouteImport } from './routes/_layout/lists'
@@ -51,6 +52,11 @@ const LayoutIndexRoute = LayoutIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => LayoutRoute,
+} as any)
+const OauthSuccessRoute = OauthSuccessRouteImport.update({
+  id: '/oauth/success',
+  path: '/oauth/success',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const LayoutWorkspacesRoute = LayoutWorkspacesRouteImport.update({
   id: '/workspaces',
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/lists': typeof LayoutListsRoute
   '/settings': typeof LayoutSettingsRoute
   '/workspaces': typeof LayoutWorkspacesRoute
+  '/oauth/success': typeof OauthSuccessRoute
   '/': typeof LayoutIndexRoute
   '/board/$boardId': typeof LayoutBoardBoardIdRoute
 }
@@ -113,6 +120,7 @@ export interface FileRoutesByTo {
   '/lists': typeof LayoutListsRoute
   '/settings': typeof LayoutSettingsRoute
   '/workspaces': typeof LayoutWorkspacesRoute
+  '/oauth/success': typeof OauthSuccessRoute
   '/': typeof LayoutIndexRoute
   '/board/$boardId': typeof LayoutBoardBoardIdRoute
 }
@@ -129,6 +137,7 @@ export interface FileRoutesById {
   '/_layout/lists': typeof LayoutListsRoute
   '/_layout/settings': typeof LayoutSettingsRoute
   '/_layout/workspaces': typeof LayoutWorkspacesRoute
+  '/oauth/success': typeof OauthSuccessRoute
   '/_layout/': typeof LayoutIndexRoute
   '/_layout/board/$boardId': typeof LayoutBoardBoardIdRoute
 }
@@ -145,6 +154,7 @@ export interface FileRouteTypes {
     | '/lists'
     | '/settings'
     | '/workspaces'
+    | '/oauth/success'
     | '/'
     | '/board/$boardId'
   fileRoutesByTo: FileRoutesByTo
@@ -159,6 +169,7 @@ export interface FileRouteTypes {
     | '/lists'
     | '/settings'
     | '/workspaces'
+    | '/oauth/success'
     | '/'
     | '/board/$boardId'
   id:
@@ -174,6 +185,7 @@ export interface FileRouteTypes {
     | '/_layout/lists'
     | '/_layout/settings'
     | '/_layout/workspaces'
+    | '/oauth/success'
     | '/_layout/'
     | '/_layout/board/$boardId'
   fileRoutesById: FileRoutesById
@@ -184,6 +196,7 @@ export interface RootRouteChildren {
   RecoverPasswordRoute: typeof RecoverPasswordRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   SignupRoute: typeof SignupRoute
+  OauthSuccessRoute: typeof OauthSuccessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -229,6 +242,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof LayoutIndexRouteImport
       parentRoute: typeof LayoutRoute
+    }
+    '/oauth/success': {
+      id: '/oauth/success'
+      path: '/oauth/success'
+      fullPath: '/oauth/success'
+      preLoaderRoute: typeof OauthSuccessRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_layout/workspaces': {
       id: '/_layout/workspaces'
@@ -313,6 +333,7 @@ const rootRouteChildren: RootRouteChildren = {
   RecoverPasswordRoute: RecoverPasswordRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   SignupRoute: SignupRoute,
+  OauthSuccessRoute: OauthSuccessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

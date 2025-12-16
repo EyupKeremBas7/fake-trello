@@ -11,6 +11,7 @@ import {
   DialogTrigger,
   Input,
   Text,
+  Textarea,
   VStack,
 } from "@chakra-ui/react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
@@ -18,7 +19,7 @@ import { useState } from "react"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FiUserPlus } from "react-icons/fi"
 
-import { WorkspacesService } from "@/client"
+import { InvitationsService } from "@/client"
 import type { ApiError } from "@/client/core/ApiError"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
@@ -28,9 +29,10 @@ interface AddWorkspaceMemberProps {
   workspaceId: string
 }
 
-interface MemberFormData {
+interface InvitationFormData {
   email: string
   role: string
+  message: string
 }
 
 const AddWorkspaceMember = ({ workspaceId }: AddWorkspaceMemberProps) => {
@@ -43,25 +45,27 @@ const AddWorkspaceMember = ({ workspaceId }: AddWorkspaceMemberProps) => {
     handleSubmit,
     reset,
     formState: { errors, isValid, isSubmitting },
-  } = useForm<MemberFormData>({
+  } = useForm<InvitationFormData>({
     mode: "onBlur",
     defaultValues: {
       email: "",
       role: "member",
+      message: "",
     },
   })
 
   const mutation = useMutation({
-    mutationFn: (data: MemberFormData) =>
-      WorkspacesService.inviteWorkspaceMember({
-        id: workspaceId,
+    mutationFn: (data: InvitationFormData) =>
+      InvitationsService.createInvitation({
         requestBody: {
-          email: data.email,
+          workspace_id: workspaceId,
+          invitee_email: data.email,
           role: data.role as "admin" | "member" | "observer",
+          message: data.message || undefined,
         },
       }),
     onSuccess: () => {
-      showSuccessToast("Invitation sent successfully.")
+      showSuccessToast("Invitation sent! The user will receive a notification.")
       reset()
       setIsOpen(false)
     },
@@ -70,10 +74,11 @@ const AddWorkspaceMember = ({ workspaceId }: AddWorkspaceMemberProps) => {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ["workspaceMembers", workspaceId] })
+      queryClient.invalidateQueries({ queryKey: ["sentInvitations", workspaceId] })
     },
   })
 
-  const onSubmit: SubmitHandler<MemberFormData> = (data) => {
+  const onSubmit: SubmitHandler<InvitationFormData> = (data) => {
     mutation.mutate(data)
   }
 
@@ -96,7 +101,10 @@ const AddWorkspaceMember = ({ workspaceId }: AddWorkspaceMemberProps) => {
             <DialogTitle>Invite Member to Workspace</DialogTitle>
           </DialogHeader>
           <DialogBody>
-            <Text mb={4}>Enter the email address of the person you want to invite.</Text>
+            <Text mb={4}>
+              Send an invitation to join this workspace. The user will receive a notification
+              and can accept or decline.
+            </Text>
             <VStack gap={4}>
               <Field
                 required
@@ -138,6 +146,20 @@ const AddWorkspaceMember = ({ workspaceId }: AddWorkspaceMemberProps) => {
                   <option value="member">Member - Can create and edit boards/cards</option>
                   <option value="observer">Observer - Can only view</option>
                 </select>
+              </Field>
+
+              <Field
+                invalid={!!errors.message}
+                errorText={errors.message?.message}
+                label="Personal Message (optional)"
+              >
+                <Textarea
+                  {...register("message", {
+                    maxLength: { value: 500, message: "Message too long (max 500 chars)" }
+                  })}
+                  placeholder="Add a personal message to your invitation..."
+                  rows={3}
+                />
               </Field>
             </VStack>
           </DialogBody>

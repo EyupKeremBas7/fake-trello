@@ -39,6 +39,7 @@ import {
   DialogRoot,
   DialogTitle,
 } from "@/components/ui/dialog"
+import CardOwnerInfo from "@/components/Cards/CardOwnerInfo"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
 
@@ -359,6 +360,11 @@ export const CardDetailModal = ({
                   Due: {new Date(card.due_date).toLocaleDateString()}
                 </Text>
               </HStack>
+            )}
+
+            {/* Owner */}
+            {card.created_by && (
+              <CardOwnerInfo createdBy={card.created_by} showLabel />
             )}
 
             {/* Description */}

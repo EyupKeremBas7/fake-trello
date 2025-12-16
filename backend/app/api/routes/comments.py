@@ -1,18 +1,22 @@
-from fastapi import APIRouter, HTTPException
-from sqlmodel import select
-from datetime import datetime
+"""
+Comments API Routes - Clean routes without direct database queries.
+"""
 import uuid
+from typing import Any
+
+from fastapi import APIRouter, HTTPException
 
 from app.api.deps import CurrentUser, SessionDep
-from app.models import (
+from app.repository import comments as comments_repo
+from app.models.comments import (
     CardComment,
     CardCommentCreate,
     CardCommentPublic,
     CardCommentsPublic,
     CardCommentUpdate,
-    Card,
-    User,
 )
+from app.models.notifications import Notification, NotificationType
+from app.utils import send_email
 
 router = APIRouter(prefix="/comments", tags=["comments"])
 
@@ -36,17 +40,13 @@ def read_comments(
     limit: int = 100,
 ) -> CardCommentsWithUserPublic:
     """Get all comments, optionally filtered by card_id."""
-    query = select(CardComment).where(CardComment.is_deleted == False)
-    
-    if card_id:
-        query = query.where(CardComment.card_id == card_id)
-    
-    query = query.order_by(CardComment.created_at.desc()).offset(skip).limit(limit)
-    comments = session.exec(query).all()
+    comments, count = comments_repo.get_comments_by_card(
+        session=session, card_id=card_id, skip=skip, limit=limit
+    )
     
     result = []
     for comment in comments:
-        user = session.get(User, comment.user_id)
+        user = comments_repo.get_user_by_id(session=session, user_id=comment.user_id)
         result.append(CardCommentWithUser(
             id=comment.id,
             content=comment.content,
@@ -58,11 +58,6 @@ def read_comments(
             user_email=user.email if user else None,
         ))
     
-    count_query = select(CardComment).where(CardComment.is_deleted == False)
-    if card_id:
-        count_query = count_query.where(CardComment.card_id == card_id)
-    count = len(session.exec(count_query).all())
-    
     return CardCommentsWithUserPublic(data=result, count=count)
 
 
@@ -73,11 +68,11 @@ def read_comment(
     id: uuid.UUID,
 ) -> CardCommentWithUser:
     """Get a specific comment by ID."""
-    comment = session.get(CardComment, id)
+    comment = comments_repo.get_comment_by_id(session=session, comment_id=id)
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
     
-    user = session.get(User, comment.user_id)
+    user = comments_repo.get_user_by_id(session=session, user_id=comment.user_id)
     return CardCommentWithUser(
         id=comment.id,
         content=comment.content,
@@ -98,18 +93,47 @@ def create_comment(
 ) -> CardCommentWithUser:
     """Create a new comment."""
     # Verify card exists
-    card = session.get(Card, comment_in.card_id)
+    card = comments_repo.get_card_by_id(session=session, card_id=comment_in.card_id)
     if not card:
         raise HTTPException(status_code=404, detail="Card not found")
     
-    comment = CardComment(
+    comment = comments_repo.create_comment(
+        session=session,
         content=comment_in.content,
         card_id=comment_in.card_id,
-        user_id=current_user.id,
+        user_id=current_user.id
     )
-    session.add(comment)
-    session.commit()
-    session.refresh(comment)
+    
+    # Notify card owner if someone else comments
+    if card.created_by and card.created_by != current_user.id:
+        card_owner = comments_repo.get_user_by_id(session=session, user_id=card.created_by)
+        if card_owner and not card_owner.is_deleted:
+            # Create in-app notification
+            notification = Notification(
+                user_id=card_owner.id,
+                type=NotificationType.comment_added,
+                title="New Comment",
+                message=f"{current_user.full_name or current_user.email} commented on your card '{card.title}'",
+                reference_id=card.id,
+                reference_type="card",
+            )
+            session.add(notification)
+            session.commit()
+            
+            # Send email notification
+            send_email(
+                email_to=card_owner.email,
+                subject=f"New comment on '{card.title}'",
+                html_content=f"""
+                <h2>New Comment on Your Card</h2>
+                <p><strong>{current_user.full_name or current_user.email}</strong> commented on your card <strong>"{card.title}"</strong>:</p>
+                <blockquote style="border-left: 3px solid #ccc; padding-left: 10px; color: #666;">
+                    {comment_in.content[:500]}{'...' if len(comment_in.content) > 500 else ''}
+                </blockquote>
+                <p><a href="#">View Card</a></p>
+                """,
+                use_queue=True,
+            )
     
     return CardCommentWithUser(
         id=comment.id,
@@ -131,7 +155,7 @@ def update_comment(
     comment_in: CardCommentUpdate,
 ) -> CardCommentWithUser:
     """Update a comment. Only the comment author can update it."""
-    comment = session.get(CardComment, id)
+    comment = comments_repo.get_comment_by_id(session=session, comment_id=id)
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
     
@@ -139,14 +163,9 @@ def update_comment(
     if comment.user_id != current_user.id and not current_user.is_superuser:
         raise HTTPException(status_code=403, detail="Not authorized to update this comment")
     
-    update_data = comment_in.model_dump(exclude_unset=True)
-    update_data["updated_at"] = datetime.utcnow()
-    comment.sqlmodel_update(update_data)
-    session.add(comment)
-    session.commit()
-    session.refresh(comment)
+    comment = comments_repo.update_comment(session=session, comment=comment, comment_in=comment_in)
     
-    user = session.get(User, comment.user_id)
+    user = comments_repo.get_user_by_id(session=session, user_id=comment.user_id)
     return CardCommentWithUser(
         id=comment.id,
         content=comment.content,
@@ -166,16 +185,12 @@ def delete_comment(
     id: uuid.UUID,
 ) -> dict:
     """Delete a comment. Only the comment author or superuser can delete it."""
-    comment = session.get(CardComment, id)
+    comment = comments_repo.get_comment_by_id(session=session, comment_id=id)
     if not comment or comment.is_deleted:
         raise HTTPException(status_code=404, detail="Comment not found")
     
     if comment.user_id != current_user.id and not current_user.is_superuser:
         raise HTTPException(status_code=403, detail="Not authorized to delete this comment")
     
-    comment.is_deleted = True
-    comment.deleted_at = datetime.utcnow()
-    comment.deleted_by = str(current_user.id)
-    session.add(comment)
-    session.commit()
+    comments_repo.soft_delete_comment(session=session, comment=comment, deleted_by=current_user.id)
     return {"ok": True}

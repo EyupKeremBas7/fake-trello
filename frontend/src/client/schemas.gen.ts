@@ -81,6 +81,11 @@ export const BoardPublicSchema = {
             type: 'string',
             format: 'uuid',
             title: 'Owner Id'
+        },
+        is_deleted: {
+            type: 'boolean',
+            title: 'Is Deleted',
+            default: false
         }
     },
     type: 'object',
@@ -278,6 +283,11 @@ export const CardCommentWithUserSchema = {
             format: 'date-time',
             title: 'Updated At'
         },
+        is_deleted: {
+            type: 'boolean',
+            title: 'Is Deleted',
+            default: false
+        },
         user_full_name: {
             anyOf: [
                 {
@@ -450,6 +460,18 @@ export const CardPublicSchema = {
             format: 'uuid',
             title: 'List Id'
         },
+        created_by: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Created By'
+        },
         created_at: {
             type: 'string',
             format: 'date-time',
@@ -459,6 +481,11 @@ export const CardPublicSchema = {
             type: 'string',
             format: 'date-time',
             title: 'Updated At'
+        },
+        is_deleted: {
+            type: 'boolean',
+            title: 'Is Deleted',
+            default: false
         }
     },
     type: 'object',
@@ -502,6 +529,18 @@ export const CardUpdateSchema = {
             ],
             title: 'Position'
         },
+        list_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'List Id'
+        },
         due_date: {
             anyOf: [
                 {
@@ -535,18 +574,6 @@ export const CardUpdateSchema = {
                 }
             ],
             title: 'Cover Image'
-        },
-        list_id: {
-            anyOf: [
-                {
-                    type: 'string',
-                    format: 'uuid'
-                },
-                {
-                    type: 'null'
-                }
-            ],
-            title: 'List Id'
         }
     },
     type: 'object',
@@ -638,6 +665,11 @@ export const ChecklistItemPublicSchema = {
             type: 'string',
             format: 'date-time',
             title: 'Updated At'
+        },
+        is_deleted: {
+            type: 'boolean',
+            title: 'Is Deleted',
+            default: false
         }
     },
     type: 'object',
@@ -719,6 +751,13 @@ export const HTTPValidationErrorSchema = {
     title: 'HTTPValidationError'
 } as const;
 
+export const InvitationStatusSchema = {
+    type: 'string',
+    enum: ['pending', 'accepted', 'rejected', 'expired'],
+    title: 'InvitationStatus',
+    description: 'Status of workspace invitation'
+} as const;
+
 export const ListCreateSchema = {
     properties: {
         name: {
@@ -775,6 +814,11 @@ export const ListPublicSchema = {
             type: 'string',
             format: 'uuid',
             title: 'Board Id'
+        },
+        is_deleted: {
+            type: 'boolean',
+            title: 'Is Deleted',
+            default: false
         }
     },
     type: 'object',
@@ -870,6 +914,100 @@ export const NewPasswordSchema = {
     type: 'object',
     required: ['token', 'new_password'],
     title: 'NewPassword'
+} as const;
+
+export const NotificationPublicSchema = {
+    properties: {
+        type: {
+            '$ref': '#/components/schemas/NotificationType'
+        },
+        title: {
+            type: 'string',
+            maxLength: 255,
+            title: 'Title'
+        },
+        message: {
+            type: 'string',
+            maxLength: 1000,
+            title: 'Message'
+        },
+        is_read: {
+            type: 'boolean',
+            title: 'Is Read',
+            default: false
+        },
+        reference_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Reference Id'
+        },
+        reference_type: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Reference Type'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        user_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'User Id'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        }
+    },
+    type: 'object',
+    required: ['type', 'title', 'message', 'id', 'user_id', 'created_at'],
+    title: 'NotificationPublic'
+} as const;
+
+export const NotificationTypeSchema = {
+    type: 'string',
+    enum: ['workspace_invitation', 'invitation_accepted', 'invitation_rejected', 'comment_added', 'card_assigned', 'card_due_soon', 'mentioned'],
+    title: 'NotificationType',
+    description: 'Types of notifications'
+} as const;
+
+export const NotificationsPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/NotificationPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        },
+        unread_count: {
+            type: 'integer',
+            title: 'Unread Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count', 'unread_count'],
+    title: 'NotificationsPublic'
 } as const;
 
 export const PrivateUserCreateSchema = {
@@ -1010,6 +1148,11 @@ export const UserPublicSchema = {
             type: 'string',
             format: 'uuid',
             title: 'Id'
+        },
+        is_deleted: {
+            type: 'boolean',
+            title: 'Is Deleted',
+            default: false
         }
     },
     type: 'object',
@@ -1222,6 +1365,257 @@ export const WorkspaceCreateSchema = {
     title: 'WorkspaceCreate'
 } as const;
 
+export const WorkspaceInvitationCreateSchema = {
+    properties: {
+        workspace_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Workspace Id'
+        },
+        invitee_email: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Invitee Email'
+        },
+        invitee_id: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'uuid'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Invitee Id'
+        },
+        role: {
+            '$ref': '#/components/schemas/MemberRole',
+            default: 'member'
+        },
+        message: {
+            anyOf: [
+                {
+                    type: 'string'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Message'
+        }
+    },
+    type: 'object',
+    required: ['workspace_id'],
+    title: 'WorkspaceInvitationCreate',
+    description: 'Create invitation by email or user_id'
+} as const;
+
+export const WorkspaceInvitationPublicSchema = {
+    properties: {
+        role: {
+            '$ref': '#/components/schemas/MemberRole',
+            default: 'member'
+        },
+        status: {
+            '$ref': '#/components/schemas/InvitationStatus',
+            default: 'pending'
+        },
+        message: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Message'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        workspace_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Workspace Id'
+        },
+        inviter_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Inviter Id'
+        },
+        invitee_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Invitee Id'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        responded_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Responded At'
+        },
+        expires_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Expires At'
+        }
+    },
+    type: 'object',
+    required: ['id', 'workspace_id', 'inviter_id', 'invitee_id', 'created_at', 'responded_at', 'expires_at'],
+    title: 'WorkspaceInvitationPublic'
+} as const;
+
+export const WorkspaceInvitationRespondSchema = {
+    properties: {
+        accept: {
+            type: 'boolean',
+            title: 'Accept'
+        }
+    },
+    type: 'object',
+    required: ['accept'],
+    title: 'WorkspaceInvitationRespond',
+    description: 'Accept or reject an invitation'
+} as const;
+
+export const WorkspaceInvitationWithDetailsSchema = {
+    properties: {
+        role: {
+            '$ref': '#/components/schemas/MemberRole',
+            default: 'member'
+        },
+        status: {
+            '$ref': '#/components/schemas/InvitationStatus',
+            default: 'pending'
+        },
+        message: {
+            anyOf: [
+                {
+                    type: 'string',
+                    maxLength: 500
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Message'
+        },
+        id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Id'
+        },
+        workspace_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Workspace Id'
+        },
+        inviter_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Inviter Id'
+        },
+        invitee_id: {
+            type: 'string',
+            format: 'uuid',
+            title: 'Invitee Id'
+        },
+        created_at: {
+            type: 'string',
+            format: 'date-time',
+            title: 'Created At'
+        },
+        responded_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Responded At'
+        },
+        expires_at: {
+            anyOf: [
+                {
+                    type: 'string',
+                    format: 'date-time'
+                },
+                {
+                    type: 'null'
+                }
+            ],
+            title: 'Expires At'
+        },
+        workspace_name: {
+            type: 'string',
+            title: 'Workspace Name'
+        },
+        inviter_name: {
+            type: 'string',
+            title: 'Inviter Name'
+        },
+        inviter_email: {
+            type: 'string',
+            title: 'Inviter Email'
+        }
+    },
+    type: 'object',
+    required: ['id', 'workspace_id', 'inviter_id', 'invitee_id', 'created_at', 'responded_at', 'expires_at', 'workspace_name', 'inviter_name', 'inviter_email'],
+    title: 'WorkspaceInvitationWithDetails',
+    description: 'Invitation with workspace and inviter names for display'
+} as const;
+
+export const WorkspaceInvitationsPublicSchema = {
+    properties: {
+        data: {
+            items: {
+                '$ref': '#/components/schemas/WorkspaceInvitationPublic'
+            },
+            type: 'array',
+            title: 'Data'
+        },
+        count: {
+            type: 'integer',
+            title: 'Count'
+        }
+    },
+    type: 'object',
+    required: ['data', 'count'],
+    title: 'WorkspaceInvitationsPublic'
+} as const;
+
 export const WorkspaceInviteSchema = {
     properties: {
         email: {
@@ -1367,6 +1761,11 @@ export const WorkspacePublicSchema = {
             type: 'string',
             format: 'date-time',
             title: 'Created At'
+        },
+        is_deleted: {
+            type: 'boolean',
+            title: 'Is Deleted',
+            default: false
         }
     },
     type: 'object',

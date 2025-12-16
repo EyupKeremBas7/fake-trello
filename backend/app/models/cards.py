@@ -56,6 +56,7 @@ class CardUpdate(SQLModel):
 class Card(CardBase, SoftDeleteMixin, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     list_id: uuid.UUID = Field(foreign_key="board_list.id", ondelete="CASCADE")
+    created_by: uuid.UUID | None = Field(default=None, foreign_key="user.id", ondelete="SET NULL")
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 
@@ -63,9 +64,12 @@ class Card(CardBase, SoftDeleteMixin, table=True):
 class CardPublic(CardBase):
     id: uuid.UUID
     list_id: uuid.UUID
+    created_by: uuid.UUID | None = None
     created_at: datetime
     updated_at: datetime
     is_deleted: bool = False
+    owner_full_name: str | None = None
+    owner_email: str | None = None
 
 
 class CardsPublic(SQLModel):

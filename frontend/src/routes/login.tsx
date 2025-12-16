@@ -1,4 +1,4 @@
-import { Container, Image, Input, Text } from "@chakra-ui/react"
+import { Box, Container, HStack, Image, Input, Text } from "@chakra-ui/react"
 import {
   createFileRoute,
   Link as RouterLink,
@@ -6,6 +6,7 @@ import {
 } from "@tanstack/react-router"
 import { type SubmitHandler, useForm } from "react-hook-form"
 import { FiLock, FiMail } from "react-icons/fi"
+import { FcGoogle } from "react-icons/fc"
 
 import type { Body_login_login_access_token as AccessToken } from "@/client"
 import { Button } from "@/components/ui/button"
@@ -51,6 +52,10 @@ function Login() {
       await loginMutation.mutateAsync(data)
     } catch {
     }
+  }
+
+  const handleGoogleLogin = () => {
+    window.location.href = `${import.meta.env.VITE_API_URL || ""}/api/v1/oauth/google/login`
   }
 
   return (
@@ -100,6 +105,24 @@ function Login() {
       <Button variant="solid" type="submit" loading={isSubmitting} size="md">
         Log In
       </Button>
+
+      <HStack w="100%">
+        <Box flex="1" h="1px" bg="border.muted" />
+        <Text fontSize="sm" color="fg.muted" px={2}>or</Text>
+        <Box flex="1" h="1px" bg="border.muted" />
+      </HStack>
+
+      <Button
+        variant="outline"
+        size="md"
+        onClick={handleGoogleLogin}
+        type="button"
+        w="100%"
+      >
+        <FcGoogle />
+        Continue with Google
+      </Button>
+
       <Text>
         Don't have an account?{" "}
         <RouterLink to="/signup" className="main-link">
