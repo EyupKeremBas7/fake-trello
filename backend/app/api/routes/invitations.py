@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException
 
 from app.api.deps import CurrentUser, SessionDep
 from app.repository import invitations as invitations_repo
+from app.repository import notifications as notifications_repo
 from app.models.invitations import (
     WorkspaceInvitation,
     WorkspaceInvitationCreate,
@@ -17,7 +18,7 @@ from app.models.invitations import (
     WorkspaceInvitationRespond,
     InvitationStatus,
 )
-from app.models.notifications import Notification, NotificationType
+from app.models.notifications import NotificationType
 from app.models.auth import Message
 
 router = APIRouter(prefix="/invitations", tags=["invitations"])
@@ -34,7 +35,6 @@ def read_my_invitations(
         session=session, user_id=current_user.id, status=status
     )
     
-    # Enrich with workspace and inviter details
     result = []
     for inv in invitations:
         workspace = invitations_repo.get_workspace_by_id(session=session, workspace_id=inv.workspace_id)
@@ -80,19 +80,17 @@ def create_invitation(
     invitation_in: WorkspaceInvitationCreate,
 ) -> Any:
     """Send a workspace invitation to a user."""
-    # Check workspace exists
     workspace = invitations_repo.get_workspace_by_id(session=session, workspace_id=invitation_in.workspace_id)
     if not workspace or workspace.is_deleted:
         raise HTTPException(status_code=404, detail="Workspace not found")
     
-    # Check permission - must be owner or admin
     role = invitations_repo.get_user_role_in_workspace(
         session=session, user_id=current_user.id, workspace_id=workspace.id
     )
     if role not in ["owner", "admin"] and not current_user.is_superuser:
         raise HTTPException(status_code=403, detail="Only workspace owner or admin can invite members")
     
-    # Find invitee
+    
     invitee = None
     if invitation_in.invitee_id:
         invitee = invitations_repo.get_user_by_id(session=session, user_id=invitation_in.invitee_id)
@@ -105,29 +103,24 @@ def create_invitation(
             detail="User not found. They need to register first."
         )
     
-    # Can't invite yourself
     if invitee.id == current_user.id:
         raise HTTPException(status_code=400, detail="You cannot invite yourself")
     
-    # Can't invite the owner
     if invitee.id == workspace.owner_id:
         raise HTTPException(status_code=400, detail="Cannot invite the workspace owner")
     
-    # Check if already a member
     existing_member = invitations_repo.get_member_by_user_and_workspace(
         session=session, user_id=invitee.id, workspace_id=workspace.id
     )
     if existing_member:
         raise HTTPException(status_code=400, detail="User is already a member of this workspace")
     
-    # Check if there's already a pending invitation
     existing_invitation = invitations_repo.get_pending_invitation(
         session=session, invitee_id=invitee.id, workspace_id=workspace.id
     )
     if existing_invitation:
         raise HTTPException(status_code=400, detail="There's already a pending invitation for this user")
     
-    # Create invitation
     invitation = invitations_repo.create_invitation(
         session=session,
         workspace_id=workspace.id,
@@ -137,17 +130,17 @@ def create_invitation(
         message=invitation_in.message
     )
     
-    # Create notification for invitee
-    notification = Notification(
-        user_id=invitee.id,
-        type=NotificationType.workspace_invitation,
-        title="Workspace Invitation",
-        message=f"{current_user.full_name or current_user.email} invited you to join '{workspace.name}'",
-        reference_id=invitation.id,
-        reference_type="invitation",
-    )
-    session.add(notification)
-    session.commit()
+    # Dispatch InvitationSentEvent (Observer pattern)
+    from app.events import EventDispatcher, InvitationSentEvent
+    EventDispatcher.dispatch(InvitationSentEvent(
+        invitation_id=invitation.id,
+        workspace_id=workspace.id,
+        workspace_name=workspace.name,
+        inviter_id=current_user.id,
+        inviter_name=current_user.full_name or current_user.email,
+        invitee_id=invitee.id,
+        invitee_email=invitee.email,
+    ))
     
     return invitation
 
@@ -164,62 +157,44 @@ def respond_to_invitation(
     if not invitation:
         raise HTTPException(status_code=404, detail="Invitation not found")
     
-    # Only the invitee can respond
     if invitation.invitee_id != current_user.id:
         raise HTTPException(status_code=403, detail="This invitation is not for you")
     
-    # Check if already responded
     if invitation.status != InvitationStatus.pending:
         raise HTTPException(
             status_code=400,
             detail=f"Invitation already {invitation.status.value}"
         )
     
-    # Get workspace for notification
     workspace = invitations_repo.get_workspace_by_id(session=session, workspace_id=invitation.workspace_id)
     
     if response.accept:
-        # Accept invitation - add user to workspace
         invitation = invitations_repo.respond_to_invitation(
             session=session, invitation=invitation, accept=True
         )
         
-        # Create workspace member
         invitations_repo.add_workspace_member(
             session=session,
             user_id=current_user.id,
             workspace_id=invitation.workspace_id,
             role=invitation.role
         )
-        
-        # Notify inviter
-        notification = Notification(
-            user_id=invitation.inviter_id,
-            type=NotificationType.invitation_accepted,
-            title="Invitation Accepted",
-            message=f"{current_user.full_name or current_user.email} accepted your invitation to '{workspace.name}'",
-            reference_id=invitation.workspace_id,
-            reference_type="workspace",
-        )
-        session.add(notification)
-        session.commit()
     else:
-        # Reject invitation
         invitation = invitations_repo.respond_to_invitation(
             session=session, invitation=invitation, accept=False
         )
-        
-        # Notify inviter
-        notification = Notification(
-            user_id=invitation.inviter_id,
-            type=NotificationType.invitation_rejected,
-            title="Invitation Rejected",
-            message=f"{current_user.full_name or current_user.email} rejected your invitation to '{workspace.name}'",
-            reference_id=invitation.workspace_id,
-            reference_type="workspace",
-        )
-        session.add(notification)
-        session.commit()
+    
+    # Dispatch InvitationRespondedEvent (Observer pattern)
+    from app.events import EventDispatcher, InvitationRespondedEvent
+    EventDispatcher.dispatch(InvitationRespondedEvent(
+        invitation_id=invitation.id,
+        workspace_id=invitation.workspace_id,
+        workspace_name=workspace.name,
+        accepted=response.accept,
+        responder_id=current_user.id,
+        responder_name=current_user.full_name or current_user.email,
+        inviter_id=invitation.inviter_id,
+    ))
     
     return invitation
 
@@ -235,7 +210,7 @@ def cancel_invitation(
     if not invitation:
         raise HTTPException(status_code=404, detail="Invitation not found")
     
-    # Check permission
+
     is_inviter = invitation.inviter_id == current_user.id
     role = invitations_repo.get_user_role_in_workspace(
         session=session, user_id=current_user.id, workspace_id=invitation.workspace_id

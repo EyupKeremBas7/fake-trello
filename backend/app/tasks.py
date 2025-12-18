@@ -1,9 +1,6 @@
-"""
-Celery tasks for async operations.
-"""
 import logging
 
-import emails  # type: ignore
+import emails  
 
 from app.core.config import settings
 from app.worker import celery_app
@@ -18,10 +15,6 @@ def send_email_task(
     subject: str,
     html_content: str,
 ) -> dict:
-    """
-    Send email asynchronously via Celery.
-    Retries up to 3 times with 60 second delay on failure.
-    """
     try:
         message = emails.Message(
             subject=subject,
@@ -49,5 +42,4 @@ def send_email_task(
         }
     except Exception as exc:
         logger.error(f"Failed to send email to {email_to}: {exc}")
-        # Retry the task
         raise self.retry(exc=exc)

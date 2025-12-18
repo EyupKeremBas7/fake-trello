@@ -37,24 +37,14 @@ def send_email(
     html_content: str = "",
     use_queue: bool = True,
 ) -> None:
-    """
-    Send email either synchronously or via Celery queue.
-    
-    Args:
-        email_to: Recipient email address
-        subject: Email subject
-        html_content: HTML content of the email
-        use_queue: If True, send via Celery queue (async). If False, send synchronously.
-    """
+
     assert settings.emails_enabled, "no provided configuration for email variables"
     
     if use_queue:
-        # Import here to avoid circular imports
         from app.tasks import send_email_task
         send_email_task.delay(email_to, subject, html_content)
         logger.info(f"Email queued for {email_to}")
     else:
-        # Synchronous email sending (for testing or when queue is not available)
         message = emails.Message(
             subject=subject,
             html=html_content,

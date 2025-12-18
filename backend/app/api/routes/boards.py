@@ -9,8 +9,8 @@ from fastapi import APIRouter, HTTPException
 from app.api.deps import CurrentUser, SessionDep
 from app.repository import boards as boards_repo
 from app.models.boards import Board, BoardCreate, BoardPublic, BoardsPublic, BoardUpdate
-from app.models.enums import MemberRole
 from app.models.auth import Message
+from app.core.permissions import has_permission, Action
 
 router = APIRouter(prefix="/boards", tags=["boards"])
 
@@ -55,7 +55,7 @@ def create_board(
         role = boards_repo.get_user_role_in_workspace(
             session=session, user_id=current_user.id, workspace_id=workspace.id
         )
-        if role not in [MemberRole.admin, MemberRole.member]:
+        if not has_permission(role, Action.CREATE_BOARD):
             raise HTTPException(status_code=403, detail="Not enough permissions to create board")
     
     board = boards_repo.create_board(
@@ -97,7 +97,7 @@ def delete_board(
         role = boards_repo.get_user_role_in_workspace(
             session=session, user_id=current_user.id, workspace_id=workspace.id
         )
-        if role != MemberRole.admin:
+        if not has_permission(role, Action.DELETE_BOARD):
             raise HTTPException(status_code=403, detail="Only owner or admin can delete board")
     
     boards_repo.soft_delete_board(session=session, board=board, deleted_by=current_user.id)

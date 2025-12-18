@@ -19,8 +19,6 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     generate_unique_id_function=custom_generate_unique_id,
 )
-
-# Rate limiting (optional - only if slowapi is installed)
 try:
     from slowapi import Limiter, _rate_limit_exceeded_handler
     from slowapi.util import get_remote_address
@@ -30,9 +28,8 @@ try:
     app.state.limiter = limiter
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 except ImportError:
-    pass  # slowapi not installed, skip rate limiting
+    pass  
 
-# Set all CORS enabled origins
 if settings.all_cors_origins:
     app.add_middleware(
         CORSMiddleware,
@@ -41,5 +38,9 @@ if settings.all_cors_origins:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+# Initialize event handlers (Observer pattern)
+from app.events.base import EventDispatcher
+EventDispatcher.initialize()
 
 app.include_router(api_router, prefix=settings.API_V1_STR)

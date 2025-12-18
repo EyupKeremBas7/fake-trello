@@ -9,6 +9,8 @@ from sqlmodel import Session, select, func
 
 from app.core.security import get_password_hash, verify_password
 from app.models.users import User, UserCreate, UserUpdate
+from app.models.workspaces import Workspace
+from app.models.workspace_members import WorkspaceMember
 
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
@@ -89,7 +91,6 @@ def soft_delete_user(
     user.is_deleted = True
     user.deleted_at = datetime.utcnow()
     user.deleted_by = str(deleted_by)
-    # Append deletion timestamp to email to free up the email for new registrations
     user.email = f"{user.email}__deleted_{int(user.deleted_at.timestamp())}"
     session.add(user)
     session.commit()
@@ -111,3 +112,32 @@ def delete_user_hard(*, session: Session, user: User) -> None:
     """Hard delete a user (permanent)."""
     session.delete(user)
     session.commit()
+
+
+def users_share_workspace(
+    *, session: Session, user_id_1: uuid.UUID, user_id_2: uuid.UUID
+) -> bool:
+    """Check if two users share at least one workspace (as owner or member)."""
+
+    
+    user1_owned = session.exec(
+        select(Workspace.id).where(Workspace.owner_id == user_id_1, Workspace.is_deleted == False)
+    ).all()
+    user1_member = session.exec(
+        select(WorkspaceMember.workspace_id).where(WorkspaceMember.user_id == user_id_1)
+    ).all()
+    user1_workspaces = set(user1_owned) | set(user1_member)
+    
+    if not user1_workspaces:
+        return False
+    
+    user2_owned = session.exec(
+        select(Workspace.id).where(Workspace.owner_id == user_id_2, Workspace.is_deleted == False)
+    ).all()
+    user2_member = session.exec(
+        select(WorkspaceMember.workspace_id).where(WorkspaceMember.user_id == user_id_2)
+    ).all()
+    user2_workspaces = set(user2_owned) | set(user2_member)
+    
+    # Check if they share any workspace
+    return bool(user1_workspaces & user2_workspaces)

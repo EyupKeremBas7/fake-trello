@@ -167,18 +167,24 @@ def read_user_by_id(
 ) -> Any:
     """
     Get a specific user by id.
+    Users can view other users if they share a workspace.
     """
     user = users_repo.get_user_by_id(session=session, user_id=user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if user == current_user:
         return user
-    if not current_user.is_superuser:
-        raise HTTPException(
-            status_code=403,
-            detail="The user doesn't have enough privileges",
-        )
-    return user
+    if current_user.is_superuser:
+        return user
+    
+    # Check if users share at least one workspace
+    if users_repo.users_share_workspace(session=session, user_id_1=current_user.id, user_id_2=user_id):
+        return user
+    
+    raise HTTPException(
+        status_code=403,
+        detail="The user doesn't have enough privileges",
+    )
 
 
 @router.patch(

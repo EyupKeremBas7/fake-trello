@@ -7,9 +7,31 @@ from typing import Any
 
 from sqlmodel import Session, select
 
-from app.models.comments import CardComment, CardCommentCreate, CardCommentUpdate
+from app.models.comments import CardComment, CardCommentCreate, CardCommentUpdate, CardCommentWithUser
 from app.models.cards import Card
 from app.models.users import User
+
+
+def enrich_comment_with_user(session: Session, comment: CardComment) -> CardCommentWithUser:
+    """Add user info to comment."""
+    user = session.get(User, comment.user_id)
+    return CardCommentWithUser(
+        id=comment.id,
+        content=comment.content,
+        card_id=comment.card_id,
+        user_id=comment.user_id,
+        created_at=comment.created_at,
+        updated_at=comment.updated_at,
+        user_full_name=user.full_name if user else None,
+        user_email=user.email if user else None,
+    )
+
+
+def get_comments_with_users(
+    session: Session, comments: list[CardComment]
+) -> list[CardCommentWithUser]:
+    """Enrich a list of comments with user info."""
+    return [enrich_comment_with_user(session, c) for c in comments]
 
 
 def get_comment_by_id(*, session: Session, comment_id: uuid.UUID) -> CardComment | None:

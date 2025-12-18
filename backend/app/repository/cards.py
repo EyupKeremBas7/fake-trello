@@ -7,7 +7,7 @@ from typing import Any
 
 from sqlmodel import Session, select, func, or_
 
-from app.models.cards import Card, CardCreate, CardUpdate
+from app.models.cards import Card, CardCreate, CardUpdate, CardPublic
 from app.models.lists import BoardList
 from app.models.boards import Board
 from app.models.workspaces import Workspace
@@ -15,8 +15,29 @@ from app.models.workspace_members import WorkspaceMember
 from app.models.users import User
 from app.models.enums import MemberRole
 
-
-# ==================== Helper Functions ====================
+def enrich_card_with_owner(session: Session, card: Card) -> CardPublic:
+    """Add owner info to card."""
+    owner = None
+    if card.created_by:
+        owner = session.get(User, card.created_by)
+    
+    return CardPublic(
+        id=card.id,
+        title=card.title,
+        description=card.description,
+        position=card.position,
+        due_date=card.due_date,
+        is_archived=card.is_archived,
+        cover_image=card.cover_image,
+        list_id=card.list_id,
+        created_by=card.created_by,
+        created_at=card.created_at,
+        updated_at=card.updated_at,
+        is_deleted=card.is_deleted,
+        owner_full_name=owner.full_name if owner else None,
+        owner_email=owner.email if owner else None,
+    )
+    
 
 def get_user_role_in_workspace(
     *, session: Session, user_id: uuid.UUID, workspace_id: uuid.UUID

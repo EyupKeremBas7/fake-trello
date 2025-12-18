@@ -16,7 +16,6 @@ from app.models.users import User
 
 router = APIRouter(prefix="/oauth", tags=["oauth"])
 
-# Initialize OAuth
 oauth = OAuth()
 
 if settings.google_oauth_enabled:
@@ -58,17 +57,15 @@ async def google_callback(request: Request, session: SessionDep):
     if not email:
         raise HTTPException(status_code=400, detail="Email not provided by Google")
     
-    # Check if user exists
     user = session.exec(
         select(User).where(User.email == email, User.is_deleted == False)
     ).first()
     
     if not user:
-        # Create new user from OAuth
         user = User(
             email=email,
             full_name=user_info.get("name"),
-            hashed_password=secrets.token_urlsafe(32),  # Random password for OAuth users
+            hashed_password=secrets.token_urlsafe(32),
             is_active=True,
             is_superuser=False,
         )
@@ -76,13 +73,11 @@ async def google_callback(request: Request, session: SessionDep):
         session.commit()
         session.refresh(user)
     
-    # Create access token
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         subject=str(user.id), expires_delta=access_token_expires
     )
     
-    # Redirect to frontend with token
     return RedirectResponse(
         url=f"{settings.FRONTEND_HOST}/oauth/success?token={access_token}"
     )

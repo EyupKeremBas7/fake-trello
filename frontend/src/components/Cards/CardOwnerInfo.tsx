@@ -14,7 +14,7 @@ export const CardOwnerInfo = ({ createdBy, showAvatar = true, showLabel = false 
         queryKey: ["user", createdBy],
         queryFn: () => UsersService.readUserById({ userId: createdBy! }),
         enabled: !!createdBy,
-        staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+        staleTime: 5 * 60 * 1000, 
     })
 
     if (!createdBy) return <Text fontSize="sm" color="fg.muted">-</Text>

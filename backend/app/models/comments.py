@@ -52,3 +52,13 @@ class CardCommentPublic(CardCommentBase):
 class CardCommentsPublic(SQLModel):
     data: list[CardCommentPublic]
     count: int
+
+
+class CardCommentWithUser(CardCommentPublic):
+    user_full_name: str | None = None
+    user_email: str | None = None
+
+
+class CardCommentsWithUserPublic(CardCommentsPublic):
+    data: list[CardCommentWithUser]
+

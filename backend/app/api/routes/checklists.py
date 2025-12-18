@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException
 
 from app.api.deps import CurrentUser, SessionDep
 from app.repository import checklists as checklists_repo
+from app.repository import notifications as notifications_repo
 from app.models.checklists import (
     ChecklistItem,
     ChecklistItemCreate,
@@ -15,7 +16,7 @@ from app.models.checklists import (
     ChecklistItemsPublic,
     ChecklistItemUpdate,
 )
-from app.models.notifications import Notification, NotificationType
+from app.models.notifications import NotificationType
 from app.utils import send_email
 
 router = APIRouter(prefix="/checklists", tags=["checklists"])
@@ -56,7 +57,6 @@ def create_checklist_item(
     item_in: ChecklistItemCreate,
 ) -> ChecklistItem:
     """Create a new checklist item."""
-    # Verify card exists
     card = checklists_repo.get_card_by_id(session=session, card_id=item_in.card_id)
     if not card:
         raise HTTPException(status_code=404, detail="Card not found")
@@ -107,40 +107,29 @@ def toggle_checklist_item(
     if not item:
         raise HTTPException(status_code=404, detail="Checklist item not found")
     
-    # Toggle the item
     item = checklists_repo.toggle_checklist_item(session=session, item=item)
     
-    # Get the card and notify owner if someone else toggles the checklist
+    # Dispatch ChecklistToggledEvent (Observer pattern)
     card = checklists_repo.get_card_by_id(session=session, card_id=item.card_id)
-    if card and card.created_by and card.created_by != current_user.id:
-        card_owner = checklists_repo.get_user_by_id(session=session, user_id=card.created_by)
-        if card_owner and not card_owner.is_deleted:
-            status = "completed" if item.is_completed else "uncompleted"
-            
-            # Create in-app notification
-            notification = Notification(
-                user_id=card_owner.id,
-                type=NotificationType.checklist_toggled,
-                title="Checklist Item Updated",
-                message=f"{current_user.full_name or current_user.email} marked '{item.title}' as {status} on your card '{card.title}'",
-                reference_id=card.id,
-                reference_type="card",
-            )
-            session.add(notification)
-            session.commit()
-            
-            # Send email notification
-            status_emoji = "✅" if item.is_completed else "⬜"
-            send_email(
-                email_to=card_owner.email,
-                subject=f"Checklist item updated on '{card.title}'",
-                html_content=f"""
-                <h2>Checklist Item Updated</h2>
-                <p><strong>{current_user.full_name or current_user.email}</strong> updated a checklist item on your card <strong>"{card.title}"</strong>:</p>
-                <p>{status_emoji} <strong>{item.title}</strong> - marked as {status}</p>
-                <p><a href="#">View Card</a></p>
-                """,
-                use_queue=True,
-            )
+    if card:
+        card_owner = None
+        card_owner_email = None
+        if card.created_by:
+            owner = checklists_repo.get_user_by_id(session=session, user_id=card.created_by)
+            if owner and not owner.is_deleted:
+                card_owner = owner.id
+                card_owner_email = owner.email
+        
+        from app.events import EventDispatcher, ChecklistToggledEvent
+        EventDispatcher.dispatch(ChecklistToggledEvent(
+            card_id=card.id,
+            card_title=card.title,
+            item_title=item.title,
+            is_completed=item.is_completed,
+            toggled_by_id=current_user.id,
+            toggled_by_name=current_user.full_name or current_user.email,
+            card_owner_id=card_owner,
+            card_owner_email=card_owner_email,
+        ))
     
     return item

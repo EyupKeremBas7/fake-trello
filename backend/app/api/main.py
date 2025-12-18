@@ -18,7 +18,6 @@ api_router.include_router(invitations.router)
 api_router.include_router(uploads.router)
 api_router.include_router(activity.router)
 
-# OAuth (optional - only if authlib is installed)
 try:
     from app.api.routes import oauth
     api_router.include_router(oauth.router)
