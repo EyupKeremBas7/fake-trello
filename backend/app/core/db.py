@@ -4,7 +4,13 @@ from app.core.config import settings
 from app.models.users import User, UserCreate
 from app.repository import users as users_repo
 
-engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
+engine = create_engine(
+    str(settings.SQLALCHEMY_DATABASE_URI),
+    pool_size=20,          # Base connections (default: 5)
+    max_overflow=40,       # Extra connections under load (default: 10)
+    pool_timeout=30,       # Seconds to wait for connection
+    pool_pre_ping=True,    # Check connections are alive
+)
 
 
 def init_db(session: Session) -> None:

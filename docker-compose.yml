@@ -195,6 +195,28 @@ services:
       - traefik.http.routers.${STACK_NAME}-frontend.entrypoints=web
       - traefik.http.services.${STACK_NAME}-frontend.loadbalancer.server.port=80
 
+  locust:
+    container_name: locust
+    image: locustio/locust:latest
+    restart: unless-stopped
+    ports:
+      - "8089:8089"
+    volumes:
+      - ./backend/tests/performance_test:/mnt/locust
+    env_file:
+      - .env
+    environment:
+      - LOCUST_LOCUSTFILE=/mnt/locust/locustfile.py
+      - LOCUST_HOST=http://backend:8000
+      - FIRST_SUPERUSER=${FIRST_SUPERUSER:-admin@example.com}
+      - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD:-changethis}
+    command: -f /mnt/locust/locustfile.py --host=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - default
+
 volumes:
   app-db-data:
   redis-data:
