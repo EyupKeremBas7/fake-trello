@@ -1,4 +1,3 @@
-# Events module - Observer pattern implementation
 from app.events.base import Event, EventDispatcher
 from app.events.types import (
     CardMovedEvent,

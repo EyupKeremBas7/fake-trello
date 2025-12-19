@@ -24,14 +24,14 @@ class InvitationStatus(str, Enum):
 class WorkspaceInvitationBase(SQLModel):
     role: MemberRole = Field(default=MemberRole.member)
     status: InvitationStatus = Field(default=InvitationStatus.pending)
-    message: str | None = Field(default=None, max_length=500)  # Optional invitation message
+    message: str | None = Field(default=None, max_length=500) 
 
 
 class WorkspaceInvitationCreate(SQLModel):
     """Create invitation by email or user_id"""
     workspace_id: uuid.UUID
-    invitee_email: str | None = None  # Invite by email
-    invitee_id: uuid.UUID | None = None  # Or invite by user_id
+    invitee_email: str | None = None 
+    invitee_id: uuid.UUID | None = None 
     role: MemberRole = MemberRole.member
     message: str | None = None
 
@@ -46,11 +46,11 @@ class WorkspaceInvitation(WorkspaceInvitationBase, table=True):
     
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     workspace_id: uuid.UUID = Field(foreign_key="workspace.id", ondelete="CASCADE", index=True)
-    inviter_id: uuid.UUID = Field(foreign_key="user.id", ondelete="CASCADE")  # Who sent the invite
-    invitee_id: uuid.UUID = Field(foreign_key="user.id", ondelete="CASCADE", index=True)  # Who receives
+    inviter_id: uuid.UUID = Field(foreign_key="user.id", ondelete="CASCADE") 
+    invitee_id: uuid.UUID = Field(foreign_key="user.id", ondelete="CASCADE", index=True) 
     created_at: datetime = Field(default_factory=datetime.utcnow)
     responded_at: datetime | None = Field(default=None)
-    expires_at: datetime | None = Field(default=None)  # Optional expiration
+    expires_at: datetime | None = Field(default=None) 
 
 
 class WorkspaceInvitationPublic(WorkspaceInvitationBase):

@@ -2,9 +2,11 @@ import sentry_sdk
 from fastapi import FastAPI, Request
 from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
-
+from app.events.base import EventDispatcher
 from app.api.main import api_router
 from app.core.config import settings
+from starlette.middleware.sessions import SessionMiddleware
+
 
 
 def custom_generate_unique_id(route: APIRoute) -> str:
@@ -19,6 +21,7 @@ app = FastAPI(
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
     generate_unique_id_function=custom_generate_unique_id,
 )
+
 try:
     from slowapi import Limiter, _rate_limit_exceeded_handler
     from slowapi.util import get_remote_address
@@ -30,6 +33,7 @@ try:
 except ImportError:
     pass  
 
+
 if settings.all_cors_origins:
     app.add_middleware(
         CORSMiddleware,
@@ -39,8 +43,8 @@ if settings.all_cors_origins:
         allow_headers=["*"],
     )
 
-# Initialize event handlers (Observer pattern)
-from app.events.base import EventDispatcher
+app.add_middleware(SessionMiddleware, secret_key=settings.SECRET_KEY)
+
 EventDispatcher.initialize()
 
 app.include_router(api_router, prefix=settings.API_V1_STR)

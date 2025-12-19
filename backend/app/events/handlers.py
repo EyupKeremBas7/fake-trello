@@ -26,6 +26,7 @@ NotifiableEvent = Union[
     ChecklistToggledEvent,
     InvitationSentEvent,
     InvitationRespondedEvent,
+    
 ]
 
 

@@ -7,7 +7,7 @@ from uuid import UUID
 from typing import Optional
 
 from app.events.base import Event
-
+    
 
 @dataclass
 class CardMovedEvent(Event):

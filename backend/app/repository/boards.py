@@ -13,8 +13,6 @@ from app.models.workspace_members import WorkspaceMember
 from app.models.enums import MemberRole
 
 
-# ==================== Helper Functions ====================
-
 def get_user_role_in_workspace(
     *, session: Session, user_id: uuid.UUID, workspace_id: uuid.UUID
 ) -> MemberRole | None:
@@ -50,7 +48,6 @@ def can_edit_board(*, session: Session, user_id: uuid.UUID, board: Board) -> boo
     return role in [MemberRole.admin, MemberRole.member]
 
 
-# ==================== Board CRUD ====================
 
 def get_board_by_id(*, session: Session, board_id: uuid.UUID) -> Board | None:
     """Get board by ID."""

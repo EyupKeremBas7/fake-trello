@@ -69,7 +69,6 @@ class EventDispatcher:
         if cls._initialized:
             return
         
-        # Import and register handlers
         from app.events.handlers import (
             handle_notification,
             handle_email,
@@ -82,14 +81,12 @@ class EventDispatcher:
             InvitationRespondedEvent,
         )
         
-        # Register notification handlers
         cls.register(CardMovedEvent, handle_notification)
         cls.register(CommentAddedEvent, handle_notification)
         cls.register(ChecklistToggledEvent, handle_notification)
         cls.register(InvitationSentEvent, handle_notification)
         cls.register(InvitationRespondedEvent, handle_notification)
         
-        # Register email handlers
         cls.register(CardMovedEvent, handle_email)
         cls.register(CommentAddedEvent, handle_email)
         cls.register(ChecklistToggledEvent, handle_email)

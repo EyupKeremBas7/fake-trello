@@ -18,11 +18,8 @@ api_router.include_router(invitations.router)
 api_router.include_router(uploads.router)
 api_router.include_router(activity.router)
 
-try:
-    from app.api.routes import oauth
-    api_router.include_router(oauth.router)
-except ImportError:
-    pass
+from app.api.routes import oauth
+api_router.include_router(oauth.router)
 
 
 if settings.ENVIRONMENT == "local":

@@ -34,7 +34,7 @@ async def google_login(request: Request):
     if not settings.google_oauth_enabled:
         raise HTTPException(status_code=400, detail="Google OAuth not configured")
     
-    redirect_uri = f"{settings.FRONTEND_HOST}/oauth/callback"
+    redirect_uri = request.url_for('google_callback')
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 
