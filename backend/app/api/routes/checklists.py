@@ -2,13 +2,10 @@
 Checklists API Routes - Clean routes without direct database queries.
 """
 import uuid
-from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
 from app.api.deps import CurrentUser, SessionDep
-from app.repository import checklists as checklists_repo
-from app.repository import notifications as notifications_repo
 from app.models.checklists import (
     ChecklistItem,
     ChecklistItemCreate,
@@ -16,8 +13,7 @@ from app.models.checklists import (
     ChecklistItemsPublic,
     ChecklistItemUpdate,
 )
-from app.models.notifications import NotificationType
-from app.utils import send_email
+from app.repository import checklists as checklists_repo
 
 router = APIRouter(prefix="/checklists", tags=["checklists"])
 
@@ -60,7 +56,7 @@ def create_checklist_item(
     card = checklists_repo.get_card_by_id(session=session, card_id=item_in.card_id)
     if not card:
         raise HTTPException(status_code=404, detail="Card not found")
-    
+
     item = checklists_repo.create_checklist_item(session=session, item_in=item_in)
     return item
 
@@ -76,7 +72,7 @@ def update_checklist_item(
     item = checklists_repo.get_checklist_item_by_id(session=session, item_id=id)
     if not item:
         raise HTTPException(status_code=404, detail="Checklist item not found")
-    
+
     item = checklists_repo.update_checklist_item(session=session, item=item, item_in=item_in)
     return item
 
@@ -91,7 +87,7 @@ def delete_checklist_item(
     item = checklists_repo.get_checklist_item_by_id(session=session, item_id=id)
     if not item or item.is_deleted:
         raise HTTPException(status_code=404, detail="Checklist item not found")
-    
+
     checklists_repo.soft_delete_checklist_item(session=session, item=item, deleted_by=current_user.id)
     return {"ok": True}
 
@@ -106,9 +102,9 @@ def toggle_checklist_item(
     item = checklists_repo.get_checklist_item_by_id(session=session, item_id=id)
     if not item:
         raise HTTPException(status_code=404, detail="Checklist item not found")
-    
+
     item = checklists_repo.toggle_checklist_item(session=session, item=item)
-    
+
     # Dispatch ChecklistToggledEvent (Observer pattern)
     card = checklists_repo.get_card_by_id(session=session, card_id=item.card_id)
     if card:
@@ -119,8 +115,8 @@ def toggle_checklist_item(
             if owner and not owner.is_deleted:
                 card_owner = owner.id
                 card_owner_email = owner.email
-        
-        from app.events import EventDispatcher, ChecklistToggledEvent
+
+        from app.events import ChecklistToggledEvent, EventDispatcher
         EventDispatcher.dispatch(ChecklistToggledEvent(
             card_id=card.id,
             card_title=card.title,
@@ -131,5 +127,5 @@ def toggle_checklist_item(
             card_owner_id=card_owner,
             card_owner_email=card_owner_email,
         ))
-    
+
     return item

@@ -2,24 +2,17 @@
 Comments API Routes - Clean routes without direct database queries.
 """
 import uuid
-from typing import Any
 
 from fastapi import APIRouter, HTTPException
 
 from app.api.deps import CurrentUser, SessionDep
-from app.repository import comments as comments_repo
-from app.repository import notifications as notifications_repo
 from app.models.comments import (
-    CardComment,
     CardCommentCreate,
-    CardCommentPublic,
-    CardCommentsPublic,
+    CardCommentsWithUserPublic,
     CardCommentUpdate,
     CardCommentWithUser,
-    CardCommentsWithUserPublic,
 )
-from app.models.notifications import NotificationType
-from app.utils import send_email
+from app.repository import comments as comments_repo
 
 router = APIRouter(prefix="/comments", tags=["comments"])
 
@@ -35,7 +28,7 @@ def read_comments(
     comments, count = comments_repo.get_comments_by_card(
         session=session, card_id=card_id, skip=skip, limit=limit
     )
-    
+
     result = comments_repo.get_comments_with_users(session, comments)
     return CardCommentsWithUserPublic(data=result, count=count)
 
@@ -50,7 +43,7 @@ def read_comment(
     comment = comments_repo.get_comment_by_id(session=session, comment_id=id)
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
-    
+
     return comments_repo.enrich_comment_with_user(session, comment)
 
 
@@ -64,14 +57,14 @@ def create_comment(
     card = comments_repo.get_card_by_id(session=session, card_id=comment_in.card_id)
     if not card:
         raise HTTPException(status_code=404, detail="Card not found")
-    
+
     comment = comments_repo.create_comment(
         session=session,
         content=comment_in.content,
         card_id=comment_in.card_id,
         user_id=current_user.id
     )
-    
+
     # Dispatch CommentAddedEvent (Observer pattern)
     card_owner = None
     card_owner_email = None
@@ -80,8 +73,8 @@ def create_comment(
         if owner and not owner.is_deleted:
             card_owner = owner.id
             card_owner_email = owner.email
-    
-    from app.events import EventDispatcher, CommentAddedEvent
+
+    from app.events import CommentAddedEvent, EventDispatcher
     EventDispatcher.dispatch(CommentAddedEvent(
         card_id=card.id,
         card_title=card.title,
@@ -91,7 +84,7 @@ def create_comment(
         card_owner_id=card_owner,
         card_owner_email=card_owner_email,
     ))
-    
+
     return comments_repo.enrich_comment_with_user(session, comment)
 
 
@@ -108,9 +101,9 @@ def update_comment(
         raise HTTPException(status_code=404, detail="Comment not found")
     if comment.user_id != current_user.id and not current_user.is_superuser:
         raise HTTPException(status_code=403, detail="Not authorized to update this comment")
-    
+
     comment = comments_repo.update_comment(session=session, comment=comment, comment_in=comment_in)
-    
+
     return comments_repo.enrich_comment_with_user(session, comment)
 
 
@@ -124,9 +117,9 @@ def delete_comment(
     comment = comments_repo.get_comment_by_id(session=session, comment_id=id)
     if not comment or comment.is_deleted:
         raise HTTPException(status_code=404, detail="Comment not found")
-    
+
     if comment.user_id != current_user.id and not current_user.is_superuser:
         raise HTTPException(status_code=403, detail="Not authorized to delete this comment")
-    
+
     comments_repo.soft_delete_comment(session=session, comment=comment, deleted_by=current_user.id)
     return {"ok": True}

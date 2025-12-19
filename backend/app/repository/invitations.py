@@ -3,19 +3,17 @@ Invitations Repository - All database operations for WorkspaceInvitation model.
 """
 import uuid
 from datetime import datetime
-from typing import Any
 
 from sqlmodel import Session, select
 
-from app.models.invitations import (
-    WorkspaceInvitation,
-    WorkspaceInvitationCreate,
-    InvitationStatus,
-)
-from app.models.workspaces import Workspace
-from app.models.workspace_members import WorkspaceMember
-from app.models.users import User
 from app.models.enums import MemberRole
+from app.models.invitations import (
+    InvitationStatus,
+    WorkspaceInvitation,
+)
+from app.models.users import User
+from app.models.workspace_members import WorkspaceMember
+from app.models.workspaces import Workspace
 
 
 def get_invitation_by_id(*, session: Session, invitation_id: uuid.UUID) -> WorkspaceInvitation | None:
@@ -68,13 +66,13 @@ def get_invitations_for_user(
     query = select(WorkspaceInvitation).where(
         WorkspaceInvitation.invitee_id == user_id
     )
-    
+
     if status:
         query = query.where(WorkspaceInvitation.status == status)
     else:
         # By default, show pending invitations
         query = query.where(WorkspaceInvitation.status == InvitationStatus.pending)
-    
+
     invitations = session.exec(query.order_by(WorkspaceInvitation.created_at.desc())).all()
     return list(invitations)
 
@@ -86,10 +84,10 @@ def get_sent_invitations(
     query = select(WorkspaceInvitation).where(
         WorkspaceInvitation.inviter_id == user_id
     )
-    
+
     if workspace_id:
         query = query.where(WorkspaceInvitation.workspace_id == workspace_id)
-    
+
     invitations = session.exec(query.order_by(WorkspaceInvitation.created_at.desc())).all()
     return list(invitations)
 
@@ -150,7 +148,7 @@ def respond_to_invitation(
         invitation.status = InvitationStatus.accepted
     else:
         invitation.status = InvitationStatus.rejected
-    
+
     invitation.responded_at = datetime.utcnow()
     session.add(invitation)
     session.commit()

@@ -2,12 +2,15 @@
 Activity Logs Repository - All database operations for ActivityLog model.
 """
 import uuid
-from datetime import datetime
-from typing import Any
 
-from sqlmodel import Session, select, func
+from sqlmodel import Session, func, select
 
-from app.models.activity_logs import ActivityLog, ActivityLogPublic, ActionType, EntityType
+from app.models.activity_logs import (
+    ActionType,
+    ActivityLog,
+    ActivityLogPublic,
+    EntityType,
+)
 from app.models.users import User
 
 
@@ -52,7 +55,7 @@ def get_board_activity(
         ActivityLog.board_id == board_id
     )
     count = session.exec(count_stmt).one()
-    
+
     stmt = (
         select(ActivityLog)
         .where(ActivityLog.board_id == board_id)
@@ -61,7 +64,7 @@ def get_board_activity(
         .limit(limit)
     )
     logs = session.exec(stmt).all()
-    
+
     return list(logs), count
 
 
@@ -77,7 +80,7 @@ def get_workspace_activity(
         ActivityLog.workspace_id == workspace_id
     )
     count = session.exec(count_stmt).one()
-    
+
     stmt = (
         select(ActivityLog)
         .where(ActivityLog.workspace_id == workspace_id)
@@ -86,7 +89,7 @@ def get_workspace_activity(
         .limit(limit)
     )
     logs = session.exec(stmt).all()
-    
+
     return list(logs), count
 
 
@@ -103,7 +106,7 @@ def get_card_activity(
         ActivityLog.entity_id == card_id
     )
     count = session.exec(count_stmt).one()
-    
+
     stmt = (
         select(ActivityLog)
         .where(
@@ -115,7 +118,7 @@ def get_card_activity(
         .limit(limit)
     )
     logs = session.exec(stmt).all()
-    
+
     return list(logs), count
 
 
@@ -127,7 +130,7 @@ def get_user_by_id(*, session: Session, user_id: uuid.UUID) -> User | None:
 def enrich_activity_log(session: Session, log: ActivityLog) -> ActivityLogPublic:
     """Enrich activity log with user info."""
     user = get_user_by_id(session=session, user_id=log.user_id)
-    
+
     return ActivityLogPublic(
         id=log.id,
         user_id=log.user_id,

@@ -1,15 +1,14 @@
 import uuid
+from typing import TYPE_CHECKING
+
 from pydantic import EmailStr, field_validator
 from sqlmodel import Field, SQLModel
-from typing import TYPE_CHECKING, List
 
-from app.core.sanitization import sanitize_plain_text, sanitize_email
+from app.core.sanitization import sanitize_plain_text
 from app.models.mixins import SoftDeleteMixin
 
 if TYPE_CHECKING:
-    from app.models.workspaces import Workspace
-    from app.models.workspace_members import WorkspaceMember
-    from app.models.boards import Board
+    pass
 
 
 class UserBase(SQLModel):
@@ -29,7 +28,7 @@ class UserCreate(UserBase):
 
 
 class UserRegister(SQLModel):
-    email: EmailStr = Field(max_length=255) 
+    email: EmailStr = Field(max_length=255)
     password: str = Field(min_length=8, max_length=40)
     full_name: str | None = Field(default=None, max_length=255)
 

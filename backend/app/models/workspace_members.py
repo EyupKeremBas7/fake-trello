@@ -1,13 +1,13 @@
 import uuid
 from datetime import datetime
-from sqlmodel import Field, SQLModel
 from typing import TYPE_CHECKING
+
+from sqlmodel import Field, SQLModel
 
 from app.models.enums import MemberRole
 
 if TYPE_CHECKING:
-    from app.models.users import User
-    from app.models.workspaces import Workspace
+    pass
 
 
 class WorkspaceMemberBase(SQLModel):

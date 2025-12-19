@@ -4,10 +4,9 @@ Activity Logs Model - Tracking all user actions.
 import uuid
 from datetime import datetime
 from enum import Enum
-from typing import Any
 
-from sqlmodel import SQLModel, Field, Column
 from sqlalchemy import JSON
+from sqlmodel import Column, Field, SQLModel
 
 
 class ActionType(str, Enum):
@@ -40,21 +39,21 @@ class EntityType(str, Enum):
 class ActivityLog(SQLModel, table=True):
     """Activity log entry for tracking user actions."""
     __tablename__ = "activity_log"
-    
+
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     user_id: uuid.UUID = Field(foreign_key="user.id", index=True)
     action: ActionType
     entity_type: EntityType
     entity_id: uuid.UUID = Field(index=True)
     entity_name: str | None = None
-    
+
     # Context - for board/workspace level filtering
     board_id: uuid.UUID | None = Field(default=None, foreign_key="board.id", index=True)
     workspace_id: uuid.UUID | None = Field(default=None, foreign_key="workspace.id", index=True)
-    
+
     # JSON field for additional details
     details: dict = Field(default_factory=dict, sa_column=Column(JSON))
-    
+
     created_at: datetime = Field(default_factory=datetime.utcnow, index=True)
 
 
@@ -70,7 +69,7 @@ class ActivityLogPublic(SQLModel):
     workspace_id: uuid.UUID | None
     details: dict
     created_at: datetime
-    
+
     # User info (enriched)
     user_full_name: str | None = None
     user_email: str | None = None

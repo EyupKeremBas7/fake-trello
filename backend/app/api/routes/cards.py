@@ -10,13 +10,10 @@ logger = logging.getLogger(__name__)
 from fastapi import APIRouter, HTTPException
 
 from app.api.deps import CurrentUser, SessionDep
-from app.repository import cards as cards_repo
-from app.repository import notifications as notifications_repo
-from app.models.cards import Card, CardCreate, CardPublic, CardsPublic, CardUpdate
-from app.models.notifications import NotificationType
+from app.core.permissions import Action, has_permission
 from app.models.auth import Message
-from app.utils import send_email
-from app.core.permissions import has_permission, Action
+from app.models.cards import CardCreate, CardPublic, CardsPublic, CardUpdate
+from app.repository import cards as cards_repo
 
 router = APIRouter(prefix="/cards", tags=["cards"])
 
@@ -32,7 +29,7 @@ def read_cards(
         cards, count = cards_repo.get_cards_for_user(
             session=session, user_id=current_user.id, skip=skip, limit=limit
         )
-    
+
     enriched_cards = [cards_repo.enrich_card_with_owner(session, card) for card in cards]
 
     return CardsPublic(data=enriched_cards, count=count)
@@ -57,17 +54,17 @@ def create_card(
     board_list = cards_repo.get_list_by_id(session=session, list_id=card_in.list_id)
     if not board_list:
         raise HTTPException(status_code=404, detail="List not found")
-    
+
     board = cards_repo.get_board_by_id(session=session, board_id=board_list.board_id)
     workspace = cards_repo.get_workspace_by_id(session=session, workspace_id=board.workspace_id)
-    
+
     if workspace.owner_id != current_user.id:
         role = cards_repo.get_user_role_in_workspace(
             session=session, user_id=current_user.id, workspace_id=workspace.id
         )
         if not has_permission(role, Action.CREATE_CARD):
             raise HTTPException(status_code=403, detail="Not enough permissions")
-    
+
     card = cards_repo.create_card(
         session=session, card_in=card_in, created_by=current_user.id
     )
@@ -81,7 +78,7 @@ def update_card(
     current_user: CurrentUser,
     id: uuid.UUID,
     card_in: CardUpdate,
-) -> Any:    
+) -> Any:
     card = cards_repo.get_card_by_id(session=session, card_id=id)
     if not card:
         raise HTTPException(status_code=404, detail="Card not found")
@@ -89,20 +86,20 @@ def update_card(
         session=session, user_id=current_user.id, card=card
     ):
         raise HTTPException(status_code=403, detail="Not enough permissions")
-    
+
     old_list_id = card.list_id
     old_list = cards_repo.get_list_by_id(session=session, list_id=old_list_id)
     old_list_name = old_list.name if old_list else "Unknown"
-    
+
     card = cards_repo.update_card(session=session, card=card, card_in=card_in)
-    
+
     # Dispatch CardMovedEvent if list changed (Observer pattern)
     if card_in.list_id and card_in.list_id != old_list_id:
         new_list = cards_repo.get_list_by_id(session=session, list_id=card_in.list_id)
         new_list_name = new_list.name if new_list else "Unknown"
-        
+
         logger.info(f"Card moved via PUT - from {old_list_name} to {new_list_name}")
-        
+
         # Get card owner info for event
         card_owner = None
         card_owner_email = None
@@ -111,8 +108,8 @@ def update_card(
             if owner and not owner.is_deleted:
                 card_owner = owner.id
                 card_owner_email = owner.email
-        
-        from app.events import EventDispatcher, CardMovedEvent
+
+        from app.events import CardMovedEvent, EventDispatcher
         EventDispatcher.dispatch(CardMovedEvent(
             card_id=card.id,
             card_title=card.title,
@@ -123,7 +120,7 @@ def update_card(
             card_owner_id=card_owner,
             card_owner_email=card_owner_email,
         ))
-    
+
     return cards_repo.enrich_card_with_owner(session, card)
 
 @router.delete("/{id}")
@@ -137,6 +134,6 @@ def delete_card(
         session=session, user_id=current_user.id, card=card
     ):
         raise HTTPException(status_code=403, detail="Not enough permissions")
-    
+
     cards_repo.soft_delete_card(session=session, card=card, deleted_by=current_user.id)
     return Message(message="Card deleted successfully")

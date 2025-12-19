@@ -13,10 +13,11 @@ from app.api.deps import (
 )
 from app.core.config import settings
 from app.core.security import verify_password
-from app.repository import users as users_repo
+from app.events.base import EventDispatcher
+from app.events.types import WelcomeEmailSentEvent
+from app.models.auth import Message
 from app.models.users import (
     UpdatePassword,
-    User,
     UserCreate,
     UserPublic,
     UserRegister,
@@ -24,11 +25,8 @@ from app.models.users import (
     UserUpdate,
     UserUpdateMe,
 )
-from app.models.auth import Message
+from app.repository import users as users_repo
 from app.utils import generate_new_account_email, send_email
-from app.events.base import EventDispatcher
-from app.events.types import WelcomeEmailSentEvent
-
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -59,7 +57,7 @@ def create_user(*, session: SessionDep, user_in: UserCreate) -> Any:
             status_code=400,
             detail="The user with this email already exists in the system.",
         )
-    
+
     # Also check raw email (including soft-deleted) to avoid unique constraint violation
     if users_repo.check_email_exists(session=session, email=user_in.email):
         raise HTTPException(
@@ -151,24 +149,23 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
             status_code=400,
             detail="The user with this email already exists in the system",
         )
-    
+
     # Also check raw email (including soft-deleted) to avoid unique constraint violation
     if users_repo.check_email_exists(session=session, email=user_in.email):
         raise HTTPException(
             status_code=400,
             detail="The user with this email already exists in the system",
         )
-    
+
     user_create = UserCreate.model_validate(user_in)
     user = users_repo.create_user(session=session, user_create=user_create)
-    
-    # Dispatch welcome email event
 
+    # Dispatch welcome email event
     EventDispatcher.dispatch(WelcomeEmailSentEvent(
         user_id=user.id,
         user_email=user.email,
     ))
-    
+
     return user
 
 
@@ -187,11 +184,11 @@ def read_user_by_id(
         return user
     if current_user.is_superuser:
         return user
-    
+
     # Check if users share at least one workspace
     if users_repo.users_share_workspace(session=session, user_id_1=current_user.id, user_id_2=user_id):
         return user
-    
+
     raise HTTPException(
         status_code=403,
         detail="The user doesn't have enough privileges",
@@ -243,6 +240,6 @@ def delete_user(
         raise HTTPException(
             status_code=403, detail="Super users are not allowed to delete themselves"
         )
-    
+
     users_repo.soft_delete_user(session=session, user=user, deleted_by=current_user.id)
     return Message(message="User deleted successfully")

@@ -39,7 +39,7 @@ def send_email(
 ) -> None:
 
     assert settings.emails_enabled, "no provided configuration for email variables"
-    
+
     if use_queue:
         from app.tasks import send_email_task
         send_email_task.delay(email_to, subject, html_content)

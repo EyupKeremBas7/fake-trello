@@ -1,6 +1,6 @@
 import logging
 
-import emails  
+import emails
 
 from app.core.config import settings
 from app.worker import celery_app
@@ -21,7 +21,7 @@ def send_email_task(
             html=html_content,
             mail_from=(settings.EMAILS_FROM_NAME, settings.EMAILS_FROM_EMAIL),
         )
-        
+
         smtp_options: dict = {"host": settings.SMTP_HOST, "port": settings.SMTP_PORT}
         if settings.SMTP_TLS:
             smtp_options["tls"] = True
@@ -31,10 +31,10 @@ def send_email_task(
             smtp_options["user"] = settings.SMTP_USER
         if settings.SMTP_PASSWORD:
             smtp_options["password"] = settings.SMTP_PASSWORD
-        
+
         response = message.send(to=email_to, smtp=smtp_options)
         logger.info(f"Email sent to {email_to}: {response}")
-        
+
         return {
             "status": "sent",
             "email_to": email_to,

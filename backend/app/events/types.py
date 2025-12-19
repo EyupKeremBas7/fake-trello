@@ -1,13 +1,11 @@
 """
 Event Types - Concrete event classes for different actions.
 """
-from dataclasses import dataclass, field
-from datetime import datetime
+from dataclasses import dataclass
 from uuid import UUID
-from typing import Optional
 
 from app.events.base import Event
-    
+
 
 @dataclass
 class CardMovedEvent(Event):
@@ -18,8 +16,8 @@ class CardMovedEvent(Event):
     new_list_name: str
     moved_by_id: UUID
     moved_by_name: str
-    card_owner_id: Optional[UUID] = None
-    card_owner_email: Optional[str] = None
+    card_owner_id: UUID | None = None
+    card_owner_email: str | None = None
 
 
 @dataclass
@@ -30,8 +28,8 @@ class CommentAddedEvent(Event):
     comment_content: str
     commenter_id: UUID
     commenter_name: str
-    card_owner_id: Optional[UUID] = None
-    card_owner_email: Optional[str] = None
+    card_owner_id: UUID | None = None
+    card_owner_email: str | None = None
 
 
 @dataclass
@@ -43,8 +41,8 @@ class ChecklistToggledEvent(Event):
     is_completed: bool
     toggled_by_id: UUID
     toggled_by_name: str
-    card_owner_id: Optional[UUID] = None
-    card_owner_email: Optional[str] = None
+    card_owner_id: UUID | None = None
+    card_owner_email: str | None = None
 
 
 @dataclass

@@ -4,11 +4,11 @@ Activity Logs API Routes - Clean routes for activity tracking.
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 
 from app.api.deps import CurrentUser, SessionDep
-from app.repository import activity_logs as activity_repo
 from app.models.activity_logs import ActivityLogsPublic
+from app.repository import activity_logs as activity_repo
 
 router = APIRouter(prefix="/activity", tags=["activity"])
 
@@ -25,9 +25,9 @@ def get_board_activity(
     logs, count = activity_repo.get_board_activity(
         session=session, board_id=board_id, skip=skip, limit=limit
     )
-    
+
     enriched_logs = [activity_repo.enrich_activity_log(session, log) for log in logs]
-    
+
     return ActivityLogsPublic(data=enriched_logs, count=count)
 
 
@@ -43,9 +43,9 @@ def get_workspace_activity(
     logs, count = activity_repo.get_workspace_activity(
         session=session, workspace_id=workspace_id, skip=skip, limit=limit
     )
-    
+
     enriched_logs = [activity_repo.enrich_activity_log(session, log) for log in logs]
-    
+
     return ActivityLogsPublic(data=enriched_logs, count=count)
 
 
@@ -61,7 +61,7 @@ def get_card_activity(
     logs, count = activity_repo.get_card_activity(
         session=session, card_id=card_id, skip=skip, limit=limit
     )
-    
+
     enriched_logs = [activity_repo.enrich_activity_log(session, log) for log in logs]
-    
+
     return ActivityLogsPublic(data=enriched_logs, count=count)

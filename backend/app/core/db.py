@@ -1,10 +1,8 @@
 from sqlmodel import Session, create_engine, select
 
-from app.repository import users as users_repo
 from app.core.config import settings
 from app.models.users import User, UserCreate
-
-from app.models import lists, users,workspaces,boards,cards
+from app.repository import users as users_repo
 
 engine = create_engine(str(settings.SQLALCHEMY_DATABASE_URI))
 

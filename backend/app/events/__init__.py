@@ -1,17 +1,17 @@
 from app.events.base import Event, EventDispatcher
 from app.events.types import (
     CardMovedEvent,
-    CommentAddedEvent,
     ChecklistToggledEvent,
-    InvitationSentEvent,
+    CommentAddedEvent,
     InvitationRespondedEvent,
+    InvitationSentEvent,
 )
 
 __all__ = [
     "Event",
     "EventDispatcher",
     "CardMovedEvent",
-    "CommentAddedEvent", 
+    "CommentAddedEvent",
     "ChecklistToggledEvent",
     "InvitationSentEvent",
     "InvitationRespondedEvent",

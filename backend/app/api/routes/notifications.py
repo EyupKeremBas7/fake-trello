@@ -7,14 +7,12 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 
 from app.api.deps import CurrentUser, SessionDep
-from app.repository import notifications as notifications_repo
+from app.models.auth import Message
 from app.models.notifications import (
-    Notification,
     NotificationPublic,
     NotificationsPublic,
-    NotificationType,
 )
-from app.models.auth import Message
+from app.repository import notifications as notifications_repo
 
 router = APIRouter(prefix="/notifications", tags=["notifications"])
 
@@ -35,7 +33,7 @@ def read_notifications(
         limit=limit,
         unread_only=unread_only
     )
-    
+
     return NotificationsPublic(data=notifications, count=count, unread_count=unread_count)
 
 
@@ -69,7 +67,7 @@ def mark_as_read(
         raise HTTPException(status_code=404, detail="Notification not found")
     if notification.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not your notification")
-    
+
     notification = notifications_repo.mark_as_read(session=session, notification=notification)
     return notification
 
@@ -91,6 +89,6 @@ def delete_notification(
         raise HTTPException(status_code=404, detail="Notification not found")
     if notification.user_id != current_user.id:
         raise HTTPException(status_code=403, detail="Not your notification")
-    
+
     notifications_repo.delete_notification(session=session, notification=notification)
     return Message(message="Notification deleted")

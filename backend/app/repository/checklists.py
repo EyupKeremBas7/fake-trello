@@ -3,12 +3,15 @@ Checklists Repository - All database operations for ChecklistItem model.
 """
 import uuid
 from datetime import datetime
-from typing import Any
 
 from sqlmodel import Session, select
 
-from app.models.checklists import ChecklistItem, ChecklistItemCreate, ChecklistItemUpdate
 from app.models.cards import Card
+from app.models.checklists import (
+    ChecklistItem,
+    ChecklistItemCreate,
+    ChecklistItemUpdate,
+)
 from app.models.users import User
 
 
@@ -32,19 +35,19 @@ def get_checklist_items_by_card(
 ) -> tuple[list[ChecklistItem], int]:
     """Get checklist items, optionally filtered by card_id."""
     query = select(ChecklistItem).where(ChecklistItem.is_deleted == False)
-    
+
     if card_id:
         query = query.where(ChecklistItem.card_id == card_id)
-    
+
     query = query.order_by(ChecklistItem.position).offset(skip).limit(limit)
     items = session.exec(query).all()
-    
+
     # Count query
     count_query = select(ChecklistItem).where(ChecklistItem.is_deleted == False)
     if card_id:
         count_query = count_query.where(ChecklistItem.card_id == card_id)
     count = len(session.exec(count_query).all())
-    
+
     return list(items), count
 
 

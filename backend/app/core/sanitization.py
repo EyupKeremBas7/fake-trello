@@ -1,5 +1,4 @@
 import re
-from typing import Optional
 
 import bleach
 
@@ -18,10 +17,10 @@ ALLOWED_ATTRIBUTES = {
 ALLOWED_PROTOCOLS = ["http", "https", "mailto"]
 
 
-def sanitize_html(value: Optional[str]) -> Optional[str]:
+def sanitize_html(value: str | None) -> str | None:
     if value is None:
         return None
-    
+
     return bleach.clean(
         value,
         tags=ALLOWED_TAGS,
@@ -31,22 +30,22 @@ def sanitize_html(value: Optional[str]) -> Optional[str]:
     )
 
 
-def sanitize_plain_text(value: Optional[str]) -> Optional[str]:
+def sanitize_plain_text(value: str | None) -> str | None:
     if value is None:
         return None
 
     cleaned = bleach.clean(value, tags=[], strip=True)
-    
+
     cleaned = re.sub(r'\s+', ' ', cleaned).strip()
-    
+
     return cleaned
 
 
-def sanitize_url(value: Optional[str]) -> Optional[str]:
-    
+def sanitize_url(value: str | None) -> str | None:
+
     if not value:
         return None
-    
+
     value = value.strip()
 
     if value.startswith(('http://', 'https://')):
@@ -54,25 +53,25 @@ def sanitize_url(value: Optional[str]) -> Optional[str]:
 
     if value.startswith('data:image/'):
         return value
-    
+
     return None
 
 
-def sanitize_email(value: Optional[str]) -> Optional[str]:
+def sanitize_email(value: str | None) -> str | None:
     if value is None:
         return None
 
     cleaned = bleach.clean(value, tags=[], strip=True)
-    
+
     return cleaned.lower().strip()
 
 
-def escape_for_log(value: Optional[str], max_length: int = 500) -> str:
+def escape_for_log(value: str | None, max_length: int = 500) -> str:
     if value is None:
         return "<None>"
-    
+
     escaped = value.replace('\n', '\\n').replace('\r', '\\r')
     if len(escaped) > max_length:
         escaped = escaped[:max_length] + "...[truncated]"
-    
+
     return escaped

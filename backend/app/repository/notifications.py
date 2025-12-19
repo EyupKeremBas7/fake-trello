@@ -2,9 +2,8 @@
 Notifications Repository - All database operations for Notification model.
 """
 import uuid
-from typing import Any
 
-from sqlmodel import Session, select, func
+from sqlmodel import Session, func, select
 
 from app.models.notifications import Notification, NotificationType
 
@@ -20,15 +19,15 @@ def get_user_notifications(
     """Get notifications for a user with count and unread count."""
     # Base query
     base_query = select(Notification).where(Notification.user_id == user_id)
-    
+
     if unread_only:
         base_query = base_query.where(Notification.is_read == False)
-    
+
     # Get total count
     count = session.exec(
         select(func.count()).select_from(Notification).where(Notification.user_id == user_id)
     ).one()
-    
+
     # Get unread count
     unread_count = session.exec(
         select(func.count()).select_from(Notification).where(
@@ -36,12 +35,12 @@ def get_user_notifications(
             Notification.is_read == False
         )
     ).one()
-    
+
     # Get notifications ordered by newest first
     notifications = session.exec(
         base_query.order_by(Notification.created_at.desc()).offset(skip).limit(limit)
     ).all()
-    
+
     return list(notifications), count, unread_count
 
 
@@ -103,11 +102,11 @@ def mark_as_read(*, session: Session, notification: Notification) -> Notificatio
 def mark_all_as_read(*, session: Session, user_id: uuid.UUID) -> int:
     """Mark all notifications as read for a user. Returns count of marked notifications."""
     notifications = get_unread_notifications(session=session, user_id=user_id)
-    
+
     for notification in notifications:
         notification.is_read = True
         session.add(notification)
-    
+
     session.commit()
     return len(notifications)
 

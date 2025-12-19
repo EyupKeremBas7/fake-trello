@@ -5,12 +5,12 @@ import uuid
 from datetime import datetime
 from typing import Any
 
-from sqlmodel import Session, select, func
+from sqlmodel import Session, func, select
 
 from app.core.security import get_password_hash, verify_password
 from app.models.users import User, UserCreate, UserUpdate
-from app.models.workspaces import Workspace
 from app.models.workspace_members import WorkspaceMember
+from app.models.workspaces import Workspace
 
 
 def create_user(*, session: Session, user_create: UserCreate) -> User:
@@ -69,10 +69,10 @@ def get_users_list(
     """Get list of users with count (excludes soft-deleted)."""
     count_statement = select(func.count()).select_from(User).where(User.is_deleted == False)
     count = session.exec(count_statement).one()
-    
+
     statement = select(User).where(User.is_deleted == False).offset(skip).limit(limit)
     users = session.exec(statement).all()
-    
+
     return list(users), count
 
 
@@ -119,7 +119,7 @@ def users_share_workspace(
 ) -> bool:
     """Check if two users share at least one workspace (as owner or member)."""
 
-    
+
     user1_owned = session.exec(
         select(Workspace.id).where(Workspace.owner_id == user_id_1, Workspace.is_deleted == False)
     ).all()
@@ -127,10 +127,10 @@ def users_share_workspace(
         select(WorkspaceMember.workspace_id).where(WorkspaceMember.user_id == user_id_1)
     ).all()
     user1_workspaces = set(user1_owned) | set(user1_member)
-    
+
     if not user1_workspaces:
         return False
-    
+
     user2_owned = session.exec(
         select(Workspace.id).where(Workspace.owner_id == user_id_2, Workspace.is_deleted == False)
     ).all()
@@ -138,6 +138,6 @@ def users_share_workspace(
         select(WorkspaceMember.workspace_id).where(WorkspaceMember.user_id == user_id_2)
     ).all()
     user2_workspaces = set(user2_owned) | set(user2_member)
-    
+
     # Check if they share any workspace
     return bool(user1_workspaces & user2_workspaces)

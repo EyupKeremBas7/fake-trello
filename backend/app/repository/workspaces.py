@@ -3,15 +3,16 @@ Workspaces Repository - All database operations for Workspace and WorkspaceMembe
 """
 import uuid
 from datetime import datetime
-from typing import Any
 
-from sqlmodel import Session, select, func, or_
+from sqlmodel import Session, func, or_, select
 
-from app.models.workspaces import Workspace, WorkspaceCreate, WorkspaceUpdate
-from app.models.workspace_members import WorkspaceMember, WorkspaceMemberCreate, WorkspaceMemberUpdate
-from app.models.users import User
 from app.models.enums import MemberRole
-
+from app.models.users import User
+from app.models.workspace_members import (
+    WorkspaceMember,
+    WorkspaceMemberUpdate,
+)
+from app.models.workspaces import Workspace, WorkspaceCreate, WorkspaceUpdate
 
 # ==================== Workspace Member Helpers ====================
 
@@ -82,7 +83,7 @@ def get_workspaces_for_user(
         )
     )
     count = session.exec(count_statement).one()
-    
+
     statement = (
         select(Workspace)
         .outerjoin(WorkspaceMember, WorkspaceMember.workspace_id == Workspace.id)
@@ -98,7 +99,7 @@ def get_workspaces_for_user(
         .limit(limit)
     )
     workspaces = session.exec(statement).all()
-    
+
     return list(workspaces), count
 
 
@@ -108,10 +109,10 @@ def get_workspaces_superuser(
     """Get all workspaces (superuser)."""
     count_statement = select(func.count()).select_from(Workspace).where(Workspace.is_deleted == False)
     count = session.exec(count_statement).one()
-    
+
     statement = select(Workspace).where(Workspace.is_deleted == False).offset(skip).limit(limit)
     workspaces = session.exec(statement).all()
-    
+
     return list(workspaces), count
 
 

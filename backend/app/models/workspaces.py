@@ -1,16 +1,15 @@
 import uuid
-from sqlmodel import Field, SQLModel
-from typing import List, TYPE_CHECKING
 from datetime import datetime
-from pydantic import field_validator
+from typing import TYPE_CHECKING
 
-from app.core.sanitization import sanitize_plain_text, sanitize_html
+from pydantic import field_validator
+from sqlmodel import Field, SQLModel
+
+from app.core.sanitization import sanitize_html, sanitize_plain_text
 from app.models.mixins import SoftDeleteMixin
 
 if TYPE_CHECKING:
-    from app.models.boards import Board
-    from app.models.users import User
-    from app.models.workspace_members import WorkspaceMember
+    pass
 
 
 class WorkspaceBase(SQLModel):

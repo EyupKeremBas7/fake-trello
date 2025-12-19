@@ -1,16 +1,17 @@
 from __future__ import annotations
 
-from sqlmodel import SQLModel, Field
-from datetime import datetime
 import uuid
-from typing import TYPE_CHECKING, Optional
+from datetime import datetime
+from typing import TYPE_CHECKING
+
 from pydantic import field_validator
+from sqlmodel import Field, SQLModel
 
 from app.core.sanitization import sanitize_html
 from app.models.mixins import SoftDeleteMixin
 
 if TYPE_CHECKING:
-    from app.models.cards import Card
+    pass
 
 
 class CardCommentBase(SQLModel):
@@ -32,7 +33,7 @@ class CardCommentUpdate(SQLModel):
 
 class CardComment(CardCommentBase, SoftDeleteMixin, table=True):
     __tablename__ = "card_comment"
-    
+
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     card_id: uuid.UUID = Field(foreign_key="card.id", ondelete="CASCADE")
     user_id: uuid.UUID = Field(foreign_key="user.id", ondelete="CASCADE")

@@ -3,15 +3,15 @@ Repository layer for database operations.
 All database queries should be in this package, not in API routes.
 """
 from app.repository import (
-    users,
-    workspaces,
     boards,
-    lists,
     cards,
     checklists,
     comments,
-    notifications,
     invitations,
+    lists,
+    notifications,
+    users,
+    workspaces,
 )
 
 __all__ = [

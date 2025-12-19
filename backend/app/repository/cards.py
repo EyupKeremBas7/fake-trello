@@ -3,24 +3,25 @@ Cards Repository - All database operations for Card model.
 """
 import uuid
 from datetime import datetime
-from typing import Any
 
-from sqlmodel import Session, select, func, or_
+from sqlmodel import Session, func, or_, select
 
-from app.models.cards import Card, CardCreate, CardUpdate, CardPublic
-from app.models.lists import BoardList
 from app.models.boards import Board
-from app.models.workspaces import Workspace
-from app.models.workspace_members import WorkspaceMember
-from app.models.users import User
+from app.models.cards import Card, CardCreate, CardPublic, CardUpdate
 from app.models.enums import MemberRole
+from app.models.lists import BoardList
+from app.models.users import User
+from app.models.workspace_members import WorkspaceMember
+from app.models.workspaces import Workspace
+from app.repository.common import get_user_role_in_workspace as _get_role
+
 
 def enrich_card_with_owner(session: Session, card: Card) -> CardPublic:
     """Add owner info to card."""
     owner = None
     if card.created_by:
         owner = session.get(User, card.created_by)
-    
+
     return CardPublic(
         id=card.id,
         title=card.title,
@@ -37,7 +38,7 @@ def enrich_card_with_owner(session: Session, card: Card) -> CardPublic:
         owner_full_name=owner.full_name if owner else None,
         owner_email=owner.email if owner else None,
     )
-    
+
 
 def get_user_role_in_workspace(
     *, session: Session, user_id: uuid.UUID, workspace_id: uuid.UUID
@@ -136,7 +137,7 @@ def get_cards_for_user(
     )
     cards = session.exec(statement).all()
     count = len(cards)
-    
+
     return list(cards), count
 
 
@@ -146,10 +147,10 @@ def get_cards_superuser(
     """Get all cards (superuser)."""
     count_statement = select(func.count()).select_from(Card).where(Card.is_deleted == False)
     count = session.exec(count_statement).one()
-    
+
     statement = select(Card).where(Card.is_deleted == False).offset(skip).limit(limit)
     cards = session.exec(statement).all()
-    
+
     return list(cards), count
 
 

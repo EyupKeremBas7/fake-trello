@@ -56,7 +56,7 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str = ""
     POSTGRES_DB: str = ""
 
-    @computed_field  
+    @computed_field
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> PostgresDsn:
         return PostgresDsn.build(
@@ -88,7 +88,7 @@ class Settings(BaseSettings):
     # Redis configuration
     REDIS_HOST: str = "redis"
     REDIS_PORT: int = 6379
-    
+
     @computed_field  # type: ignore[prop-decorator]
     @property
     def REDIS_URL(self) -> str:
@@ -102,11 +102,11 @@ class Settings(BaseSettings):
     EMAIL_TEST_USER: EmailStr = "admin@example.com"
     FIRST_SUPERUSER: EmailStr
     FIRST_SUPERUSER_PASSWORD: str
-    
+
     # OAuth Configuration
     GOOGLE_CLIENT_ID: str | None = None
     GOOGLE_CLIENT_SECRET: str | None = None
-    
+
     @computed_field
     @property
     def google_oauth_enabled(self) -> bool:

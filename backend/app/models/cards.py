@@ -1,18 +1,17 @@
 from __future__ import annotations
 
-from sqlmodel import SQLModel, Field
-from datetime import datetime
 import uuid
-from typing import TYPE_CHECKING, List
-from pydantic import field_validator
+from datetime import datetime
+from typing import TYPE_CHECKING
 
-from app.core.sanitization import sanitize_plain_text, sanitize_html, sanitize_url
+from pydantic import field_validator
+from sqlmodel import Field, SQLModel
+
+from app.core.sanitization import sanitize_html, sanitize_plain_text, sanitize_url
 from app.models.mixins import SoftDeleteMixin
 
 if TYPE_CHECKING:
-    from app.models.lists import BoardList
-    from app.models.checklists import ChecklistItem
-    from app.models.comments import CardComment
+    pass
 
 
 class CardBase(SQLModel):

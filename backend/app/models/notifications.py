@@ -1,13 +1,14 @@
 from __future__ import annotations
 
-from sqlmodel import SQLModel, Field
-from datetime import datetime
 import uuid
+from datetime import datetime
 from enum import Enum
 from typing import TYPE_CHECKING
 
+from sqlmodel import Field, SQLModel
+
 if TYPE_CHECKING:
-    from app.models.users import User
+    pass
 
 
 class NotificationType(str, Enum):

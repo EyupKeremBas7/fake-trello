@@ -3,15 +3,13 @@ Lists Repository - All database operations for BoardList model.
 """
 import uuid
 from datetime import datetime
-from typing import Any
 
-from sqlmodel import Session, select, func, or_
+from sqlmodel import Session, func, or_, select
 
-from app.models.lists import BoardList, ListCreate, ListUpdate
 from app.models.boards import Board
-from app.models.workspaces import Workspace
+from app.models.lists import BoardList, ListCreate, ListUpdate
 from app.models.workspace_members import WorkspaceMember
-
+from app.models.workspaces import Workspace
 
 # ==================== Helper Functions ====================
 
@@ -38,7 +36,7 @@ def get_next_position(*, session: Session, board_id: uuid.UUID) -> float:
         .where(BoardList.board_id == board_id, BoardList.is_deleted == False)
         .order_by(BoardList.position.desc())
     ).first()
-    
+
     if last_list:
         return last_list.position + 65536.0
     return 65536.0
@@ -78,7 +76,7 @@ def get_lists_for_user(
     )
     lists = session.exec(statement).all()
     count = len(lists)
-    
+
     return list(lists), count
 
 
@@ -88,10 +86,10 @@ def get_lists_superuser(
     """Get all lists (superuser)."""
     count_statement = select(func.count()).select_from(BoardList).where(BoardList.is_deleted == False)
     count = session.exec(count_statement).one()
-    
+
     statement = select(BoardList).where(BoardList.is_deleted == False).offset(skip).limit(limit)
     lists = session.exec(statement).all()
-    
+
     return list(lists), count
 
 
@@ -108,11 +106,11 @@ def get_lists_by_board(*, session: Session, board_id: uuid.UUID) -> list[BoardLi
 def create_list(*, session: Session, list_in: ListCreate, auto_position: bool = True) -> BoardList:
     """Create a new list with automatic position calculation."""
     list_data = list_in.model_dump()
-    
+
     # Auto-calculate position if not explicitly set or if using default
     if auto_position and list_data.get("position", 65535.0) == 65535.0:
         list_data["position"] = get_next_position(session=session, board_id=list_in.board_id)
-    
+
     board_list = BoardList(**list_data)
     session.add(board_list)
     session.commit()

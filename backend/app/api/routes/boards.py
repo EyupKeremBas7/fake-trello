@@ -7,10 +7,10 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 
 from app.api.deps import CurrentUser, SessionDep
-from app.repository import boards as boards_repo
-from app.models.boards import Board, BoardCreate, BoardPublic, BoardsPublic, BoardUpdate
+from app.core.permissions import Action, has_permission
 from app.models.auth import Message
-from app.core.permissions import has_permission, Action
+from app.models.boards import BoardCreate, BoardPublic, BoardsPublic, BoardUpdate
+from app.repository import boards as boards_repo
 
 router = APIRouter(prefix="/boards", tags=["boards"])
 
@@ -50,14 +50,14 @@ def create_board(
     workspace = boards_repo.get_workspace_by_id(session=session, workspace_id=board_in.workspace_id)
     if not workspace:
         raise HTTPException(status_code=404, detail="Workspace not found")
-    
+
     if workspace.owner_id != current_user.id:
         role = boards_repo.get_user_role_in_workspace(
             session=session, user_id=current_user.id, workspace_id=workspace.id
         )
         if not has_permission(role, Action.CREATE_BOARD):
             raise HTTPException(status_code=403, detail="Not enough permissions to create board")
-    
+
     board = boards_repo.create_board(
         session=session, board_in=board_in, owner_id=current_user.id
     )
@@ -79,7 +79,7 @@ def update_board(
         session=session, user_id=current_user.id, board=board
     ):
         raise HTTPException(status_code=403, detail="Not enough permissions")
-    
+
     board = boards_repo.update_board(session=session, board=board, board_in=board_in)
     return board
 
@@ -91,7 +91,7 @@ def delete_board(
     board = boards_repo.get_board_by_id(session=session, board_id=id)
     if not board or board.is_deleted:
         raise HTTPException(status_code=404, detail="Board not found")
-    
+
     workspace = boards_repo.get_workspace_by_id(session=session, workspace_id=board.workspace_id)
     if not current_user.is_superuser and workspace.owner_id != current_user.id:
         role = boards_repo.get_user_role_in_workspace(
@@ -99,6 +99,6 @@ def delete_board(
         )
         if not has_permission(role, Action.DELETE_BOARD):
             raise HTTPException(status_code=403, detail="Only owner or admin can delete board")
-    
+
     boards_repo.soft_delete_board(session=session, board=board, deleted_by=current_user.id)
     return Message(message="Board deleted successfully")

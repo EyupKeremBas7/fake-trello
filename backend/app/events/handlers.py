@@ -7,13 +7,12 @@ This decouples the business logic from notification/email concerns.
 import logging
 from typing import Union
 
-from app.events.base import Event
 from app.events.types import (
     CardMovedEvent,
-    CommentAddedEvent,
     ChecklistToggledEvent,
-    InvitationSentEvent,
+    CommentAddedEvent,
     InvitationRespondedEvent,
+    InvitationSentEvent,
     WelcomeEmailSentEvent,
 )
 from app.models.notifications import NotificationType
@@ -37,9 +36,10 @@ def handle_notification(event: NotifiableEvent) -> None:
     Uses lazy import to avoid circular dependencies.
     """
     from sqlmodel import Session
+
     from app.core.db import engine
     from app.repository import notifications as notifications_repo
-    
+
     with Session(engine) as session:
         if isinstance(event, CardMovedEvent):
             if event.card_owner_id and event.card_owner_id != event.moved_by_id:
@@ -53,7 +53,7 @@ def handle_notification(event: NotifiableEvent) -> None:
                     reference_type="card",
                 )
                 logger.info(f"Notification created for card move: {event.card_id}")
-        
+
         elif isinstance(event, CommentAddedEvent):
             if event.card_owner_id and event.card_owner_id != event.commenter_id:
                 notifications_repo.create_notification(
@@ -66,7 +66,7 @@ def handle_notification(event: NotifiableEvent) -> None:
                     reference_type="card",
                 )
                 logger.info(f"Notification created for comment: {event.card_id}")
-        
+
         elif isinstance(event, ChecklistToggledEvent):
             if event.card_owner_id and event.card_owner_id != event.toggled_by_id:
                 status = "completed" if event.is_completed else "uncompleted"
@@ -80,7 +80,7 @@ def handle_notification(event: NotifiableEvent) -> None:
                     reference_type="card",
                 )
                 logger.info(f"Notification created for checklist toggle: {event.card_id}")
-        
+
         elif isinstance(event, InvitationSentEvent):
             notifications_repo.create_notification(
                 session=session,
@@ -92,7 +92,7 @@ def handle_notification(event: NotifiableEvent) -> None:
                 reference_type="invitation",
             )
             logger.info(f"Notification created for invitation: {event.invitation_id}")
-        
+
         elif isinstance(event, InvitationRespondedEvent):
             notification_type = (
                 NotificationType.invitation_accepted if event.accepted
@@ -116,9 +116,9 @@ def handle_email(event: NotifiableEvent) -> None:
     Queue email for an event.
     Uses lazy import to avoid circular dependencies.
     """
-    from app.utils import send_email, render_email_template
     from app.core.config import settings
-    
+    from app.utils import render_email_template, send_email
+
     if isinstance(event, CardMovedEvent):
         if event.card_owner_email and event.card_owner_id != event.moved_by_id:
             html_content = render_email_template(
@@ -138,7 +138,7 @@ def handle_email(event: NotifiableEvent) -> None:
                 use_queue=True,
             )
             logger.info(f"Email queued for card move: {event.card_owner_email}")
-    
+
     elif isinstance(event, CommentAddedEvent):
         if event.card_owner_email and event.card_owner_id != event.commenter_id:
             content_preview = event.comment_content[:500]
@@ -160,7 +160,7 @@ def handle_email(event: NotifiableEvent) -> None:
                 use_queue=True,
             )
             logger.info(f"Email queued for comment: {event.card_owner_email}")
-    
+
     elif isinstance(event, ChecklistToggledEvent):
         if event.card_owner_email and event.card_owner_id != event.toggled_by_id:
             status = "completed" if event.is_completed else "uncompleted"
@@ -183,7 +183,7 @@ def handle_email(event: NotifiableEvent) -> None:
                 use_queue=True,
             )
             logger.info(f"Email queued for checklist toggle: {event.card_owner_email}")
-    
+
     elif isinstance(event, WelcomeEmailSentEvent):
         html_content = render_email_template(
             template_name="welcome.html",

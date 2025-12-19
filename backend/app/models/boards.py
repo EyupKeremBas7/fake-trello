@@ -1,16 +1,15 @@
 import uuid
-from typing import List, TYPE_CHECKING
-from sqlmodel import Field, SQLModel
-from pydantic import field_validator
+from typing import TYPE_CHECKING
 
-from app.models.enums import Visibility
+from pydantic import field_validator
+from sqlmodel import Field, SQLModel
+
 from app.core.sanitization import sanitize_plain_text
+from app.models.enums import Visibility
 from app.models.mixins import SoftDeleteMixin
 
 if TYPE_CHECKING:
-    from app.models.workspaces import Workspace
-    from app.models.lists import BoardList
-    from app.models.users import User
+    pass
 
 class BoardBase(SQLModel):
     name: str = Field(min_length=1, max_length=100)
@@ -37,8 +36,8 @@ class BoardUpdate(BoardBase):
 class Board(BoardBase, SoftDeleteMixin, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     workspace_id: uuid.UUID = Field(foreign_key="workspace.id", ondelete="CASCADE")
-    owner_id: uuid.UUID = Field(foreign_key="user.id") 
-    
+    owner_id: uuid.UUID = Field(foreign_key="user.id")
+
 
 class BoardPublic(BoardBase):
     id: uuid.UUID

@@ -12,4 +12,4 @@ class MemberRole(str, Enum):
     member = "member"
     observer = "observer"
 
-    
+
