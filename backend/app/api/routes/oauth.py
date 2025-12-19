@@ -13,6 +13,8 @@ from app.api.deps import SessionDep
 from app.core.config import settings
 from app.core.security import create_access_token
 from app.models.users import User
+from app.events.base import EventDispatcher
+from app.events.types import WelcomeEmailSentEvent
 
 router = APIRouter(prefix="/oauth", tags=["oauth"])
 
@@ -72,6 +74,12 @@ async def google_callback(request: Request, session: SessionDep):
         session.add(user)
         session.commit()
         session.refresh(user)
+        
+        # Dispatch welcome email event for new OAuth users
+        EventDispatcher.dispatch(WelcomeEmailSentEvent(
+            user_id=user.id,
+            user_email=user.email,
+        ))
     
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(

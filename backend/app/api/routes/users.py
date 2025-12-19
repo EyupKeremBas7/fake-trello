@@ -26,6 +26,9 @@ from app.models.users import (
 )
 from app.models.auth import Message
 from app.utils import generate_new_account_email, send_email
+from app.events.base import EventDispatcher
+from app.events.types import WelcomeEmailSentEvent
+
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -158,6 +161,14 @@ def register_user(session: SessionDep, user_in: UserRegister) -> Any:
     
     user_create = UserCreate.model_validate(user_in)
     user = users_repo.create_user(session=session, user_create=user_create)
+    
+    # Dispatch welcome email event
+
+    EventDispatcher.dispatch(WelcomeEmailSentEvent(
+        user_id=user.id,
+        user_email=user.email,
+    ))
+    
     return user
 
 

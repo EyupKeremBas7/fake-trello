@@ -14,6 +14,7 @@ from app.events.types import (
     ChecklistToggledEvent,
     InvitationSentEvent,
     InvitationRespondedEvent,
+    WelcomeEmailSentEvent,
 )
 from app.models.notifications import NotificationType
 
@@ -26,7 +27,7 @@ NotifiableEvent = Union[
     ChecklistToggledEvent,
     InvitationSentEvent,
     InvitationRespondedEvent,
-    
+    WelcomeEmailSentEvent,
 ]
 
 
@@ -115,19 +116,25 @@ def handle_email(event: NotifiableEvent) -> None:
     Queue email for an event.
     Uses lazy import to avoid circular dependencies.
     """
-    from app.utils import send_email
+    from app.utils import send_email, render_email_template
+    from app.core.config import settings
     
     if isinstance(event, CardMovedEvent):
         if event.card_owner_email and event.card_owner_id != event.moved_by_id:
+            html_content = render_email_template(
+                template_name="card_moved.html",
+                context={
+                    "moved_by_name": event.moved_by_name,
+                    "card_title": event.card_title,
+                    "old_list_name": event.old_list_name,
+                    "new_list_name": event.new_list_name,
+                    "link": settings.FRONTEND_HOST,
+                },
+            )
             send_email(
                 email_to=event.card_owner_email,
                 subject=f"Card '{event.card_title}' was moved",
-                html_content=f"""
-                <h2>Card Moved</h2>
-                <p><strong>{event.moved_by_name}</strong> moved your card <strong>"{event.card_title}"</strong>:</p>
-                <p>From: <strong>{event.old_list_name}</strong> → To: <strong>{event.new_list_name}</strong></p>
-                <p><a href="#">View Card</a></p>
-                """,
+                html_content=html_content,
                 use_queue=True,
             )
             logger.info(f"Email queued for card move: {event.card_owner_email}")
@@ -137,17 +144,19 @@ def handle_email(event: NotifiableEvent) -> None:
             content_preview = event.comment_content[:500]
             if len(event.comment_content) > 500:
                 content_preview += "..."
+            html_content = render_email_template(
+                template_name="comment_added.html",
+                context={
+                    "commenter_name": event.commenter_name,
+                    "card_title": event.card_title,
+                    "comment_content": content_preview,
+                    "link": settings.FRONTEND_HOST,
+                },
+            )
             send_email(
                 email_to=event.card_owner_email,
                 subject=f"New comment on '{event.card_title}'",
-                html_content=f"""
-                <h2>New Comment on Your Card</h2>
-                <p><strong>{event.commenter_name}</strong> commented on your card <strong>"{event.card_title}"</strong>:</p>
-                <blockquote style="border-left: 3px solid #ccc; padding-left: 10px; color: #666;">
-                    {content_preview}
-                </blockquote>
-                <p><a href="#">View Card</a></p>
-                """,
+                html_content=html_content,
                 use_queue=True,
             )
             logger.info(f"Email queued for comment: {event.card_owner_email}")
@@ -156,15 +165,37 @@ def handle_email(event: NotifiableEvent) -> None:
         if event.card_owner_email and event.card_owner_id != event.toggled_by_id:
             status = "completed" if event.is_completed else "uncompleted"
             status_emoji = "✅" if event.is_completed else "⬜"
+            html_content = render_email_template(
+                template_name="checklist_toggled.html",
+                context={
+                    "toggled_by_name": event.toggled_by_name,
+                    "card_title": event.card_title,
+                    "item_title": event.item_title,
+                    "status": status,
+                    "status_emoji": status_emoji,
+                    "link": settings.FRONTEND_HOST,
+                },
+            )
             send_email(
                 email_to=event.card_owner_email,
                 subject=f"Checklist item updated on '{event.card_title}'",
-                html_content=f"""
-                <h2>Checklist Item Updated</h2>
-                <p><strong>{event.toggled_by_name}</strong> updated a checklist item on your card <strong>"{event.card_title}"</strong>:</p>
-                <p>{status_emoji} <strong>{event.item_title}</strong> - marked as {status}</p>
-                <p><a href="#">View Card</a></p>
-                """,
+                html_content=html_content,
                 use_queue=True,
             )
             logger.info(f"Email queued for checklist toggle: {event.card_owner_email}")
+    
+    elif isinstance(event, WelcomeEmailSentEvent):
+        html_content = render_email_template(
+            template_name="welcome.html",
+            context={
+                "project_name": settings.PROJECT_NAME,
+                "link": settings.FRONTEND_HOST,
+            },
+        )
+        send_email(
+            email_to=event.user_email,
+            subject=f"Welcome to {settings.PROJECT_NAME}! 🎉",
+            html_content=html_content,
+            use_queue=True,
+        )
+        logger.info(f"Email queued for welcome: {event.user_email}")

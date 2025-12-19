@@ -69,3 +69,9 @@ class InvitationRespondedEvent(Event):
     responder_id: UUID
     responder_name: str
     inviter_id: UUID
+
+@dataclass
+class WelcomeEmailSentEvent(Event):
+    """Fired when a welcome email is sent."""
+    user_id: UUID
+    user_email: str

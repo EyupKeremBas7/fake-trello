@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h2 {
+            color: #2563eb;
+        }
+
+        blockquote {
+            border-left: 3px solid #ccc;
+            padding-left: 10px;
+            color: #666;
+            margin: 15px 0;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>New Comment on Your Card</h2>
+    <p><strong>{{ commenter_name }}</strong> commented on your card <strong>"{{ card_title }}"</strong>:</p>
+    <blockquote>{{ comment_content }}</blockquote>
+    <p><a href="{{ link }}" class="btn">View Card</a></p>
+</body>
+
+</html>

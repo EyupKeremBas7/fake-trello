@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h2 {
+      color: #2563eb;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 24px;
+      background-color: #2563eb;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+
+<body>
+  <h2>New Account Created</h2>
+  <p>Hello {{ username }},</p>
+  <p>Your account has been created for {{ project_name }}.</p>
+  <p>Your temporary password is: <strong>{{ password }}</strong></p>
+  <p>Please change your password after logging in.</p>
+  <p><a href="{{ link }}" class="btn">Login Now</a></p>
+  <p>Best regards,<br><strong>The {{ project_name }} Team</strong></p>
+</body>
+
+</html>

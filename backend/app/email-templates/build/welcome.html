@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #2563eb;
+        }
+
+        ul {
+            line-height: 1.8;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+        .footer {
+            color: #666;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Welcome to {{ project_name }}! 🎉</h1>
+    <p>Hello there! 👋</p>
+    <p>Thank you for joining us. We're excited to have you on board!</p>
+    <p>With {{ project_name }}, you can:</p>
+    <ul>
+        <li>📋 Create and organize your tasks with boards and lists</li>
+        <li>✅ Track progress with checklists</li>
+        <li>👥 Collaborate with your team in workspaces</li>
+        <li>📧 Stay updated with notifications</li>
+    </ul>
+    <p><a href="{{ link }}" class="btn">Get Started</a></p>
+    <p class="footer">If you have any questions, feel free to reach out to our support team.</p>
+    <p>Happy organizing! 🚀</p>
+    <p><strong>The {{ project_name }} Team</strong></p>
+</body>
+
+</html>
