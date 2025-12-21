@@ -1,11 +1,3 @@
-"""
-Permissions Module - Centralized permission definitions (Strategy Pattern).
-
-This module defines all permissions in one place, making it easy to:
-1. Add new roles without modifying routes
-2. Change permission requirements in one place
-3. Understand the full permission matrix at a glance
-"""
 from enum import Enum
 
 from app.models.enums import MemberRole
@@ -56,11 +48,11 @@ PERMISSIONS: dict[Action, list[MemberRole]] = {
     Action.DELETE_CARD: [MemberRole.admin, MemberRole.member],
     Action.MOVE_CARD: [MemberRole.admin, MemberRole.member],
 
-    Action.CREATE_COMMENT: [MemberRole.admin, MemberRole.member, MemberRole.observer],
+    Action.CREATE_COMMENT: [MemberRole.admin, MemberRole.member],
     Action.DELETE_ANY_COMMENT: [MemberRole.admin],
 
     Action.CREATE_CHECKLIST: [MemberRole.admin, MemberRole.member],
-    Action.TOGGLE_CHECKLIST: [MemberRole.admin, MemberRole.member, MemberRole.observer],
+    Action.TOGGLE_CHECKLIST: [MemberRole.admin, MemberRole.member],
 }
 
 
@@ -69,18 +61,6 @@ def has_permission(
     action: Action,
     is_owner: bool = False
 ) -> bool:
-    """
-    Check if a role has permission to perform an action.
-    
-    Args:
-        role: The user's role in the workspace (None if not a member)
-        action: The action to check permission for
-        is_owner: Whether the user is the workspace owner
-    
-    Returns:
-        True if the user has permission, False otherwise
-    """
-
     if is_owner:
         return True
 
@@ -92,5 +72,4 @@ def has_permission(
 
 
 def get_allowed_roles(action: Action) -> list[MemberRole]:
-    """Get list of roles that can perform an action."""
     return PERMISSIONS.get(action, [])

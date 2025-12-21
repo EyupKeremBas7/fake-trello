@@ -17,11 +17,7 @@ services:
     build:
       context: ./backend
     # command: sleep infinity  # Infinite loop to keep container alive doing nothing
-    command:
-      - fastapi
-      - run
-      - --reload
-      - "app/main.py"
+    command: ["bash", "-c", "./prestart.sh && fastapi run --reload app/main.py"]
     develop:
       watch:
         - path: ./backend
@@ -32,7 +28,6 @@ services:
             - .venv
         - path: ./backend/pyproject.toml
           action: rebuild
-    # TODO: remove once coverage is done locally
     volumes:
       - ./backend/htmlcov:/app/htmlcov
     environment:

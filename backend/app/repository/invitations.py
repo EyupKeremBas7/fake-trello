@@ -123,13 +123,20 @@ def create_invitation(
     inviter_id: uuid.UUID,
     invitee_id: uuid.UUID,
     role: MemberRole,
-    message: str | None = None
+    message: str | None = None,
+    invitee_email: str | None = None
 ) -> WorkspaceInvitation:
     """Create a new invitation."""
+    if not invitee_email:
+        user = session.get(User, invitee_id)
+        if user:
+            invitee_email = user.email
+            
     invitation = WorkspaceInvitation(
         workspace_id=workspace_id,
         inviter_id=inviter_id,
         invitee_id=invitee_id,
+        invitee_email=invitee_email, # type: ignore
         role=role,
         message=message,
         status=InvitationStatus.pending,

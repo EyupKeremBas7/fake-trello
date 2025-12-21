@@ -74,6 +74,15 @@ def create_comment(
             card_owner = owner.id
             card_owner_email = owner.email
 
+    # Get assignee info (notifications go to assignee if set)
+    card_assignee = None
+    card_assignee_email = None
+    if card.assigned_to:
+        assignee = comments_repo.get_user_by_id(session=session, user_id=card.assigned_to)
+        if assignee and not assignee.is_deleted:
+            card_assignee = assignee.id
+            card_assignee_email = assignee.email
+
     from app.events import CommentAddedEvent, EventDispatcher
     EventDispatcher.dispatch(CommentAddedEvent(
         card_id=card.id,
@@ -83,6 +92,8 @@ def create_comment(
         commenter_name=current_user.full_name or current_user.email,
         card_owner_id=card_owner,
         card_owner_email=card_owner_email,
+        card_assignee_id=card_assignee,
+        card_assignee_email=card_assignee_email,
     ))
 
     return comments_repo.enrich_comment_with_user(session, comment)

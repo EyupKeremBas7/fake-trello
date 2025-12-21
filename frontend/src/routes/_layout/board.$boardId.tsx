@@ -228,7 +228,7 @@ interface SortableListColumnProps {
 
 function SortableListColumn({ list, cards, onCardClick }: SortableListColumnProps) {
   const [showAddCard, setShowAddCard] = useState(false)
-  
+
   const {
     attributes,
     listeners,
@@ -493,7 +493,7 @@ function BoardDetail() {
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event
     const cardId = active.id as string
-    
+
     if (!cardId.startsWith("list-")) {
       const card = cards.find((c) => c.id === cardId)
       if (card) {
@@ -526,21 +526,21 @@ function BoardDetail() {
       if (overId.startsWith("list-")) {
         targetListId = overId.replace("list-", "")
         const listCards = cards.filter((c) => c.list_id === targetListId)
-        newPosition = listCards.length > 0 
-          ? Math.max(...listCards.map((c) => c.position ?? 0)) + 65535 
+        newPosition = listCards.length > 0
+          ? Math.max(...listCards.map((c) => c.position ?? 0)) + 65535
           : 65535
       } else {
         const overCard = cards.find((c) => c.id === overId)
         if (overCard) {
           targetListId = overCard.list_id
-          
+
           const listCards = cards
             .filter((c) => c.list_id === targetListId)
             .sort((a, b) => (a.position ?? 0) - (b.position ?? 0))
-          
+
           const overIndex = listCards.findIndex((c) => c.id === overId)
           const activeIndex = listCards.findIndex((c) => c.id === activeId)
-          
+
           if (overIndex !== -1) {
             if (activeIndex === -1 || activeIndex > overIndex) {
               const prevPosition = overIndex > 0 ? (listCards[overIndex - 1].position ?? 0) : 0
@@ -548,8 +548,8 @@ function BoardDetail() {
               newPosition = (prevPosition + overPosition) / 2
             } else {
               const overPosition = overCard.position ?? 65535
-              const nextPosition = overIndex < listCards.length - 1 
-                ? (listCards[overIndex + 1].position ?? overPosition + 65535) 
+              const nextPosition = overIndex < listCards.length - 1
+                ? (listCards[overIndex + 1].position ?? overPosition + 65535)
                 : overPosition + 65535
               newPosition = (overPosition + nextPosition) / 2
             }
@@ -719,6 +719,7 @@ function BoardDetail() {
           card={selectedCard}
           isOpen={!!selectedCard}
           onClose={() => setSelectedCard(null)}
+          workspaceId={board.workspace_id}
         />
       )}
     </Box>

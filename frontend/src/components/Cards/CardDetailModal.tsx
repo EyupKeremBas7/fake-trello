@@ -39,7 +39,8 @@ import {
   DialogRoot,
   DialogTitle,
 } from "@/components/ui/dialog"
-import CardOwnerInfo from "@/components/Cards/CardOwnerInfo"
+import CardMembersInfo from "@/components/Cards/CardMembersInfo"
+import CardAssigneeSelector from "@/components/Cards/CardAssigneeSelector"
 import useCustomToast from "@/hooks/useCustomToast"
 import { handleError } from "@/utils"
 
@@ -47,6 +48,7 @@ interface CardDetailModalProps {
   card: CardPublic
   isOpen: boolean
   onClose: () => void
+  workspaceId?: string
 }
 
 const ChecklistSection = ({ cardId }: { cardId: string }) => {
@@ -321,6 +323,7 @@ export const CardDetailModal = ({
   card,
   isOpen,
   onClose,
+  workspaceId,
 }: CardDetailModalProps) => {
   const [description, setDescription] = useState(card.description || "")
   const [isEditingDesc, setIsEditingDesc] = useState(false)
@@ -362,9 +365,17 @@ export const CardDetailModal = ({
               </HStack>
             )}
 
-            {/* Owner */}
-            {card.created_by && (
-              <CardOwnerInfo createdBy={card.created_by} showLabel />
+            {/* Owner & Assignee */}
+            <Box>
+              <Heading size="sm" mb={2}>Members</Heading>
+              <CardMembersInfo card={card} />
+            </Box>
+
+            {/* Assign Member */}
+            {workspaceId && (
+              <Box>
+                <CardAssigneeSelector card={card} workspaceId={workspaceId} />
+              </Box>
             )}
 
             {/* Description */}
@@ -431,3 +442,4 @@ export const CardDetailModal = ({
 }
 
 export default CardDetailModal
+

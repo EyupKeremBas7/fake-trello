@@ -90,6 +90,7 @@ def mock_card():
     card.list_id = uuid4()
     card.position = 1.0
     card.created_by = uuid4()
+    card.assigned_to = None
     card.is_deleted = False
     card.is_archived = False
     return card

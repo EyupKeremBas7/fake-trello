@@ -6,10 +6,11 @@ from app.repository import users as users_repo
 
 engine = create_engine(
     str(settings.SQLALCHEMY_DATABASE_URI),
-    pool_size=20,          # Base connections (default: 5)
-    max_overflow=40,       # Extra connections under load (default: 10)
+    pool_size=50,          # Base connections (default: 5)
+    max_overflow=50,       # Extra connections under load (default: 10)
     pool_timeout=30,       # Seconds to wait for connection
-    pool_pre_ping=True,    # Check connections are alive
+    pool_pre_ping=True,
+    pool_recycle=1800,    # Check connections are alive
 )
 
 

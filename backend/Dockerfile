@@ -30,9 +30,13 @@ COPY ./pyproject.toml ./uv.lock ./alembic.ini /app/
 COPY ./app /app/app
 COPY ./tests /app/tests
 
+# Copy prestart script
+COPY ./scripts/prestart.sh /app/prestart.sh
+RUN chmod +x /app/prestart.sh
+
 # Sync the project
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen
 
-# Prestart ve ardından uvicorn başlat
-CMD ["bash", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+# Run prestart (migrations + init) then start uvicorn
+CMD ["bash", "-c", "./prestart.sh && uvicorn app.main:app --host 0.0.0.0 --port 8000"]

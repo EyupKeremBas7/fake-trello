@@ -17,10 +17,14 @@ from app.repository.common import get_user_role_in_workspace as _get_role
 
 
 def enrich_card_with_owner(session: Session, card: Card) -> CardPublic:
-    """Add owner info to card."""
+    """Add owner and assignee info to card."""
     owner = None
     if card.created_by:
         owner = session.get(User, card.created_by)
+
+    assignee = None
+    if card.assigned_to:
+        assignee = session.get(User, card.assigned_to)
 
     return CardPublic(
         id=card.id,
@@ -32,11 +36,14 @@ def enrich_card_with_owner(session: Session, card: Card) -> CardPublic:
         cover_image=card.cover_image,
         list_id=card.list_id,
         created_by=card.created_by,
+        assigned_to=card.assigned_to,
         created_at=card.created_at,
         updated_at=card.updated_at,
         is_deleted=card.is_deleted,
         owner_full_name=owner.full_name if owner else None,
         owner_email=owner.email if owner else None,
+        assignee_full_name=assignee.full_name if assignee else None,
+        assignee_email=assignee.email if assignee else None,
     )
 
 

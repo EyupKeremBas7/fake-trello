@@ -109,6 +109,15 @@ def update_card(
                 card_owner = owner.id
                 card_owner_email = owner.email
 
+        # Get assignee info (notifications go to assignee if set)
+        card_assignee = None
+        card_assignee_email = None
+        if card.assigned_to:
+            assignee = cards_repo.get_user_by_id(session=session, user_id=card.assigned_to)
+            if assignee and not assignee.is_deleted:
+                card_assignee = assignee.id
+                card_assignee_email = assignee.email
+
         from app.events import CardMovedEvent, EventDispatcher
         EventDispatcher.dispatch(CardMovedEvent(
             card_id=card.id,
@@ -119,6 +128,8 @@ def update_card(
             moved_by_name=current_user.full_name or current_user.email,
             card_owner_id=card_owner,
             card_owner_email=card_owner_email,
+            card_assignee_id=card_assignee,
+            card_assignee_email=card_assignee_email,
         ))
 
     return cards_repo.enrich_card_with_owner(session, card)

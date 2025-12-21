@@ -3,7 +3,90 @@
 import type { CancelablePromise } from './core/CancelablePromise';
 import { OpenAPI } from './core/OpenAPI';
 import { request as __request } from './core/request';
-import type { BoardsReadBoardsData, BoardsReadBoardsResponse, BoardsCreateBoardData, BoardsCreateBoardResponse, BoardsReadBoardData, BoardsReadBoardResponse, BoardsUpdateBoardData, BoardsUpdateBoardResponse, BoardsDeleteBoardData, BoardsDeleteBoardResponse, CardsReadCardsData, CardsReadCardsResponse, CardsCreateCardData, CardsCreateCardResponse, CardsReadCardData, CardsReadCardResponse, CardsUpdateCardData, CardsUpdateCardResponse, CardsDeleteCardData, CardsDeleteCardResponse, CardsMoveCardData, CardsMoveCardResponse, ChecklistsReadChecklistItemsData, ChecklistsReadChecklistItemsResponse, ChecklistsCreateChecklistItemData, ChecklistsCreateChecklistItemResponse, ChecklistsReadChecklistItemData, ChecklistsReadChecklistItemResponse, ChecklistsUpdateChecklistItemData, ChecklistsUpdateChecklistItemResponse, ChecklistsDeleteChecklistItemData, ChecklistsDeleteChecklistItemResponse, ChecklistsToggleChecklistItemData, ChecklistsToggleChecklistItemResponse, CommentsReadCommentsData, CommentsReadCommentsResponse, CommentsCreateCommentData, CommentsCreateCommentResponse, CommentsReadCommentData, CommentsReadCommentResponse, CommentsUpdateCommentData, CommentsUpdateCommentResponse, CommentsDeleteCommentData, CommentsDeleteCommentResponse, InvitationsReadMyInvitationsData, InvitationsReadMyInvitationsResponse, InvitationsCreateInvitationData, InvitationsCreateInvitationResponse, InvitationsReadSentInvitationsData, InvitationsReadSentInvitationsResponse, InvitationsRespondToInvitationData, InvitationsRespondToInvitationResponse, InvitationsCancelInvitationData, InvitationsCancelInvitationResponse, ListsReadBoardListsData, ListsReadBoardListsResponse, ListsCreateBoardListData, ListsCreateBoardListResponse, ListsReadListsByBoardData, ListsReadListsByBoardResponse, ListsReadBoardListData, ListsReadBoardListResponse, ListsUpdateBoardListData, ListsUpdateBoardListResponse, ListsDeleteBoardListData, ListsDeleteBoardListResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, NotificationsReadNotificationsData, NotificationsReadNotificationsResponse, NotificationsGetUnreadCountResponse, NotificationsReadNotificationData, NotificationsReadNotificationResponse, NotificationsDeleteNotificationData, NotificationsDeleteNotificationResponse, NotificationsMarkAsReadData, NotificationsMarkAsReadResponse, NotificationsMarkAllAsReadResponse, PrivateCreateUserData, PrivateCreateUserResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WorkspacesReadWorkspacesData, WorkspacesReadWorkspacesResponse, WorkspacesCreateWorkspaceData, WorkspacesCreateWorkspaceResponse, WorkspacesReadWorkspaceData, WorkspacesReadWorkspaceResponse, WorkspacesUpdateWorkspaceData, WorkspacesUpdateWorkspaceResponse, WorkspacesDeleteWorkspaceData, WorkspacesDeleteWorkspaceResponse, WorkspacesReadWorkspaceMembersData, WorkspacesReadWorkspaceMembersResponse, WorkspacesAddWorkspaceMemberData, WorkspacesAddWorkspaceMemberResponse, WorkspacesInviteWorkspaceMemberData, WorkspacesInviteWorkspaceMemberResponse, WorkspacesUpdateWorkspaceMemberData, WorkspacesUpdateWorkspaceMemberResponse, WorkspacesRemoveWorkspaceMemberData, WorkspacesRemoveWorkspaceMemberResponse } from './types.gen';
+import type { ActivityGetBoardActivityData, ActivityGetBoardActivityResponse, ActivityGetWorkspaceActivityData, ActivityGetWorkspaceActivityResponse, ActivityGetCardActivityData, ActivityGetCardActivityResponse, BoardsReadBoardsData, BoardsReadBoardsResponse, BoardsCreateBoardData, BoardsCreateBoardResponse, BoardsReadBoardData, BoardsReadBoardResponse, BoardsUpdateBoardData, BoardsUpdateBoardResponse, BoardsDeleteBoardData, BoardsDeleteBoardResponse, CardsReadCardsData, CardsReadCardsResponse, CardsCreateCardData, CardsCreateCardResponse, CardsReadCardData, CardsReadCardResponse, CardsUpdateCardData, CardsUpdateCardResponse, CardsDeleteCardData, CardsDeleteCardResponse, ChecklistsReadChecklistItemsData, ChecklistsReadChecklistItemsResponse, ChecklistsCreateChecklistItemData, ChecklistsCreateChecklistItemResponse, ChecklistsReadChecklistItemData, ChecklistsReadChecklistItemResponse, ChecklistsUpdateChecklistItemData, ChecklistsUpdateChecklistItemResponse, ChecklistsDeleteChecklistItemData, ChecklistsDeleteChecklistItemResponse, ChecklistsToggleChecklistItemData, ChecklistsToggleChecklistItemResponse, CommentsReadCommentsData, CommentsReadCommentsResponse, CommentsCreateCommentData, CommentsCreateCommentResponse, CommentsReadCommentData, CommentsReadCommentResponse, CommentsUpdateCommentData, CommentsUpdateCommentResponse, CommentsDeleteCommentData, CommentsDeleteCommentResponse, InvitationsReadMyInvitationsData, InvitationsReadMyInvitationsResponse, InvitationsCreateInvitationData, InvitationsCreateInvitationResponse, InvitationsReadSentInvitationsData, InvitationsReadSentInvitationsResponse, InvitationsRespondToInvitationData, InvitationsRespondToInvitationResponse, InvitationsCancelInvitationData, InvitationsCancelInvitationResponse, ListsReadBoardListsData, ListsReadBoardListsResponse, ListsCreateBoardListData, ListsCreateBoardListResponse, ListsReadListsByBoardData, ListsReadListsByBoardResponse, ListsReadBoardListData, ListsReadBoardListResponse, ListsUpdateBoardListData, ListsUpdateBoardListResponse, ListsDeleteBoardListData, ListsDeleteBoardListResponse, LoginLoginAccessTokenData, LoginLoginAccessTokenResponse, LoginTestTokenResponse, LoginRecoverPasswordData, LoginRecoverPasswordResponse, LoginResetPasswordData, LoginResetPasswordResponse, LoginRecoverPasswordHtmlContentData, LoginRecoverPasswordHtmlContentResponse, NotificationsReadNotificationsData, NotificationsReadNotificationsResponse, NotificationsGetUnreadCountResponse, NotificationsReadNotificationData, NotificationsReadNotificationResponse, NotificationsDeleteNotificationData, NotificationsDeleteNotificationResponse, NotificationsMarkAsReadData, NotificationsMarkAsReadResponse, NotificationsMarkAllAsReadResponse, OauthGoogleLoginResponse, OauthGoogleCallbackResponse, OauthOauthStatusResponse, PrivateCreateUserData, PrivateCreateUserResponse, UploadsUploadImageData, UploadsUploadImageResponse, UploadsGetFileData, UploadsGetFileResponse, UsersReadUsersData, UsersReadUsersResponse, UsersCreateUserData, UsersCreateUserResponse, UsersReadUserMeResponse, UsersDeleteUserMeResponse, UsersUpdateUserMeData, UsersUpdateUserMeResponse, UsersUpdatePasswordMeData, UsersUpdatePasswordMeResponse, UsersRegisterUserData, UsersRegisterUserResponse, UsersReadUserByIdData, UsersReadUserByIdResponse, UsersUpdateUserData, UsersUpdateUserResponse, UsersDeleteUserData, UsersDeleteUserResponse, UtilsTestEmailData, UtilsTestEmailResponse, UtilsHealthCheckResponse, WorkspacesReadWorkspacesData, WorkspacesReadWorkspacesResponse, WorkspacesCreateWorkspaceData, WorkspacesCreateWorkspaceResponse, WorkspacesReadWorkspaceData, WorkspacesReadWorkspaceResponse, WorkspacesUpdateWorkspaceData, WorkspacesUpdateWorkspaceResponse, WorkspacesDeleteWorkspaceData, WorkspacesDeleteWorkspaceResponse, WorkspacesReadWorkspaceMembersData, WorkspacesReadWorkspaceMembersResponse, WorkspacesAddWorkspaceMemberData, WorkspacesAddWorkspaceMemberResponse, WorkspacesInviteWorkspaceMemberData, WorkspacesInviteWorkspaceMemberResponse, WorkspacesUpdateWorkspaceMemberData, WorkspacesUpdateWorkspaceMemberResponse, WorkspacesRemoveWorkspaceMemberData, WorkspacesRemoveWorkspaceMemberResponse } from './types.gen';
+
+export class ActivityService {
+    /**
+     * Get Board Activity
+     * Get activity logs for a specific board.
+     * @param data The data for the request.
+     * @param data.boardId
+     * @param data.skip
+     * @param data.limit
+     * @returns ActivityLogsPublic Successful Response
+     * @throws ApiError
+     */
+    public static getBoardActivity(data: ActivityGetBoardActivityData): CancelablePromise<ActivityGetBoardActivityResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/activity/board/{board_id}',
+            path: {
+                board_id: data.boardId
+            },
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Workspace Activity
+     * Get activity logs for a specific workspace.
+     * @param data The data for the request.
+     * @param data.workspaceId
+     * @param data.skip
+     * @param data.limit
+     * @returns ActivityLogsPublic Successful Response
+     * @throws ApiError
+     */
+    public static getWorkspaceActivity(data: ActivityGetWorkspaceActivityData): CancelablePromise<ActivityGetWorkspaceActivityResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/activity/workspace/{workspace_id}',
+            path: {
+                workspace_id: data.workspaceId
+            },
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get Card Activity
+     * Get activity logs for a specific card.
+     * @param data The data for the request.
+     * @param data.cardId
+     * @param data.skip
+     * @param data.limit
+     * @returns ActivityLogsPublic Successful Response
+     * @throws ApiError
+     */
+    public static getCardActivity(data: ActivityGetCardActivityData): CancelablePromise<ActivityGetCardActivityResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/activity/card/{card_id}',
+            path: {
+                card_id: data.cardId
+            },
+            query: {
+                skip: data.skip,
+                limit: data.limit
+            },
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
 
 export class BoardsService {
     /**
@@ -209,32 +292,6 @@ export class CardsService {
             url: '/api/v1/cards/{id}',
             path: {
                 id: data.id
-            },
-            errors: {
-                422: 'Validation Error'
-            }
-        });
-    }
-    
-    /**
-     * Move Card
-     * @param data The data for the request.
-     * @param data.id
-     * @param data.listId
-     * @param data.position
-     * @returns CardPublic Successful Response
-     * @throws ApiError
-     */
-    public static moveCard(data: CardsMoveCardData): CancelablePromise<CardsMoveCardResponse> {
-        return __request(OpenAPI, {
-            method: 'PATCH',
-            url: '/api/v1/cards/{id}/move',
-            path: {
-                id: data.id
-            },
-            query: {
-                list_id: data.listId,
-                position: data.position
             },
             errors: {
                 422: 'Validation Error'
@@ -944,6 +1001,47 @@ export class NotificationsService {
     }
 }
 
+export class OauthService {
+    /**
+     * Google Login
+     * Redirect to Google OAuth login.
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static googleLogin(): CancelablePromise<OauthGoogleLoginResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/oauth/google/login'
+        });
+    }
+    
+    /**
+     * Google Callback
+     * Handle Google OAuth callback.
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static googleCallback(): CancelablePromise<OauthGoogleCallbackResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/oauth/google/callback'
+        });
+    }
+    
+    /**
+     * Oauth Status
+     * Check OAuth configuration status.
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static oauthStatus(): CancelablePromise<OauthOauthStatusResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/oauth/status'
+        });
+    }
+}
+
 export class PrivateService {
     /**
      * Create User
@@ -959,6 +1057,49 @@ export class PrivateService {
             url: '/api/v1/private/users/',
             body: data.requestBody,
             mediaType: 'application/json',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+}
+
+export class UploadsService {
+    /**
+     * Upload Image
+     * Upload an image file. Returns the URL to access the image.
+     * @param data The data for the request.
+     * @param data.formData
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static uploadImage(data: UploadsUploadImageData): CancelablePromise<UploadsUploadImageResponse> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/api/v1/uploads/image',
+            formData: data.formData,
+            mediaType: 'multipart/form-data',
+            errors: {
+                422: 'Validation Error'
+            }
+        });
+    }
+    
+    /**
+     * Get File
+     * Serve an uploaded file.
+     * @param data The data for the request.
+     * @param data.filename
+     * @returns unknown Successful Response
+     * @throws ApiError
+     */
+    public static getFile(data: UploadsGetFileData): CancelablePromise<UploadsGetFileResponse> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/api/v1/uploads/files/{filename}',
+            path: {
+                filename: data.filename
+            },
             errors: {
                 422: 'Validation Error'
             }
@@ -1099,6 +1240,7 @@ export class UsersService {
     /**
      * Read User By Id
      * Get a specific user by id.
+     * Users can view other users if they share a workspace.
      * @param data The data for the request.
      * @param data.userId
      * @returns UserPublic Successful Response

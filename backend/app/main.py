@@ -3,7 +3,6 @@ from fastapi import FastAPI
 from fastapi.routing import APIRoute
 from starlette.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
-
 from app.api.main import api_router
 from app.core.config import settings
 from app.events.base import EventDispatcher

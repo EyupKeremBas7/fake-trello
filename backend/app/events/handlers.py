@@ -1,13 +1,12 @@
 """
-Event Handlers - React to events and perform side effects.
-
-These handlers are registered with EventDispatcher and called when events are dispatched.
-This decouples the business logic from notification/email concerns.
+    This code can be refactored with Strategy + Registry Pattern in the future if I need to 
 """
+
 import logging
 from typing import Union
 
 from app.events.types import (
+    CardAssignedEvent,
     CardMovedEvent,
     ChecklistToggledEvent,
     CommentAddedEvent,
@@ -24,17 +23,28 @@ NotifiableEvent = Union[
     CardMovedEvent,
     CommentAddedEvent,
     ChecklistToggledEvent,
+    CardAssignedEvent,
     InvitationSentEvent,
     InvitationRespondedEvent,
     WelcomeEmailSentEvent,
 ]
 
 
+def _get_notification_target(event) -> tuple:
+    """
+    Get the target user for notifications.
+    Priority: assignee > owner
+    Returns (user_id, user_email) or (None, None)
+    """
+    # Prefer assignee over owner for notifications
+    if hasattr(event, 'card_assignee_id') and event.card_assignee_id:
+        return event.card_assignee_id, getattr(event, 'card_assignee_email', None)
+    if hasattr(event, 'card_owner_id') and event.card_owner_id:
+        return event.card_owner_id, getattr(event, 'card_owner_email', None)
+    return None, None
+
+
 def handle_notification(event: NotifiableEvent) -> None:
-    """
-    Create in-app notification for an event.
-    Uses lazy import to avoid circular dependencies.
-    """
     from sqlmodel import Session
 
     from app.core.db import engine
@@ -42,44 +52,59 @@ def handle_notification(event: NotifiableEvent) -> None:
 
     with Session(engine) as session:
         if isinstance(event, CardMovedEvent):
-            if event.card_owner_id and event.card_owner_id != event.moved_by_id:
+            target_id, _ = _get_notification_target(event)
+            if target_id and target_id != event.moved_by_id:
                 notifications_repo.create_notification(
                     session=session,
-                    user_id=event.card_owner_id,
+                    user_id=target_id,
                     notification_type=NotificationType.card_moved,
                     title="Card Moved",
-                    message=f"{event.moved_by_name} moved your card '{event.card_title}' from '{event.old_list_name}' to '{event.new_list_name}'",
+                    message=f"{event.moved_by_name} moved card '{event.card_title}' from '{event.old_list_name}' to '{event.new_list_name}'",
                     reference_id=event.card_id,
                     reference_type="card",
                 )
                 logger.info(f"Notification created for card move: {event.card_id}")
 
         elif isinstance(event, CommentAddedEvent):
-            if event.card_owner_id and event.card_owner_id != event.commenter_id:
+            target_id, _ = _get_notification_target(event)
+            if target_id and target_id != event.commenter_id:
                 notifications_repo.create_notification(
                     session=session,
-                    user_id=event.card_owner_id,
+                    user_id=target_id,
                     notification_type=NotificationType.comment_added,
                     title="New Comment",
-                    message=f"{event.commenter_name} commented on your card '{event.card_title}'",
+                    message=f"{event.commenter_name} commented on card '{event.card_title}'",
                     reference_id=event.card_id,
                     reference_type="card",
                 )
                 logger.info(f"Notification created for comment: {event.card_id}")
 
         elif isinstance(event, ChecklistToggledEvent):
-            if event.card_owner_id and event.card_owner_id != event.toggled_by_id:
+            target_id, _ = _get_notification_target(event)
+            if target_id and target_id != event.toggled_by_id:
                 status = "completed" if event.is_completed else "uncompleted"
                 notifications_repo.create_notification(
                     session=session,
-                    user_id=event.card_owner_id,
+                    user_id=target_id,
                     notification_type=NotificationType.checklist_toggled,
                     title="Checklist Item Updated",
-                    message=f"{event.toggled_by_name} marked '{event.item_title}' as {status} on your card '{event.card_title}'",
+                    message=f"{event.toggled_by_name} marked '{event.item_title}' as {status} on card '{event.card_title}'",
                     reference_id=event.card_id,
                     reference_type="card",
                 )
                 logger.info(f"Notification created for checklist toggle: {event.card_id}")
+
+        elif isinstance(event, CardAssignedEvent):
+            notifications_repo.create_notification(
+                session=session,
+                user_id=event.assignee_id,
+                notification_type=NotificationType.card_assigned,
+                title="Card Assigned",
+                message=f"{event.assigned_by_name} assigned you to card '{event.card_title}'",
+                reference_id=event.card_id,
+                reference_type="card",
+            )
+            logger.info(f"Notification created for card assignment: {event.card_id}")
 
         elif isinstance(event, InvitationSentEvent):
             notifications_repo.create_notification(
@@ -112,15 +137,12 @@ def handle_notification(event: NotifiableEvent) -> None:
 
 
 def handle_email(event: NotifiableEvent) -> None:
-    """
-    Queue email for an event.
-    Uses lazy import to avoid circular dependencies.
-    """
     from app.core.config import settings
     from app.utils import render_email_template, send_email
 
     if isinstance(event, CardMovedEvent):
-        if event.card_owner_email and event.card_owner_id != event.moved_by_id:
+        _, target_email = _get_notification_target(event)
+        if target_email and _get_notification_target(event)[0] != event.moved_by_id:
             html_content = render_email_template(
                 template_name="card_moved.html",
                 context={
@@ -132,15 +154,16 @@ def handle_email(event: NotifiableEvent) -> None:
                 },
             )
             send_email(
-                email_to=event.card_owner_email,
+                email_to=target_email,
                 subject=f"Card '{event.card_title}' was moved",
                 html_content=html_content,
                 use_queue=True,
             )
-            logger.info(f"Email queued for card move: {event.card_owner_email}")
+            logger.info(f"Email queued for card move: {target_email}")
 
     elif isinstance(event, CommentAddedEvent):
-        if event.card_owner_email and event.card_owner_id != event.commenter_id:
+        _, target_email = _get_notification_target(event)
+        if target_email and _get_notification_target(event)[0] != event.commenter_id:
             content_preview = event.comment_content[:500]
             if len(event.comment_content) > 500:
                 content_preview += "..."
@@ -154,15 +177,16 @@ def handle_email(event: NotifiableEvent) -> None:
                 },
             )
             send_email(
-                email_to=event.card_owner_email,
+                email_to=target_email,
                 subject=f"New comment on '{event.card_title}'",
                 html_content=html_content,
                 use_queue=True,
             )
-            logger.info(f"Email queued for comment: {event.card_owner_email}")
+            logger.info(f"Email queued for comment: {target_email}")
 
     elif isinstance(event, ChecklistToggledEvent):
-        if event.card_owner_email and event.card_owner_id != event.toggled_by_id:
+        _, target_email = _get_notification_target(event)
+        if target_email and _get_notification_target(event)[0] != event.toggled_by_id:
             status = "completed" if event.is_completed else "uncompleted"
             status_emoji = "✅" if event.is_completed else "⬜"
             html_content = render_email_template(
@@ -177,12 +201,29 @@ def handle_email(event: NotifiableEvent) -> None:
                 },
             )
             send_email(
-                email_to=event.card_owner_email,
+                email_to=target_email,
                 subject=f"Checklist item updated on '{event.card_title}'",
                 html_content=html_content,
                 use_queue=True,
             )
-            logger.info(f"Email queued for checklist toggle: {event.card_owner_email}")
+            logger.info(f"Email queued for checklist toggle: {target_email}")
+
+    elif isinstance(event, CardAssignedEvent):
+        html_content = render_email_template(
+            template_name="card_assigned.html",
+            context={
+                "assigned_by_name": event.assigned_by_name,
+                "card_title": event.card_title,
+                "link": settings.FRONTEND_HOST,
+            },
+        )
+        send_email(
+            email_to=event.assignee_email,
+            subject=f"You were assigned to '{event.card_title}'",
+            html_content=html_content,
+            use_queue=True,
+        )
+        logger.info(f"Email queued for card assignment: {event.assignee_email}")
 
     elif isinstance(event, WelcomeEmailSentEvent):
         html_content = render_email_template(
@@ -199,3 +240,4 @@ def handle_email(event: NotifiableEvent) -> None:
             use_queue=True,
         )
         logger.info(f"Email queued for welcome: {event.user_email}")
+

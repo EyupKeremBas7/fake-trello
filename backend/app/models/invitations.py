@@ -48,6 +48,7 @@ class WorkspaceInvitation(WorkspaceInvitationBase, table=True):
     workspace_id: uuid.UUID = Field(foreign_key="workspace.id", ondelete="CASCADE", index=True)
     inviter_id: uuid.UUID = Field(foreign_key="user.id", ondelete="CASCADE")
     invitee_id: uuid.UUID = Field(foreign_key="user.id", ondelete="CASCADE", index=True)
+    invitee_email: str = Field(max_length=255)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     responded_at: datetime | None = Field(default=None)
     expires_at: datetime | None = Field(default=None)
